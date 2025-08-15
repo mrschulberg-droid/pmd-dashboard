@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard Lite</title>
+  <script>window.tailwind={config:{darkMode:'class'}};</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{--ring:#e2e8f0}
+    .card{background:#fff;border-radius:.75rem;box-shadow:0 1px 2px rgb(15 23 42/.06),0 1px 3px rgb(15 23 42/.05)}
+    .ring-soft{box-shadow:0 0 0 1px var(--ring) inset}
+    .notification{position:fixed;top:16px;right:16px;z-index:50;padding:10px 14px;border-radius:10px;color:white;font-weight:600;transform:translateX(120%);transition:transform .25s}
+    .notification.show{transform:translateX(0)}
+    .handle{cursor:grab;user-select:none}
+    .drag-over{outline:2px dashed #6366f1;outline-offset:-2px}
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.5);z-index:40}
+    .modal.show{display:flex}
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+  <header class="bg-gradient-to-r from-indigo-600 to-violet-600 text-white">
+    <div class="max-w-6xl mx-auto px-5 py-5 flex items-center justify-between">
+      <h1 class="text-2xl md:text-3xl font-bold">Project Master — Lite</h1>
+      <button id="theme-toggle" class="px-3 py-2 rounded-lg bg-white/20 hover:bg-white/30">🌙/☀️</button>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-5 py-6 space-y-6">
+    <!-- Stats -->
+    <section>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="card ring-soft p-3"><div class="text-xs text-slate-600">Projects</div><div id="s-projects" class="text-2xl font-bold">0</div></div>
+        <div class="card ring-soft p-3"><div class="text-xs text-slate-600">Events (7d)</div><div id="s-events" class="text-2xl font-bold">0</div></div>
+        <div class="card ring-soft p-3"><div class="text-xs text-slate-600">Completed</div><div id="s-done" class="text-2xl font-bold">0</div></div>
+        <div class="card ring-soft p-3"><div class="text-xs text-slate-600">High Pri.</div><div id="s-high" class="text-2xl font-bold">0</div></div>
+      </div>
+    </section>
+
+    <!-- Controls + Saved Views + CSV -->
+    <section class="card ring-soft p-4">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3 items-end">
+        <label class="block"><span class="text-sm">Priority</span>
+          <select id="f-pri" class="mt-1 w-full rounded-md border-slate-300 focus:ring-2 focus:ring-indigo-500"><option value="">All</option><option>high</option><option>medium</option><option>low</option></select>
+        </label>
+        <label class="block"><span class="text-sm">Timeline</span>
+          <select id="f-time" class="mt-1 w-full rounded-md border-slate-300 focus:ring-2 focus:ring-indigo-500"><option value="">All</option><option>immediate</option><option>week</option><option>month</option><option>q3</option><option>q4</option></select>
+        </label>
+        <label class="block"><span class="text-sm">Sort</span>
+          <select id="f-sort" class="mt-1 w-full rounded-md border-slate-300 focus:ring-2 focus:ring-indigo-500"><option value="priority">Priority</option><option value="deadline">Deadline</option><option value="status">Status</option><option value="alpha">A→Z</option></select>
+        </label>
+        <label class="block md:col-span-2"><span class="text-sm">Search</span>
+          <input id="f-q" placeholder="Find…" class="mt-1 w-full rounded-md border-slate-300 focus:ring-2 focus:ring-indigo-500"/>
+        </label>
+      </div>
+      <div class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+        <div class="flex gap-2 items-end">
+          <input id="view-name" placeholder="Save view as…" class="w-full rounded-md border-slate-300 focus:ring-2 focus:ring-indigo-500"/>
+          <button id="view-save" class="px-3 py-2 rounded-lg bg-indigo-600 text-white">Save</button>
+        </div>
+        <div class="flex gap-2 items-end">
+          <select id="view-list" class="w-full rounded-md border-slate-300 focus:ring-2 focus:ring-indigo-500"></select>
+          <button id="view-load" class="px-3 py-2 rounded-lg bg-slate-100">Load</button>
+          <button id="view-del" class="px-3 py-2 rounded-lg bg-rose-600 text-white">Delete</button>
+        </div>
+        <div class="flex gap-2 items-end">
+          <input id="csv-file" type="file" accept=".csv" class="w-full rounded-md border-slate-300"/>
+          <button id="csv-import" class="px-3 py-2 rounded-lg bg-emerald-600 text-white">Import</button>
+          <button id="csv-template" class="px-3 py-2 rounded-lg bg-slate-100">Template</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Strategic -->
+    <section class="card ring-soft p-4">
+      <div class="flex items-center justify-between"><h2 class="font-semibold">Strategic</h2><span id="c-strat" class="text-xs text-slate-600"></span></div>
+      <div class="mt-3 overflow-x-auto">
+        <table class="min-w-full text-sm"><thead class="text-left text-slate-500"><tr><th class="px-2 w-6"></th><th class="px-2">Project</th><th class="px-2">Status</th><th class="px-2">Progress</th><th class="px-2">Next</th></tr></thead><tbody id="t-strat"></tbody></table>
+      </div>
+    </section>
+
+    <!-- Clients -->
+    <section class="card ring-soft p-4">
+      <div class="flex items-center justify-between"><h2 class="font-semibold">Clients</h2><span id="c-client" class="text-xs text-slate-600"></span></div>
+      <div class="mt-3 overflow-x-auto">
+        <table class="min-w-full text-sm"><thead class="text-left text-slate-500"><tr><th class="px-2 w-6"></th><th class="px-2">Client</th><th class="px-2">Type</th><th class="px-2">Status</th><th class="px-2">Progress</th><th class="px-2">Next</th></tr></thead><tbody id="t-client"></tbody></table>
+      </div>
+      <div class="mt-4 card ring-soft p-4">
+        <h3 class="font-medium">Pilot Pack</h3>
+        <div class="mt-2 flex flex-wrap gap-2 items-end">
+          <select id="pilot-select" class="rounded-md border-slate-300"></select>
+          <button id="pilot-gen" class="px-3 py-2 rounded-lg bg-indigo-600 text-white">Generate</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Internal -->
+    <section class="card ring-soft p-4">
+      <div class="flex items-center justify-between"><h2 class="font-semibold">Internal Tasks</h2><span id="c-internal" class="text-xs text-slate-600"></span></div>
+      <ul id="list-internal" class="mt-3 space-y-2"></ul>
+    </section>
+  </main>
+
+  <!-- Toast + Modal -->
+  <div id="toast" class="notification bg-slate-900"></div>
+  <div id="modal" class="modal"><div class="card max-w-2xl w-[48rem] p-4"><div class="flex items-center justify-between"><h3 class="font-semibold">Pilot Pack</h3><button id="modal-x" class="px-3 py-1 rounded bg-slate-100">✕</button></div><textarea id="modal-text" class="mt-2 w-full h-64 rounded-md border-slate-300"></textarea><div class="mt-2 text-right"><button id="modal-copy" class="px-3 py-2 rounded-lg bg-emerald-600 text-white">Copy</button></div></div></div>
+
+  <script>
+    // ---------- Helpers ----------
+    const $=s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+    const show=(m,t='default')=>{const el=$('#toast'); el.textContent=m; el.className=\`notification \${t==='ok'?'bg-emerald-600':t==='err'?'bg-rose-600':'bg-slate-900'} show\`; setTimeout(()=>el.classList.remove('show'),1600)};
+    const P={high:3,medium:2,low:1}, S={'In Progress':3,'Scheduling':2,'Pending':2,'Immediate':2,'Completed':1,'Paused':0};
+    const days=(d)=>{try{if(d.startsWith('Today'))return 0; if(d.startsWith('Tomorrow'))return 1; if(/\d{4}-\d{2}-\d{2}/.test(d)){const x=new Date(d),n=new Date();return Math.ceil((x-n)/86400000)}}catch(_){ }return 999};
+    const pill=s=>{let c='bg-blue-100 text-blue-700'; if(/Pending/i.test(s))c='bg-amber-100 text-amber-700'; if(/Completed|Done/i.test(s))c='bg-emerald-100 text-emerald-700'; if(/Immediate|Urgent/i.test(s))c='bg-rose-100 text-rose-700'; if(/Paused/i.test(s))c='bg-slate-100 text-slate-700'; return \`<span class='inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium \${c}'>\${s}</span>\`};
+    const tag=p=>{const m={high:'bg-rose-100 text-rose-700',medium:'bg-amber-100 text-amber-700',low:'bg-blue-100 text-blue-700'}; return \`<span class='inline-flex items-center px-2 py-0.5 rounded text-xs font-medium \${m[p]||'bg-slate-100 text-slate-600'}'>\${p.toUpperCase()}</span>\`};
+
+    // ---------- Data (tiny seed; import CSV for full list) ----------
+    let data={completed:0, activity:[],
+      strategic:[{id:1,name:'Brand Adoption TF',priority:'high',status:'In Progress',progress:55,timeline:'month',nextSteps:['Finalize recipes','Publish hub']},{id:2,name:'Apps Event Content',priority:'medium',status:'In Progress',progress:40,timeline:'week',nextSteps:['Condense talk']}],
+      clients:[{id:1,name:'eToro',type:'Fintech',priority:'high',status:'Immediate',progress:20,timeline:'immediate',nextSteps:['Capture insights','CMO ask']},{id:2,name:'Lemonade',type:'Insurtech',priority:'high',status:'Follow‑up',progress:25,timeline:'month',nextSteps:['Pilot for Q1’26']}],
+      meetings:[{id:1,date:'2025-08-15',item:'Lemonade follow-up',action:'Pilot flow',status:'Scheduling',timeline:'week',priority:'high'}],
+      internal:[{id:1,task:'Prepare Apps talk',priority:'high',completed:false},{id:2,task:'Build CPS tracker',priority:'medium',completed:true}],
+      immediateFocus:[{id:1,name:'Plus500',description:'Schedule brand session',timeline:'48h',progress:20,priority:'high'}]
+    };
+
+    const save=()=>localStorage.setItem('pmd-lite',JSON.stringify(data));
+    const load=()=>{try{const r=localStorage.getItem('pmd-lite'); if(r) data=JSON.parse(r)}catch{}}
+
+    // ---------- Renderers ----------
+    function renderStrat(){const tb=$('#t-strat'); tb.innerHTML=''; filt(data.strategic).forEach(p=>{const tr=document.createElement('tr'); tr.className='border-t border-slate-100'; tr.dataset.id=p.id; tr.draggable=true; tr.innerHTML=\`<td class='px-2 handle'>⋮⋮</td><td class='px-2'><div class='font-medium'>\${p.name}</div><div class='mt-1'>\${tag(p.priority)}</div></td><td class='px-2'>\${pill(p.status)}</td><td class='px-2'><div class='h-2 w-36 bg-slate-200 rounded-full overflow-hidden'><div class='h-2 \${p.progress>=75?'bg-emerald-600':p.progress>=50?'bg-blue-600':p.progress>=25?'bg-amber-500':'bg-rose-600'}' style='width:\${p.progress}%'></div></div></td><td class='px-2'><ul class='list-disc ml-4'>\${p.nextSteps.map(s=>\`<li>\${s}</li>\`).join('')}</ul></td>\`; tb.appendChild(tr)}); $('#c-strat').textContent=\`\${filt(data.strategic).length} shown\`; dnd('#t-strat','strategic')}
+    function renderClients(){const tb=$('#t-client'); tb.innerHTML=''; filt(data.clients).forEach(c=>{const tr=document.createElement('tr'); tr.className='border-t border-slate-100'; tr.dataset.id=c.id; tr.draggable=true; tr.innerHTML=\`<td class='px-2 handle'>⋮⋮</td><td class='px-2'><div class='font-medium'>\${c.name}</div><div class='mt-1'>\${tag(c.priority)}</div></td><td class='px-2'>\${c.type}</td><td class='px-2'>\${pill(c.status)}</td><td class='px-2'><div class='h-2 w-36 bg-slate-200 rounded-full overflow-hidden'><div class='h-2 \${c.progress>=75?'bg-emerald-600':c.progress>=50?'bg-blue-600':c.progress>=25?'bg-amber-500':'bg-rose-600'}' style='width:\${c.progress}%'></div></div></td><td class='px-2'><ul class='list-disc ml-4'>\${c.nextSteps.map(s=>\`<li>\${s}</li>\`).join('')}</ul></td>\`; tb.appendChild(tr)}); $('#c-client').textContent=\`\${filt(data.clients).length} shown\`; dnd('#t-client','clients'); selPilot()}
+    function renderInternal(){const ul=$('#list-internal'); ul.innerHTML=''; filt(data.internal).forEach(t=>{const li=document.createElement('li'); li.className='flex items-center justify-between gap-3 border border-slate-200 rounded-lg p-3'; li.dataset.id=t.id; li.draggable=true; li.innerHTML=\`<div class='flex items-center gap-3'><span class='handle'>⋮⋮</span><input type='checkbox' \${t.completed?'checked':''} class='task-check h-4 w-4'><span class='\${t.completed?'line-through opacity-60':''}'>\${t.task}</span></div><div>\${tag(t.priority)}</div>\`; ul.appendChild(li)}); $('#c-internal').textContent=\`\${filt(data.internal).length} shown\`; dnd('#list-internal','internal')}
+    function renderStats(){ $('#s-projects').textContent=data.strategic.length+data.clients.length; $('#s-events').textContent=data.meetings.filter(m=>days(m.date)<=7).length; $('#s-done').textContent=data.completed||0; $('#s-high').textContent=[...data.strategic,...data.clients,...data.meetings,...data.internal,...data.immediateFocus].filter(x=>x.priority==='high').length }
+    function renderAll(){ sortAll(); renderStrat(); renderClients(); renderInternal(); renderStats(); }
+
+    // ---------- Filters/Sorting ----------
+    const filt=list=>{const p=$('#f-pri').value,t=$('#f-time').value,q=($('#f-q').value||'').toLowerCase();return list.filter(x=>{const pr=!p||x.priority===p, tl=!t||x.timeline===t, n=(x.name||x.task||x.item||'').toLowerCase(), d=(x.description||x.type||x.action||(x.nextSteps||[]).join(' ')).toLowerCase(); return pr&&tl&&(!q||n.includes(q)||d.includes(q))})}
+    function sortAll(){ const s=$('#f-sort').value; const byP=(a,b)=>(P[b.priority]||0)-(P[a.priority]||0); const byA=(a,b)=>(a.name||a.task||a.item).localeCompare(b.name||b.task||b.item); const byS=(a,b)=> (S[a.status||'']||0) < (S[b.status||'']||0) ? 1:-1; const byD=(a,b)=> days(a.date||'2099-12-31')-days(b.date||'2099-12-31'); const sort=(arr)=>{if(s==='priority')arr.sort(byP); else if(s==='alpha')arr.sort(byA); else if(s==='status')arr.sort(byS); else if(s==='deadline')arr.sort(byD)}; sort(data.strategic); sort(data.clients); sort(data.meetings); data.internal.sort(byP) }
+
+    // ---------- Views ----------
+    const views=()=>{try{return JSON.parse(localStorage.getItem('pmd-views')||'{}')}catch{return{}}}
+    function viewsFill(){ const v=views(), sel=$('#view-list'); sel.innerHTML='<option value="">Saved views…</option>'+Object.keys(v).map(n=>`<option>${n}</option>`).join('') }
+    function viewSave(){ const name=($('#view-name').value||'').trim(); if(!name) return show('Name your view','err'); const v=views(); v[name]={p:$('#f-pri').value,t:$('#f-time').value,s:$('#f-sort').value,q:$('#f-q').value}; localStorage.setItem('pmd-views',JSON.stringify(v)); viewsFill(); show('View saved','ok') }
+    function viewLoad(){ const n=$('#view-list').value, v=views()[n]; if(!n||!v) return; $('#f-pri').value=v.p; $('#f-time').value=v.t; $('#f-sort').value=v.s; $('#f-q').value=v.q; renderAll(); show('Loaded','ok') }
+    function viewDel(){ const n=$('#view-list').value; if(!n) return; const v=views(); delete v[n]; localStorage.setItem('pmd-views',JSON.stringify(v)); viewsFill(); show('Deleted') }
+
+    // ---------- CSV ----------
+    const csvHead=['name','type','priority','status','progress','timeline','nextSteps'];
+    function csvTemplate(){ const rows=[csvHead.join(','),'Lemonade,Insurtech,high,Follow-up,25,month,"Pilot Q1’26|Confirm KPIs"','Wonderbly,E-com,medium,Paused,15,month,"Resync|Plan Q4"'].join('\n'); const blob=new Blob([rows],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='clients_template.csv'; a.click(); URL.revokeObjectURL(url) }
+    function parseCSV(text){ const lines=text.split(/\r?\n/).filter(Boolean); const header=lines.shift().split(','); const out=[]; for(const line of lines){ const fields=[]; let cur='',q=false; for(let i=0;i<line.length;i++){const ch=line[i]; if(ch==='"'){ if(q&&line[i+1]==='"'){cur+='"';i++;} else q=!q;} else if(ch===','&&!q){fields.push(cur);cur='';} else cur+=ch;} fields.push(cur); const o={}; header.forEach((h,i)=>o[h]=(fields[i]||'').trim()); out.push(o)} return out }
+    function importCSV(){ const f=$('#csv-file').files[0]; if(!f) return show('Choose a CSV','err'); const r=new FileReader(); r.onload=()=>{ try{ const rows=parseCSV(r.result); let maxId=Math.max(0,...data.clients.map(c=>c.id)); rows.forEach(row=>{ if(!row.name) return; data.clients.push({id:++maxId,name:row.name,type:row.type||'',priority:(row.priority||'medium').toLowerCase(),status:row.status||'Pending',progress:Math.max(0,Math.min(100,parseInt(row.progress||'0')||0)),timeline:row.timeline||'month',nextSteps:(row.nextSteps||'').split('|').filter(Boolean)}); }); save(); renderClients(); renderStats(); show('Imported','ok') }catch(e){ console.error(e); show('Import failed','err') } }; r.readAsText(f) }
+
+    // ---------- Pilot Pack ----------
+    function selPilot(){ const sel=$('#pilot-select'); sel.innerHTML=data.clients.map(c=>`<option value='${c.id}'>${c.name}</option>`).join('') }
+    function pilotText(c){ return `CLIENT: ${c.name}
+
+1) OBJECTIVE
+• Build distinctive mental availability.
+
+2) CREATIVE SYSTEM
+• Branded Mission + best UGC.
+
+3) MEDIA (TOF→MOF→BOF)
+• TOF: R&F + Top Feed
+• MOF: Video View + Spark
+• BOF: Conversion with continuity
+
+4) MEASUREMENT
+• Unified Lift + creative learnings
+
+5) NEXT STEPS
+${(c.nextSteps||[]).map((s,i)=>`• ${i+1}. ${s}`).join('
+')}
+• Add brief + talent shortlist + measurement plan.` }
+
+    // ---------- DnD ----------
+    function dnd(sel,key){ const box=$(sel); let dragId=null; box.querySelectorAll('[draggable=true]').forEach(row=>{
+      row.addEventListener('dragstart',e=>{dragId=parseInt(row.dataset.id,10); e.dataTransfer.effectAllowed='move'; row.classList.add('opacity-60')});
+      row.addEventListener('dragend',()=>{dragId=null; row.classList.remove('opacity-60'); box.querySelectorAll('.drag-over').forEach(x=>x.classList.remove('drag-over'))});
+      row.addEventListener('dragover',e=>{e.preventDefault(); e.dataTransfer.dropEffect='move'; row.classList.add('drag-over')});
+      row.addEventListener('dragleave',()=>row.classList.remove('drag-over'));
+      row.addEventListener('drop',()=>{row.classList.remove('drag-over'); const list=data[key]; const from=list.findIndex(x=>x.id===dragId); const to=list.findIndex(x=>x.id===parseInt(row.dataset.id,10)); if(from<0||to<0||from===to) return; const [moved]=list.splice(from,1); list.splice(to,0,moved); save(); renderAll()})
+    })}
+
+    // ---------- Theme & Events ----------
+    function initTheme(){ const t=localStorage.getItem('theme')||'light'; if(t==='dark') document.documentElement.classList.add('dark') }
+    function toggleTheme(){ document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark')?'dark':'light') }
+
+    // ---------- Init ----------
+    function bind(){
+      $('#theme-toggle').addEventListener('click', toggleTheme);
+      ['change','input'].forEach(ev=>{ $('#f-pri').addEventListener(ev, renderAll); $('#f-time').addEventListener(ev, renderAll); $('#f-sort').addEventListener(ev, ()=>{renderAll(); show('Sorted')}); $('#f-q').addEventListener(ev, renderAll);});
+      $('#view-save').addEventListener('click', viewSave); $('#view-load').addEventListener('click', viewLoad); $('#view-del').addEventListener('click', viewDel); viewsFill();
+      $('#csv-import').addEventListener('click', importCSV); $('#csv-template').addEventListener('click', csvTemplate);
+      $('#pilot-gen').addEventListener('click', ()=>{ const id=parseInt($('#pilot-select').value,10); const c=data.clients.find(x=>x.id===id); if(!c) return; $('#modal-text').value=pilotText(c); $('#modal').classList.add('show') });
+      $('#modal-x').addEventListener('click', ()=>$('#modal').classList.remove('show'));
+      $('#modal-copy').addEventListener('click', ()=>{ $('#modal-text').select(); document.execCommand('copy'); show('Copied','ok') });
+      document.addEventListener('change',e=>{ if(e.target.classList.contains('task-check')){ const li=e.target.closest('li'); const id=parseInt(li.dataset.id,10); const t=data.internal.find(x=>x.id===id); if(!t) return; t.completed=e.target.checked; data.completed+= e.target.checked?1:-1; save(); renderStats(); show(e.target.checked?'Done':'Reopened') } });
+    }
+
+    function init(){ initTheme(); load(); bind(); renderAll() }
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
