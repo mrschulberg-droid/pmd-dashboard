@@ -856,27 +856,27 @@
             <div class="question-section" data-step="8">
                 <div class="card">
                     <h2><span class="icon">🎬</span> Creative Situation</h2>
-                    <p class="description">What's the client's creative readiness for TikTok?</p>
-                    <div class="radio-cards">
-                        <label class="radio-card">
-                            <input type="radio" name="creative" value="TikTok-first">
-                            <div class="radio-icon">✅</div>
-                            <div class="radio-label">TikTok-First Assets Ready</div>
+                    <p class="description">What's the client's creative readiness for TikTok? (Select all that apply)</p>
+                    <div class="checkbox-group" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
+                        <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
+                            <input type="checkbox" name="creative" value="TikTok-first">
+                            <span style="font-size: 2rem; margin-bottom: 8px;">✅</span>
+                            <span style="font-weight: 600;">TikTok-First Assets Ready</span>
                         </label>
-                        <label class="radio-card">
-                            <input type="radio" name="creative" value="Adaptable">
-                            <div class="radio-icon">🔄</div>
-                            <div class="radio-label">Can Adapt Existing Assets</div>
+                        <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
+                            <input type="checkbox" name="creative" value="Adaptable">
+                            <span style="font-size: 2rem; margin-bottom: 8px;">🔄</span>
+                            <span style="font-weight: 600;">Can Adapt Existing Assets</span>
                         </label>
-                        <label class="radio-card">
-                            <input type="radio" name="creative" value="Needs support">
-                            <div class="radio-icon">🆘</div>
-                            <div class="radio-label">Needs Creative Support</div>
+                        <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
+                            <input type="checkbox" name="creative" value="Needs support">
+                            <span style="font-size: 2rem; margin-bottom: 8px;">🆘</span>
+                            <span style="font-weight: 600;">Needs Creative Support</span>
                         </label>
-                        <label class="radio-card">
-                            <input type="radio" name="creative" value="No assets">
-                            <div class="radio-icon">📭</div>
-                            <div class="radio-label">No Assets Yet</div>
+                        <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
+                            <input type="checkbox" name="creative" value="No assets">
+                            <span style="font-size: 2rem; margin-bottom: 8px;">📭</span>
+                            <span style="font-weight: 600;">No Assets Yet</span>
                         </label>
                     </div>
                     <div class="button-group">
@@ -1286,7 +1286,7 @@
                 sellingPoints: $('textarea[name="selling_points"]').value,
                 pricePoint: $('input[name="price_point"]').value,
                 channels: Array.from($$('input[name="channels"]:checked')).map(i => i.value),
-                creative: $('input[name="creative"]:checked')?.value || 'Needs support',
+                creativeStatus: Array.from($$('input[name="creative"]:checked')).map(i => i.value),
                 measurement: $('input[name="measurement"]:checked')?.value || 'Basic',
                 brandLift: $('input[name="brand_lift"]')?.checked,
                 conversionLift: $('input[name="conversion_lift"]')?.checked,
@@ -1689,7 +1689,8 @@ BIDDING STRATEGY
 
         function generateCreativeSupport() {
             const budget = formData.budget;
-            const creativeStatus = formData.creative;
+            // Handle multiple creative status selections
+            const creativeStatuses = formData.creativeStatus.length > 0 ? formData.creativeStatus : ['Needs support'];
 
             // Use data from JSON file - map to add unlocked status and desc alias
             const creativeOptions = tiktokData.creativeSupport.map(opt => ({
@@ -1699,10 +1700,10 @@ BIDDING STRATEGY
             }));
 
             let html = `<div class="output-content">`;
-            html += `<p><strong>Creative Status:</strong> ${creativeStatus}</p>`;
+            html += `<p><strong>Creative Status:</strong> ${creativeStatuses.join(', ')}</p>`;
             html += `<p><strong>Budget Level:</strong> ${formatBudget(budget)}</p><br>`;
 
-            if (creativeStatus === 'Needs support' || creativeStatus === 'No assets') {
+            if (creativeStatuses.includes('Needs support') || creativeStatuses.includes('No assets')) {
                 html += `
                 <div style="background: rgba(254, 44, 85, 0.1); border: 1px solid var(--tiktok-red); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
                     <strong style="color: var(--tiktok-red);">⚠️ Creative Support Recommended</strong>
