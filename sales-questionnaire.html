@@ -618,38 +618,38 @@
             <!-- Question 3: Main Goal -->
             <div class="question-section" data-step="3">
                 <div class="card">
-                    <h2><span class="icon">🎯</span> Main Goal</h2>
-                    <p class="description">What is the client's primary objective?</p>
-                    <div class="radio-cards">
-                        <label class="radio-card">
-                            <input type="radio" name="goal" value="Awareness">
-                            <div class="radio-icon">📢</div>
-                            <div class="radio-label">Brand Awareness</div>
+                    <h2><span class="icon">🎯</span> Campaign Objectives</h2>
+                    <p class="description">What are the client's objectives? (Select all that apply)</p>
+                    <div class="checkbox-group" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
+                        <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
+                            <input type="checkbox" name="goal" value="Awareness">
+                            <span style="font-size: 2rem; margin-bottom: 8px;">📢</span>
+                            <span style="font-weight: 600;">Brand Awareness</span>
                         </label>
-                        <label class="radio-card">
-                            <input type="radio" name="goal" value="Consideration">
-                            <div class="radio-icon">💭</div>
-                            <div class="radio-label">Consideration</div>
+                        <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
+                            <input type="checkbox" name="goal" value="Consideration">
+                            <span style="font-size: 2rem; margin-bottom: 8px;">💭</span>
+                            <span style="font-weight: 600;">Consideration</span>
                         </label>
-                        <label class="radio-card">
-                            <input type="radio" name="goal" value="Conversions">
-                            <div class="radio-icon">💰</div>
-                            <div class="radio-label">Conversions / Sales</div>
+                        <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
+                            <input type="checkbox" name="goal" value="Conversions">
+                            <span style="font-size: 2rem; margin-bottom: 8px;">💰</span>
+                            <span style="font-weight: 600;">Conversions / Sales</span>
                         </label>
-                        <label class="radio-card">
-                            <input type="radio" name="goal" value="App Installs">
-                            <div class="radio-icon">📱</div>
-                            <div class="radio-label">App Installs</div>
+                        <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
+                            <input type="checkbox" name="goal" value="App Installs">
+                            <span style="font-size: 2rem; margin-bottom: 8px;">📱</span>
+                            <span style="font-weight: 600;">App Installs</span>
                         </label>
-                        <label class="radio-card">
-                            <input type="radio" name="goal" value="Lead Gen">
-                            <div class="radio-icon">📋</div>
-                            <div class="radio-label">Lead Generation</div>
+                        <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
+                            <input type="checkbox" name="goal" value="Lead Gen">
+                            <span style="font-size: 2rem; margin-bottom: 8px;">📋</span>
+                            <span style="font-weight: 600;">Lead Generation</span>
                         </label>
-                        <label class="radio-card">
-                            <input type="radio" name="goal" value="Engagement">
-                            <div class="radio-icon">❤️</div>
-                            <div class="radio-label">Engagement</div>
+                        <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
+                            <input type="checkbox" name="goal" value="Engagement">
+                            <span style="font-size: 2rem; margin-bottom: 8px;">❤️</span>
+                            <span style="font-weight: 600;">Engagement</span>
                         </label>
                     </div>
 
@@ -1262,7 +1262,7 @@
             formData = {
                 market: $('input[name="market"]:checked')?.value || 'US',
                 vertical: $('#vertical').value || 'E-commerce',
-                goal: $('input[name="goal"]:checked')?.value || 'Conversions',
+                goals: Array.from($$('input[name="goal"]:checked')).map(i => i.value),
                 scenarios: Array.from($$('input[name="scenario"]:checked')).map(i => i.value),
                 challenge: $('#challenge').value || 'Reaching younger audiences',
                 challengeContext: $('textarea[name="challenge_context"]').value,
@@ -1320,20 +1320,40 @@
             const scenarioMessages = tiktokData.scenarioMessages;
             const stats = tiktokData.platformStats;
 
+            // Handle multiple goals - default to Conversions if none selected
+            const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
+            const primaryGoal = goals[0]; // First selected is primary
+
             const scenarioContext = formData.scenarios.length > 0
                 ? `\n\nCAMPAIGN CONTEXT: ${formData.scenarios.join(' + ')}`
                 : '';
+
+            // Build goal actions text from multiple goals
+            const goalActionsText = goals.map(g => goalActions[g]).join(', and ');
 
             // Build scenario-specific messaging from JSON
             const scenarioText = formData.scenarios
                 .map(s => scenarioMessages[s] ? ' ' + scenarioMessages[s] : '')
                 .join('');
 
+            // Build expected outcomes based on selected goals
+            const outcomesList = goals.map(g => {
+                if (g === 'Awareness') return 'Significant lift in brand awareness and recall';
+                if (g === 'Conversions') return 'Strong ROAS and conversion performance';
+                if (g === 'App Installs') return 'Efficient app installs with quality users';
+                if (g === 'Lead Gen') return 'High-quality lead generation at scale';
+                if (g === 'Engagement') return 'Increased engagement and community building';
+                if (g === 'Consideration') return 'Improved consideration and brand favorability';
+                return 'Measurable impact on ' + g.toLowerCase();
+            });
+
             const pitch = `
 🎯 PITCH FOR ${formData.clientName.toUpperCase()}${scenarioContext}
 
+CAMPAIGN OBJECTIVES: ${goals.join(' + ')}
+
 THE OPPORTUNITY
-${formData.clientName} is looking to ${goalActions[formData.goal]} in the ${formData.market} market.${scenarioText} As a ${formData.vertical} brand, there's a significant opportunity to leverage TikTok's unique ecosystem to achieve these goals.
+${formData.clientName} is looking to ${goalActionsText} in the ${formData.market} market.${scenarioText} As a ${formData.vertical} brand, there's a significant opportunity to leverage TikTok's unique ecosystem to achieve these goals.
 
 THE CHALLENGE
 ${formData.challenge}: ${challengeSolutions[formData.challenge]}
@@ -1345,7 +1365,7 @@ WHY TIKTOK NOW
 • TikTok drives action: users are ${stats.purchaseLikelihood}
 
 THE SOLUTION
-With a ${formatBudget(formData.budget)} investment from ${formatDate(formData.startDate)} to ${formatDate(formData.endDate)}, we recommend a full-funnel TikTok strategy featuring:
+With a ${formatBudget(formData.budget)} investment from ${formatDate(formData.startDate)} to ${formatDate(formData.endDate)}, we recommend a ${goals.length > 1 ? 'multi-objective' : 'focused'} TikTok strategy featuring:
 
 • ${formData.productName} promoted through native, authentic content
 ${formData.sellingPoints ? `• Highlighting: ${formData.sellingPoints}` : ''}
@@ -1353,7 +1373,7 @@ ${formData.pricePoint ? `• Compelling offer: ${formData.pricePoint}` : ''}
 
 EXPECTED OUTCOMES
 • Incremental reach to ${formData.ages.length > 0 ? formData.ages.join(', ') : '18-34'} audiences
-• ${formData.goal === 'Awareness' ? 'Significant lift in brand awareness and recall' : formData.goal === 'Conversions' ? 'Strong ROAS and conversion performance' : 'Measurable impact on ' + formData.goal.toLowerCase()}
+${outcomesList.map(o => '• ' + o).join('\n')}
 • Authentic connection with the TikTok community
 • Learnings to scale and optimize future campaigns
             `.trim();
@@ -1363,12 +1383,21 @@ EXPECTED OUTCOMES
 
         function generateFunnel() {
             // Use data from JSON file
-            const budgetSplit = tiktokData.budgetSplits;
+            const budgetSplits = tiktokData.budgetSplits;
 
-            const split = budgetSplit[formData.goal] || budgetSplit['Conversions'];
+            // Handle multiple goals - average the splits if multiple selected
+            const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
+            const splits = goals.map(g => budgetSplits[g] || budgetSplits['Conversions']);
+            const split = {
+                upper: Math.round(splits.reduce((sum, s) => sum + s.upper, 0) / splits.length),
+                mid: Math.round(splits.reduce((sum, s) => sum + s.mid, 0) / splits.length),
+                lower: Math.round(splits.reduce((sum, s) => sum + s.lower, 0) / splits.length)
+            };
 
             const funnel = `
 📊 FUNNEL STRATEGY FOR ${formData.clientName.toUpperCase()}
+
+CAMPAIGN OBJECTIVES: ${goals.join(' + ')}
 
 RECOMMENDED BUDGET ALLOCATION
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1391,7 +1420,7 @@ MID FUNNEL - CONSIDERATION (${split.mid}% = ${formatBudget(formData.budget * spl
 
 LOWER FUNNEL - CONVERSION (${split.lower}% = ${formatBudget(formData.budget * split.lower / 100)})
 ┌─────────────────────────────────────────┐
-│ Objective: ${formData.goal}             │
+│ Objectives: ${goals.join(', ')}         │
 │ Target: Retargeting, high-intent        │
 │ Formats: In-Feed, Collection, Dynamic   │
 │ KPIs: CVR, CPA, ROAS                    │
@@ -1489,7 +1518,13 @@ RECOMMENDED STUDIES
 ⬜ Conversion Lift Study - Measure incrementality (min. $100K spend)
 `}
 SUCCESS CRITERIA
-• Primary: ${formData.goal === 'Awareness' ? 'Brand Lift +10pts, Reach 70%+ of target' : formData.goal === 'Conversions' ? 'ROAS 3x+, CPA within target' : 'Hit ' + formData.goal + ' targets'}
+• Primary: ${(formData.goals || ['Conversions']).map(g => {
+    if (g === 'Awareness') return 'Brand Lift +10pts, Reach 70%+ of target';
+    if (g === 'Conversions') return 'ROAS 3x+, CPA within target';
+    if (g === 'App Installs') return 'CPI within target, quality installs';
+    if (g === 'Lead Gen') return 'CPL within target, quality leads';
+    return 'Hit ' + g + ' targets';
+}).join('; ')}
 • Secondary: Strong engagement, positive sentiment
 • Learning: Clear creative and audience insights for future campaigns
             `.trim();
@@ -1506,10 +1541,15 @@ SUCCESS CRITERIA
             // Use data from JSON file
             const adFormats = tiktokData.adFormats;
 
-            const formats = adFormats[formData.goal] || adFormats['Conversions'];
+            // Handle multiple goals - combine ad formats from all selected goals
+            const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
+            const allFormats = [...new Set(goals.flatMap(g => adFormats[g] || adFormats['Conversions']))];
+            const formats = allFormats;
 
             let flightSchedule = `
 📅 MEDIA PLAN FOR ${formData.clientName.toUpperCase()}
+
+CAMPAIGN OBJECTIVES: ${goals.join(' + ')}
 
 CAMPAIGN OVERVIEW
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -1697,13 +1737,17 @@ BIDDING STRATEGY
             });
             html += `</ul>`;
 
-            html += `<h4 style="margin-bottom: 12px;">🎯 ${formData.goal} Optimization Tips</h4>`;
-            html += `<ul class="best-practices-list" style="list-style: none; padding: 0; margin-bottom: 20px;">`;
-            const gPractices = goalPractices[formData.goal] || goalPractices['Conversions'];
-            gPractices.forEach(p => {
-                html += `<li style="padding: 10px 14px; background: var(--tiktok-light-gray); border-radius: 6px; margin-bottom: 8px;">✓ ${p}</li>`;
+            // Handle multiple goals - show best practices for each selected goal
+            const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
+            goals.forEach(goal => {
+                html += `<h4 style="margin-bottom: 12px;">🎯 ${goal} Optimization Tips</h4>`;
+                html += `<ul class="best-practices-list" style="list-style: none; padding: 0; margin-bottom: 20px;">`;
+                const gPractices = goalPractices[goal] || goalPractices['Conversions'];
+                gPractices.forEach(p => {
+                    html += `<li style="padding: 10px 14px; background: var(--tiktok-light-gray); border-radius: 6px; margin-bottom: 8px;">✓ ${p}</li>`;
+                });
+                html += `</ul>`;
             });
-            html += `</ul>`;
 
             html += `<h4 style="margin-bottom: 12px;">💡 Universal TikTok Best Practices</h4>`;
             html += `<ul class="best-practices-list" style="list-style: none; padding: 0;">`;
