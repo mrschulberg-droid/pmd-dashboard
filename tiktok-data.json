@@ -497,7 +497,19 @@
     }
   ],
   "contentPacks": {
-    "Global": {},
+    "Global": {
+      "liftStudies": {
+        "brandLift": {
+          "name": "Brand Lift Study",
+          "minSpend": 150000,
+          "minUniqueReach": 5500000,
+          "notes": [
+            "Ad Recall is mandatory (max 4 questions total).",
+            "Provide campaign IDs + approved questions 5 business days before launch."
+          ]
+        }
+      }
+    },
     "NA": {
       "guardrails": [
         {
@@ -509,7 +521,12 @@
           "severity": "warning",
           "text": "Sponsorship solutions are subject to availability and approval. Do not pitch unconfirmed packages."
         }
-      ]
+      ],
+      "liftStudies": {
+        "brandLift": {
+          "minUniqueReach": 6000000
+        }
+      }
     },
     "EUI": {
       "bestPractices": {
