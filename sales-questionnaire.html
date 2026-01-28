@@ -1131,7 +1131,7 @@
             return merged;
         }
 
-        // Load data from JSON file
+        // Load data from JSON file (stores raw data; normalization happens before output)
         async function loadTikTokData() {
             let rawData;
 
@@ -1151,14 +1151,9 @@
                 rawData = getEmbeddedData();
             }
 
-            // Get selected market region from Step 1 radio buttons (default to 'US')
-            const marketRegion =
-                document.querySelector('input[name="market"]:checked')?.value ||
-                document.querySelector('[data-step="1"] input[name="market"]:checked')?.value ||
-                'US';
-
-            // Normalize data with region-based content packs (if available)
-            tiktokData = normalizeTikTokData(rawData, marketRegion);
+            // Store raw data globally; normalization happens in generateOutput()
+            window.rawTikTokData = rawData;
+            tiktokData = rawData; // Default to raw data for backward compatibility
         }
 
         // Embedded fallback data (copy of key JSON data for offline use)
@@ -1375,6 +1370,10 @@
 
         function generateOutput() {
             collectFormData();
+
+            // Normalize data with selected market region (from Step 1)
+            const marketRegion = formData.market || 'US';
+            tiktokData = normalizeTikTokData(window.rawTikTokData, marketRegion);
 
             // Generate all outputs
             generatePitch();
