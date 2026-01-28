@@ -1077,22 +1077,85 @@
             setDefaultDates();
         });
 
+        /**
+         * Normalizes TikTok data with optional region-based content packs.
+         * If contentPacks exists, merges: base + Global + region-specific pack.
+         * Backward compatible: returns raw unchanged if no contentPacks.
+         */
+        function normalizeTikTokData(raw, marketRegion) {
+            // Backward compatible: if no contentPacks, return as-is
+            if (!raw.contentPacks) {
+                return raw;
+            }
+
+            // Map market regions to content pack keys
+            const packKeyMap = {
+                'US': 'NA',
+                'UK': 'EUI',
+                'Germany': 'EUI',
+                'France': 'EUI',
+                'Spain': 'EUI',
+                'Italy': 'EUI',
+                'LATAM': 'LATAM',
+                'APAC': 'APAC'
+            };
+
+            // Determine pack key, fallback to Global
+            const packKey = packKeyMap[marketRegion] || 'Global';
+
+            // Deep merge helper (nested objects merge, arrays/primitives override)
+            const deepMerge = (target, source) => {
+                if (!source) return target;
+                const result = { ...target };
+                for (const key in source) {
+                    if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
+                        result[key] = deepMerge(result[key] || {}, source[key]);
+                    } else {
+                        result[key] = source[key];
+                    }
+                }
+                return result;
+            };
+
+            // Start with base data (exclude contentPacks from merge)
+            const { contentPacks, ...baseData } = raw;
+
+            // Merge: base + Global + region-specific pack
+            let merged = deepMerge(baseData, contentPacks.Global || {});
+            merged = deepMerge(merged, contentPacks[packKey] || {});
+
+            // Store active pack name for debugging/display
+            merged._activePack = packKey;
+
+            console.log(`Content pack activated: ${packKey}`);
+            return merged;
+        }
+
         // Load data from JSON file
         async function loadTikTokData() {
+            let rawData;
+
             try {
                 // Try to load from JSON file (works when hosted on a server)
                 const response = await fetch('tiktok-data.json');
                 if (response.ok) {
-                    tiktokData = await response.json();
+                    rawData = await response.json();
                     console.log('TikTok data loaded from JSON file');
-                    return;
                 }
             } catch (e) {
                 console.log('Could not load JSON file, using embedded data');
             }
 
             // Fallback: use embedded data (for local file:// access)
-            tiktokData = getEmbeddedData();
+            if (!rawData) {
+                rawData = getEmbeddedData();
+            }
+
+            // Get selected market region from Step 1 (default to 'US')
+            const marketRegion = $('input[name="market"]:checked')?.value || 'US';
+
+            // Normalize data with region-based content packs (if available)
+            tiktokData = normalizeTikTokData(rawData, marketRegion);
         }
 
         // Embedded fallback data (copy of key JSON data for offline use)
