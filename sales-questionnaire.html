@@ -1561,10 +1561,13 @@ Ongoing: Scale
                 output.push('✅ Standard events configured');
             }
 
-            // Add recommendations for non-Advanced
+            // Add recommendations for non-Advanced (filter out lift language for Basic)
             if (level !== 'Advanced' && recsData[level]) {
                 recsData[level].split('. ').forEach(rec => {
-                    if (rec.trim()) output.push(`⬜ ${rec.trim()}`);
+                    const trimmed = rec.trim();
+                    // Skip lift study recommendations for Basic
+                    if (level === 'Basic' && /lift|survey/i.test(trimmed)) return;
+                    if (trimmed) output.push(`⬜ ${trimmed}`);
                 });
             }
 
@@ -1627,38 +1630,42 @@ Ongoing: Scale
                 output.push('• Post-campaign: Wrap report');
             }
 
-            // Lift Studies - recommend if Advanced + budget qualifies
-            const brandLiftMin = liftData.brandLift?.minSpend || 50000;
-            const convLiftMin = liftData.conversionLift?.minSpend || 100000;
-            const qualifiesBrandLift = level === 'Advanced' && budget >= brandLiftMin;
-            const qualifiesConvLift = level === 'Advanced' && budget >= convLiftMin;
+            // Lift Studies - only for Advanced + budget qualifies (never for Basic)
+            if (level === 'Advanced') {
+                const brandLiftMin = liftData.brandLift?.minSpend || 50000;
+                const convLiftMin = liftData.conversionLift?.minSpend || 100000;
+                const qualifiesBrandLift = budget >= brandLiftMin;
+                const qualifiesConvLift = budget >= convLiftMin;
 
-            if (qualifiesBrandLift || qualifiesConvLift) {
-                output.push('\nRECOMMENDED LIFT STUDIES');
-                if (qualifiesBrandLift && liftData.brandLift) {
-                    output.push(`✅ ${liftData.brandLift.name} - ${liftData.brandLift.description}`);
-                    output.push(`   Budget qualifies (min: ${formatBudget(brandLiftMin)})`);
-                }
-                if (qualifiesConvLift && liftData.conversionLift) {
-                    output.push(`✅ ${liftData.conversionLift.name} - ${liftData.conversionLift.description}`);
-                    output.push(`   Budget qualifies (min: ${formatBudget(convLiftMin)})`);
-                }
-            } else if (level !== 'Basic') {
-                output.push('\nAVAILABLE LIFT STUDIES');
-                if (liftData.brandLift) {
-                    const status = budget >= brandLiftMin ? '✅' : '⬜';
-                    output.push(`${status} ${liftData.brandLift.name} (min: ${formatBudget(brandLiftMin)})`);
-                }
-                if (liftData.conversionLift) {
-                    const status = budget >= convLiftMin ? '✅' : '⬜';
-                    output.push(`${status} ${liftData.conversionLift.name} (min: ${formatBudget(convLiftMin)})`);
+                if (qualifiesBrandLift || qualifiesConvLift) {
+                    output.push('\nRECOMMENDED LIFT STUDIES');
+                    if (qualifiesBrandLift && liftData.brandLift) {
+                        output.push(`✅ ${liftData.brandLift.name} - ${liftData.brandLift.description}`);
+                        output.push(`   Budget qualifies (min: ${formatBudget(brandLiftMin)})`);
+                    }
+                    if (qualifiesConvLift && liftData.conversionLift) {
+                        output.push(`✅ ${liftData.conversionLift.name} - ${liftData.conversionLift.description}`);
+                        output.push(`   Budget qualifies (min: ${formatBudget(convLiftMin)})`);
+                    }
+                } else {
+                    output.push('\nAVAILABLE LIFT STUDIES');
+                    if (liftData.brandLift) {
+                        output.push(`⬜ ${liftData.brandLift.name} (min: ${formatBudget(brandLiftMin)})`);
+                    }
+                    if (liftData.conversionLift) {
+                        output.push(`⬜ ${liftData.conversionLift.name} (min: ${formatBudget(convLiftMin)})`);
+                    }
                 }
             }
 
-            // Success Criteria
+            // Success Criteria (no lift language for Basic)
             output.push('\nSUCCESS CRITERIA');
             const primaryCriteria = goals.map(g => {
-                if (g === 'Awareness') return 'Brand Lift +10pts, Reach 70%+ of target';
+                if (g === 'Awareness') {
+                    return level === 'Basic'
+                        ? 'Reach 70%+ of target, strong VTR'
+                        : 'Brand Lift +10pts, Reach 70%+ of target';
+                }
                 if (g === 'Conversions') return 'ROAS 3x+, CPA within target';
                 if (g === 'App Installs') return 'CPI within target, quality installs';
                 if (g === 'Lead Gen') return 'CPL within target, quality leads';
