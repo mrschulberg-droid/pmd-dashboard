@@ -1,17 +1,15 @@
 {
   "_meta": {
-    "version": "1.0",
-    "lastUpdated": "2025-01-28",
+    "version": "2.0",
+    "lastUpdated": "2026-01-28",
     "description": "TikTok Sales Enablement Data - Edit this file to update content in the questionnaire tool"
   },
-
   "platformStats": {
     "monthlyActiveUsers": "1B+",
     "avgDailyTimeSpent": "95 minutes",
     "purchaseLikelihood": "1.5x more likely to purchase products discovered on platform",
     "genZReach": "60% of users aged 16-24"
   },
-
   "goalActions": {
     "Awareness": "build brand recognition and reach new audiences",
     "Consideration": "drive consideration and engagement with the brand",
@@ -20,7 +18,6 @@
     "Lead Gen": "generate qualified leads efficiently",
     "Engagement": "foster community engagement and brand love"
   },
-
   "challengeSolutions": {
     "Reaching younger audiences": "TikTok is THE platform to reach Gen Z and Millennials, with 60% of users aged 16-24.",
     "Creative fatigue": "TikTok's native, authentic content style combats creative fatigue with fresh, engaging formats.",
@@ -33,7 +30,6 @@
     "Brand perception": "Build authentic connections with audiences through native, creator-driven content.",
     "New market entry": "TikTok's global reach and cultural relevance make it ideal for market expansion."
   },
-
   "scenarioMessages": {
     "New Product Launch": "With a new product launch on the horizon, timing is critical to capture market attention.",
     "Geo Expansion": "As they expand into new geographic markets, reaching new audiences is essential.",
@@ -42,25 +38,76 @@
     "Seasonal Campaign": "Seasonal moments drive peak consumer intent—perfect timing to maximize TikTok's engaged audiences.",
     "Always On": "An always-on presence builds sustained brand awareness and keeps the brand top-of-mind."
   },
-
   "budgetSplits": {
-    "Awareness": { "upper": 50, "mid": 30, "lower": 20 },
-    "Consideration": { "upper": 30, "mid": 45, "lower": 25 },
-    "Conversions": { "upper": 20, "mid": 30, "lower": 50 },
-    "App Installs": { "upper": 25, "mid": 25, "lower": 50 },
-    "Lead Gen": { "upper": 25, "mid": 35, "lower": 40 },
-    "Engagement": { "upper": 35, "mid": 45, "lower": 20 }
+    "Awareness": {
+      "upper": 50,
+      "mid": 30,
+      "lower": 20
+    },
+    "Consideration": {
+      "upper": 30,
+      "mid": 45,
+      "lower": 25
+    },
+    "Conversions": {
+      "upper": 20,
+      "mid": 30,
+      "lower": 50
+    },
+    "App Installs": {
+      "upper": 25,
+      "mid": 25,
+      "lower": 50
+    },
+    "Lead Gen": {
+      "upper": 25,
+      "mid": 35,
+      "lower": 40
+    },
+    "Engagement": {
+      "upper": 35,
+      "mid": 45,
+      "lower": 20
+    }
   },
-
   "adFormats": {
-    "Awareness": ["TopView", "In-Feed Ads", "Branded Hashtag Challenge", "Branded Effect"],
-    "Consideration": ["In-Feed Ads", "Spark Ads", "Interactive Add-ons", "Branded Effect"],
-    "Conversions": ["In-Feed Ads", "Spark Ads", "Collection Ads", "Dynamic Showcase Ads"],
-    "App Installs": ["In-Feed Ads", "Spark Ads", "Playable Ads", "App Install Ads"],
-    "Lead Gen": ["In-Feed Ads", "Lead Gen Ads", "Spark Ads", "Instant Form"],
-    "Engagement": ["In-Feed Ads", "Spark Ads", "Duet/Stitch enabled", "Interactive Add-ons"]
+    "Awareness": [
+      "TopView",
+      "In-Feed Ads",
+      "Branded Hashtag Challenge",
+      "Branded Effect"
+    ],
+    "Consideration": [
+      "In-Feed Ads",
+      "Spark Ads",
+      "Interactive Add-ons",
+      "Branded Effect"
+    ],
+    "Conversions": [
+      "In-Feed Ads",
+      "Spark Ads",
+      "Collection Ads",
+      "Dynamic Showcase Ads"
+    ],
+    "App Installs": [
+      "In-Feed Ads",
+      "Spark Ads",
+      "Playable Ads",
+      "App Install Ads"
+    ],
+    "Lead Gen": [
+      "In-Feed Ads",
+      "Lead Gen Ads",
+      "Spark Ads",
+      "Instant Form"
+    ],
+    "Engagement": [
+      "In-Feed Ads",
+      "Spark Ads",
+      "Duet/Stitch enabled",
+      "Interactive Add-ons"
+    ]
   },
-
   "adFormatDetails": {
     "TopView": {
       "name": "TopView",
@@ -130,7 +177,6 @@
       "bestFor": "Lead collection without leaving TikTok"
     }
   },
-
   "mediaIncentives": [
     {
       "threshold": 25000,
@@ -169,7 +215,6 @@
       "details": "Joint marketing opportunities"
     }
   ],
-
   "creativeSupport": [
     {
       "threshold": 0,
@@ -214,7 +259,6 @@
       "description": "End-to-end creative production support"
     }
   ],
-
   "bestPractices": {
     "universal": [
       "Hook viewers in the first 1-2 seconds with movement, text, or intrigue",
@@ -373,7 +417,6 @@
       ]
     }
   },
-
   "measurementSetup": {
     "Advanced": [
       "Marketing Mix Modeling (MMM) integration",
@@ -394,12 +437,10 @@
       "TikTok Ads Manager reporting"
     ]
   },
-
   "measurementRecommendations": {
     "Intermediate": "Consider: MMM integration for full picture",
     "Basic": "Recommended: Upgrade to CAPI for better matching. Consider: Brand Lift study for awareness measurement"
   },
-
   "liftStudies": {
     "brandLift": {
       "name": "Brand Lift Study",
@@ -412,18 +453,84 @@
       "minSpend": 100000
     }
   },
-
   "kpis": {
-    "upperFunnel": ["Reach", "Frequency", "Video View Rate (VTR)", "Cost per 1000 Impressions (CPM)", "Brand Lift metrics"],
-    "midFunnel": ["Click-Through Rate (CTR)", "Engagement Rate", "Cost per Click (CPC)", "Landing page views"],
-    "lowerFunnel": ["Conversion Rate (CVR)", "Cost per Acquisition (CPA)", "Return on Ad Spend (ROAS)", "Conversion volume"]
+    "upperFunnel": [
+      "Reach",
+      "Frequency",
+      "Video View Rate (VTR)",
+      "Cost per 1000 Impressions (CPM)",
+      "Brand Lift metrics"
+    ],
+    "midFunnel": [
+      "Click-Through Rate (CTR)",
+      "Engagement Rate",
+      "Cost per Click (CPC)",
+      "Landing page views"
+    ],
+    "lowerFunnel": [
+      "Conversion Rate (CVR)",
+      "Cost per Acquisition (CPA)",
+      "Return on Ad Spend (ROAS)",
+      "Conversion volume"
+    ]
   },
-
   "reportingCadence": [
-    { "frequency": "Daily", "focus": "Spend pacing, key metrics monitoring" },
-    { "frequency": "Weekly", "focus": "Performance review, optimization actions" },
-    { "frequency": "Bi-weekly", "focus": "Stakeholder update, strategic adjustments" },
-    { "frequency": "Monthly", "focus": "Full performance report, insights & recommendations" },
-    { "frequency": "Post-campaign", "focus": "Wrap report with learnings & next steps" }
-  ]
+    {
+      "frequency": "Daily",
+      "focus": "Spend pacing, key metrics monitoring"
+    },
+    {
+      "frequency": "Weekly",
+      "focus": "Performance review, optimization actions"
+    },
+    {
+      "frequency": "Bi-weekly",
+      "focus": "Stakeholder update, strategic adjustments"
+    },
+    {
+      "frequency": "Monthly",
+      "focus": "Full performance report, insights & recommendations"
+    },
+    {
+      "frequency": "Post-campaign",
+      "focus": "Wrap report with learnings & next steps"
+    }
+  ],
+  "contentPacks": {
+    "Global": {},
+    "NA": {
+      "guardrails": [
+        {
+          "id": "sponsorship_availability",
+          "appliesTo": [
+            "pitch",
+            "mediaPlan"
+          ],
+          "severity": "warning",
+          "text": "Sponsorship solutions are subject to availability and approval. Do not pitch unconfirmed packages."
+        }
+      ]
+    },
+    "EUI": {
+      "bestPractices": {
+        "universal": [
+          "Hook viewers in the first 1-2 seconds with movement, text, or intrigue",
+          "Create native content that feels organic to TikTok, not like an ad",
+          "Use trending sounds strategically (check Commercial Music Library)",
+          "Keep videos between 9-15 seconds for optimal completion rates",
+          "Include clear CTAs but make them feel natural to the content",
+          "Test 3-5 creative concepts per ad group for variety",
+          "Refresh creative every 7-14 days to combat fatigue",
+          "Use text overlays - 40% of users watch with sound off",
+          "Feature real people over polished productions when possible",
+          "Engage with comments to boost organic visibility",
+          "Plan for at least 3 weeks to drive meaningful impact (avoid flights that are too short).",
+          "Aim for ~2x/week frequency to keep momentum and avoid under-delivery.",
+          "Use at least 3 creatives to maintain freshness and reduce fatigue."
+        ]
+      }
+    },
+    "LATAM": {},
+    "APAC": {}
+  }
 }
