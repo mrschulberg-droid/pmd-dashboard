@@ -1,0 +1,1694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok Sales Enablement Tool</title>
+    <style>
+        :root {
+            --tiktok-red: #fe2c55;
+            --tiktok-blue: #25f4ee;
+            --tiktok-black: #000000;
+            --tiktok-dark: #121212;
+            --tiktok-gray: #1f1f1f;
+            --tiktok-light-gray: #2f2f2f;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --success: #00c853;
+            --warning: #ffc107;
+            --card-bg: #1a1a1a;
+            --border-color: #333;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, var(--tiktok-black) 0%, var(--tiktok-dark) 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, var(--tiktok-red) 0%, #ff6b8a 50%, var(--tiktok-blue) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: transparent;
+            background: linear-gradient(135deg, var(--tiktok-red), var(--tiktok-blue));
+            -webkit-background-clip: text;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            background: var(--tiktok-gray);
+            border-radius: 10px;
+            height: 8px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--tiktok-red), var(--tiktok-blue));
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card h2 .icon {
+            font-size: 1.5rem;
+        }
+
+        .card p.description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+        }
+
+        /* Form Elements */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+        }
+
+        label .required {
+            color: var(--tiktok-red);
+        }
+
+        input[type="text"],
+        input[type="number"],
+        input[type="date"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: var(--tiktok-gray);
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--tiktok-blue);
+            box-shadow: 0 0 0 3px rgba(37, 244, 238, 0.2);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        /* Checkbox Group */
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: var(--tiktok-gray);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .checkbox-item:hover {
+            border-color: var(--tiktok-blue);
+        }
+
+        .checkbox-item.selected {
+            border-color: var(--tiktok-blue);
+            background: rgba(37, 244, 238, 0.1);
+        }
+
+        .checkbox-item input {
+            display: none;
+        }
+
+        /* Radio Cards */
+        .radio-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 12px;
+        }
+
+        .radio-card {
+            padding: 16px;
+            background: var(--tiktok-gray);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .radio-card:hover {
+            border-color: var(--tiktok-blue);
+            transform: translateY(-2px);
+        }
+
+        .radio-card.selected {
+            border-color: var(--tiktok-red);
+            background: rgba(254, 44, 85, 0.1);
+        }
+
+        .radio-card input {
+            display: none;
+        }
+
+        .radio-card .radio-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+
+        .radio-card .radio-label {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--tiktok-red), #ff6b8a);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(254, 44, 85, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--tiktok-gray);
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--tiktok-blue);
+        }
+
+        .btn-generate {
+            background: linear-gradient(135deg, var(--tiktok-blue), #00d4aa);
+            color: var(--tiktok-black);
+            width: 100%;
+            padding: 18px;
+            font-size: 1.2rem;
+        }
+
+        .btn-generate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(37, 244, 238, 0.4);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        /* Hidden sections */
+        .question-section {
+            display: none;
+        }
+
+        .question-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Output Section */
+        #output-section {
+            display: none;
+        }
+
+        #output-section.active {
+            display: block;
+        }
+
+        .output-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+
+        .output-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--tiktok-blue);
+        }
+
+        .output-content {
+            background: var(--tiktok-gray);
+            border-radius: 10px;
+            padding: 20px;
+            white-space: pre-wrap;
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        .output-content ul {
+            margin-left: 20px;
+            margin-top: 10px;
+        }
+
+        .output-content li {
+            margin-bottom: 8px;
+        }
+
+        /* Unlocked/Locked badges */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .status-unlocked {
+            background: rgba(0, 200, 83, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .status-locked {
+            background: rgba(255, 193, 7, 0.2);
+            color: var(--warning);
+            border: 1px solid var(--warning);
+        }
+
+        /* Threshold indicator */
+        .threshold-info {
+            background: var(--tiktok-light-gray);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-top: 12px;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Copy button */
+        .copy-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 8px 12px;
+            background: var(--tiktok-light-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--tiktok-blue);
+            color: var(--tiktok-black);
+        }
+
+        .output-card {
+            position: relative;
+        }
+
+        /* Best practices list */
+        .best-practices-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .best-practices-list li {
+            padding: 12px 16px;
+            background: var(--tiktok-light-gray);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .best-practices-list li::before {
+            content: "✓";
+            color: var(--tiktok-blue);
+            font-weight: bold;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .radio-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+
+            .card, .output-card {
+                background: white;
+                border: 1px solid #ddd;
+            }
+
+            .btn, #questionnaire-section {
+                display: none;
+            }
+
+            #output-section {
+                display: block !important;
+            }
+        }
+
+        /* Tab navigation for outputs */
+        .output-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .output-tab {
+            padding: 10px 16px;
+            background: var(--tiktok-gray);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .output-tab:hover {
+            border-color: var(--tiktok-blue);
+            color: var(--text-primary);
+        }
+
+        .output-tab.active {
+            background: linear-gradient(135deg, var(--tiktok-red), var(--tiktok-blue));
+            border-color: transparent;
+            color: white;
+        }
+
+        .output-panel {
+            display: none;
+        }
+
+        .output-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        /* Action buttons for output */
+        .output-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .output-actions .btn {
+            flex: 1;
+            min-width: 150px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>TikTok Sales Enablement Tool</h1>
+            <p>Generate customized pitches, media plans, and recommendations in seconds</p>
+        </header>
+
+        <!-- Progress -->
+        <div class="progress-container">
+            <div class="progress-bar" id="progress-bar"></div>
+        </div>
+        <div class="progress-text" id="progress-text">Question 1 of 10</div>
+
+        <!-- Questionnaire Section -->
+        <div id="questionnaire-section">
+            <!-- Question 1: Market -->
+            <div class="question-section active" data-step="1">
+                <div class="card">
+                    <h2><span class="icon">🌍</span> Market Region</h2>
+                    <p class="description">Which market is the client operating in?</p>
+                    <div class="radio-cards">
+                        <label class="radio-card">
+                            <input type="radio" name="market" value="US">
+                            <div class="radio-icon">🇺🇸</div>
+                            <div class="radio-label">United States</div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="market" value="EU">
+                            <div class="radio-icon">🇪🇺</div>
+                            <div class="radio-label">Europe</div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="market" value="UK">
+                            <div class="radio-icon">🇬🇧</div>
+                            <div class="radio-label">United Kingdom</div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="market" value="LATAM">
+                            <div class="radio-icon">🌎</div>
+                            <div class="radio-label">LATAM</div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="market" value="APAC">
+                            <div class="radio-icon">🌏</div>
+                            <div class="radio-label">APAC</div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="market" value="MENA">
+                            <div class="radio-icon">🌍</div>
+                            <div class="radio-label">MENA</div>
+                        </label>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 2: Vertical -->
+            <div class="question-section" data-step="2">
+                <div class="card">
+                    <h2><span class="icon">🏢</span> Industry Vertical</h2>
+                    <p class="description">What industry is the client in?</p>
+                    <div class="form-group">
+                        <select name="vertical" id="vertical">
+                            <option value="">Select a vertical...</option>
+                            <option value="E-commerce">E-commerce / Retail</option>
+                            <option value="Gaming">Gaming</option>
+                            <option value="App">App / Mobile</option>
+                            <option value="Finance">Finance / Fintech</option>
+                            <option value="CPG">CPG / FMCG</option>
+                            <option value="Auto">Automotive</option>
+                            <option value="Travel">Travel & Tourism</option>
+                            <option value="Entertainment">Entertainment / Media</option>
+                            <option value="Tech">Technology / SaaS</option>
+                            <option value="Food">Food & Beverage</option>
+                            <option value="Beauty">Beauty & Personal Care</option>
+                            <option value="Fashion">Fashion & Apparel</option>
+                            <option value="Health">Health & Wellness</option>
+                            <option value="Education">Education / EdTech</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 3: Main Goal -->
+            <div class="question-section" data-step="3">
+                <div class="card">
+                    <h2><span class="icon">🎯</span> Main Goal</h2>
+                    <p class="description">What is the client's primary objective?</p>
+                    <div class="radio-cards">
+                        <label class="radio-card">
+                            <input type="radio" name="goal" value="Awareness">
+                            <div class="radio-icon">📢</div>
+                            <div class="radio-label">Brand Awareness</div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="goal" value="Consideration">
+                            <div class="radio-icon">💭</div>
+                            <div class="radio-label">Consideration</div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="goal" value="Conversions">
+                            <div class="radio-icon">💰</div>
+                            <div class="radio-label">Conversions / Sales</div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="goal" value="App Installs">
+                            <div class="radio-icon">📱</div>
+                            <div class="radio-label">App Installs</div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="goal" value="Lead Gen">
+                            <div class="radio-icon">📋</div>
+                            <div class="radio-label">Lead Generation</div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="goal" value="Engagement">
+                            <div class="radio-icon">❤️</div>
+                            <div class="radio-label">Engagement</div>
+                        </label>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 4: Current Challenge -->
+            <div class="question-section" data-step="4">
+                <div class="card">
+                    <h2><span class="icon">⚡</span> Current Challenge</h2>
+                    <p class="description">What's the main challenge the client is facing?</p>
+                    <div class="form-group">
+                        <select name="challenge" id="challenge">
+                            <option value="">Select a challenge...</option>
+                            <option value="Reaching younger audiences">Reaching younger audiences (Gen Z/Millennials)</option>
+                            <option value="Creative fatigue">Creative fatigue on existing channels</option>
+                            <option value="Rising CPMs">Rising CPMs / Decreasing ROAS</option>
+                            <option value="Limited reach">Limited reach on current platforms</option>
+                            <option value="Low engagement">Low engagement rates</option>
+                            <option value="Attribution issues">Attribution / Measurement challenges</option>
+                            <option value="Competition">Increased competition</option>
+                            <option value="Scaling issues">Difficulty scaling campaigns</option>
+                            <option value="Brand perception">Brand perception / Awareness gaps</option>
+                            <option value="New market entry">Entering a new market</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Additional context (optional)</label>
+                        <textarea name="challenge_context" placeholder="Any specific details about their challenge..."></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 5: Target Audience -->
+            <div class="question-section" data-step="5">
+                <div class="card">
+                    <h2><span class="icon">👥</span> Target Audience</h2>
+                    <p class="description">Who is the client trying to reach?</p>
+                    <div class="form-group">
+                        <label>Age Range</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="age" value="13-17">
+                                13-17
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="age" value="18-24">
+                                18-24
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="age" value="25-34">
+                                25-34
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="age" value="35-44">
+                                35-44
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="age" value="45+">
+                                45+
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Audience Description</label>
+                        <textarea name="audience_desc" placeholder="Describe the target audience (interests, behaviors, demographics)..."></textarea>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 6: Product/Offer -->
+            <div class="question-section" data-step="6">
+                <div class="card">
+                    <h2><span class="icon">🛍️</span> Product / Offer Angle</h2>
+                    <p class="description">What product or offer will be promoted?</p>
+                    <div class="form-group">
+                        <label>Product/Service Name <span class="required">*</span></label>
+                        <input type="text" name="product_name" placeholder="e.g., Summer Collection, Mobile App, New Product Line">
+                    </div>
+                    <div class="form-group">
+                        <label>Key Selling Points</label>
+                        <textarea name="selling_points" placeholder="What makes this product/offer unique? Key benefits?"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Price Point / Offer</label>
+                        <input type="text" name="price_point" placeholder="e.g., $49.99, Free trial, 20% off">
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 7: Current Channels -->
+            <div class="question-section" data-step="7">
+                <div class="card">
+                    <h2><span class="icon">📣</span> Current Paid Channels</h2>
+                    <p class="description">Which platforms is the client currently advertising on?</p>
+                    <div class="checkbox-group">
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="channels" value="Meta">
+                            Meta (Facebook/Instagram)
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="channels" value="Google">
+                            Google Ads
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="channels" value="YouTube">
+                            YouTube
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="channels" value="Snapchat">
+                            Snapchat
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="channels" value="Pinterest">
+                            Pinterest
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="channels" value="Twitter">
+                            X (Twitter)
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="channels" value="LinkedIn">
+                            LinkedIn
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="channels" value="Programmatic">
+                            Programmatic / DSP
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" name="channels" value="None">
+                            None / New to paid
+                        </label>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 8: Creative Situation -->
+            <div class="question-section" data-step="8">
+                <div class="card">
+                    <h2><span class="icon">🎬</span> Creative Situation</h2>
+                    <p class="description">What's the client's creative readiness for TikTok?</p>
+                    <div class="radio-cards">
+                        <label class="radio-card">
+                            <input type="radio" name="creative" value="TikTok-first">
+                            <div class="radio-icon">✅</div>
+                            <div class="radio-label">TikTok-First Assets Ready</div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="creative" value="Adaptable">
+                            <div class="radio-icon">🔄</div>
+                            <div class="radio-label">Can Adapt Existing Assets</div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="creative" value="Needs support">
+                            <div class="radio-icon">🆘</div>
+                            <div class="radio-label">Needs Creative Support</div>
+                        </label>
+                        <label class="radio-card">
+                            <input type="radio" name="creative" value="No assets">
+                            <div class="radio-icon">📭</div>
+                            <div class="radio-label">No Assets Yet</div>
+                        </label>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 9: Measurement Constraints -->
+            <div class="question-section" data-step="9">
+                <div class="card">
+                    <h2><span class="icon">📊</span> Measurement Constraints</h2>
+                    <p class="description">What are the measurement limitations or requirements?</p>
+                    <div class="form-group">
+                        <label>Measurement Maturity</label>
+                        <div class="radio-cards">
+                            <label class="radio-card">
+                                <input type="radio" name="measurement" value="Advanced">
+                                <div class="radio-icon">🚀</div>
+                                <div class="radio-label">Advanced (MMM, MTA)</div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="measurement" value="Intermediate">
+                                <div class="radio-icon">📈</div>
+                                <div class="radio-label">Intermediate (Pixels, CAPI)</div>
+                            </label>
+                            <label class="radio-card">
+                                <input type="radio" name="measurement" value="Basic">
+                                <div class="radio-icon">📉</div>
+                                <div class="radio-label">Basic (Platform metrics)</div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Can run Brand Lift Studies?</label>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="brand_lift" value="yes">
+                                Yes, interested in Brand Lift
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="conversion_lift" value="yes">
+                                Yes, interested in Conversion Lift
+                            </label>
+                        </div>
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 10: Budget & Timeline -->
+            <div class="question-section" data-step="10">
+                <div class="card">
+                    <h2><span class="icon">💵</span> Budget & Timeline</h2>
+                    <p class="description">What's the investment level and campaign timeline?</p>
+                    <div class="form-group">
+                        <label>Campaign Budget (USD) <span class="required">*</span></label>
+                        <select name="budget" id="budget">
+                            <option value="">Select budget range...</option>
+                            <option value="10000">$10,000 - $24,999</option>
+                            <option value="25000">$25,000 - $49,999</option>
+                            <option value="50000">$50,000 - $99,999</option>
+                            <option value="100000">$100,000 - $249,999</option>
+                            <option value="250000">$250,000 - $499,999</option>
+                            <option value="500000">$500,000 - $999,999</option>
+                            <option value="1000000">$1,000,000+</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Campaign Start Date</label>
+                        <input type="date" name="start_date" id="start_date">
+                    </div>
+                    <div class="form-group">
+                        <label>Campaign End Date</label>
+                        <input type="date" name="end_date" id="end_date">
+                    </div>
+                    <div class="form-group">
+                        <label>Client Company Name</label>
+                        <input type="text" name="client_name" placeholder="e.g., Acme Corp">
+                    </div>
+                    <div class="button-group">
+                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+                        <button class="btn btn-generate" onclick="generateOutput()">✨ Generate Sales Enablement Pack</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Output Section -->
+        <div id="output-section">
+            <div class="card">
+                <h2><span class="icon">🎉</span> Your Sales Enablement Pack is Ready!</h2>
+                <p class="description">Generated for <strong id="output-client-name">Client</strong></p>
+
+                <div class="output-tabs">
+                    <button class="output-tab active" data-tab="pitch">Pitch</button>
+                    <button class="output-tab" data-tab="funnel">Funnel Plan</button>
+                    <button class="output-tab" data-tab="measurement">Measurement</button>
+                    <button class="output-tab" data-tab="media">Media Plan</button>
+                    <button class="output-tab" data-tab="incentives">Incentives</button>
+                    <button class="output-tab" data-tab="creative">Creative Support</button>
+                    <button class="output-tab" data-tab="bestpractices">Best Practices</button>
+                </div>
+
+                <!-- Pitch Panel -->
+                <div class="output-panel active" id="panel-pitch">
+                    <div class="output-card">
+                        <button class="copy-btn" onclick="copyToClipboard('pitch-content')">📋 Copy</button>
+                        <h3>📝 Customized Pitch</h3>
+                        <div class="output-content" id="pitch-content"></div>
+                    </div>
+                </div>
+
+                <!-- Funnel Panel -->
+                <div class="output-panel" id="panel-funnel">
+                    <div class="output-card">
+                        <button class="copy-btn" onclick="copyToClipboard('funnel-content')">📋 Copy</button>
+                        <h3>📊 Funnel Strategy</h3>
+                        <div class="output-content" id="funnel-content"></div>
+                    </div>
+                </div>
+
+                <!-- Measurement Panel -->
+                <div class="output-panel" id="panel-measurement">
+                    <div class="output-card">
+                        <button class="copy-btn" onclick="copyToClipboard('measurement-content')">📋 Copy</button>
+                        <h3>📈 Measurement Plan</h3>
+                        <div class="output-content" id="measurement-content"></div>
+                    </div>
+                </div>
+
+                <!-- Media Plan Panel -->
+                <div class="output-panel" id="panel-media">
+                    <div class="output-card">
+                        <button class="copy-btn" onclick="copyToClipboard('media-content')">📋 Copy</button>
+                        <h3>📅 Media Plan</h3>
+                        <div class="output-content" id="media-content"></div>
+                    </div>
+                </div>
+
+                <!-- Incentives Panel -->
+                <div class="output-panel" id="panel-incentives">
+                    <div class="output-card">
+                        <h3>🎁 Media Incentives</h3>
+                        <div id="incentives-content"></div>
+                    </div>
+                </div>
+
+                <!-- Creative Support Panel -->
+                <div class="output-panel" id="panel-creative">
+                    <div class="output-card">
+                        <h3>🎨 Creative Support & Add-ons</h3>
+                        <div id="creative-content"></div>
+                    </div>
+                </div>
+
+                <!-- Best Practices Panel -->
+                <div class="output-panel" id="panel-bestpractices">
+                    <div class="output-card">
+                        <h3>💡 Best Practices</h3>
+                        <div id="bestpractices-content"></div>
+                    </div>
+                </div>
+
+                <div class="output-actions">
+                    <button class="btn btn-secondary" onclick="copyAll()">📋 Copy All</button>
+                    <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+                    <button class="btn btn-primary" onclick="startOver()">🔄 Start New</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State
+        let currentStep = 1;
+        const totalSteps = 10;
+        let formData = {};
+
+        // DOM helpers
+        const $ = (sel) => document.querySelector(sel);
+        const $$ = (sel) => document.querySelectorAll(sel);
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateProgress();
+            setupRadioCards();
+            setupCheckboxItems();
+            setupOutputTabs();
+            setDefaultDates();
+        });
+
+        function setDefaultDates() {
+            const today = new Date();
+            const startDate = new Date(today);
+            startDate.setDate(today.getDate() + 14); // 2 weeks from now
+            const endDate = new Date(startDate);
+            endDate.setMonth(startDate.getMonth() + 1); // 1 month campaign
+
+            $('#start_date').value = startDate.toISOString().split('T')[0];
+            $('#end_date').value = endDate.toISOString().split('T')[0];
+        }
+
+        function setupRadioCards() {
+            $$('.radio-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const input = card.querySelector('input');
+                    const name = input.name;
+                    $$(`input[name="${name}"]`).forEach(i => {
+                        i.closest('.radio-card').classList.remove('selected');
+                    });
+                    card.classList.add('selected');
+                    input.checked = true;
+                });
+            });
+        }
+
+        function setupCheckboxItems() {
+            $$('.checkbox-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    if (e.target.tagName !== 'INPUT') {
+                        const input = item.querySelector('input');
+                        input.checked = !input.checked;
+                    }
+                    item.classList.toggle('selected', item.querySelector('input').checked);
+                });
+            });
+        }
+
+        function setupOutputTabs() {
+            $$('.output-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    $$('.output-tab').forEach(t => t.classList.remove('active'));
+                    $$('.output-panel').forEach(p => p.classList.remove('active'));
+                    tab.classList.add('active');
+                    $(`#panel-${tab.dataset.tab}`).classList.add('active');
+                });
+            });
+        }
+
+        function updateProgress() {
+            const progress = (currentStep / totalSteps) * 100;
+            $('#progress-bar').style.width = `${progress}%`;
+            $('#progress-text').textContent = `Question ${currentStep} of ${totalSteps}`;
+        }
+
+        function nextStep() {
+            if (currentStep < totalSteps) {
+                $(`.question-section[data-step="${currentStep}"]`).classList.remove('active');
+                currentStep++;
+                $(`.question-section[data-step="${currentStep}"]`).classList.add('active');
+                updateProgress();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function prevStep() {
+            if (currentStep > 1) {
+                $(`.question-section[data-step="${currentStep}"]`).classList.remove('active');
+                currentStep--;
+                $(`.question-section[data-step="${currentStep}"]`).classList.add('active');
+                updateProgress();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        function collectFormData() {
+            formData = {
+                market: $('input[name="market"]:checked')?.value || 'US',
+                vertical: $('#vertical').value || 'E-commerce',
+                goal: $('input[name="goal"]:checked')?.value || 'Conversions',
+                challenge: $('#challenge').value || 'Reaching younger audiences',
+                challengeContext: $('textarea[name="challenge_context"]').value,
+                ages: Array.from($$('input[name="age"]:checked')).map(i => i.value),
+                audienceDesc: $('textarea[name="audience_desc"]').value,
+                productName: $('input[name="product_name"]').value || 'Product',
+                sellingPoints: $('textarea[name="selling_points"]').value,
+                pricePoint: $('input[name="price_point"]').value,
+                channels: Array.from($$('input[name="channels"]:checked')).map(i => i.value),
+                creative: $('input[name="creative"]:checked')?.value || 'Needs support',
+                measurement: $('input[name="measurement"]:checked')?.value || 'Basic',
+                brandLift: $('input[name="brand_lift"]')?.checked,
+                conversionLift: $('input[name="conversion_lift"]')?.checked,
+                budget: parseInt($('#budget').value) || 50000,
+                startDate: $('#start_date').value,
+                endDate: $('#end_date').value,
+                clientName: $('input[name="client_name"]').value || 'Client'
+            };
+            return formData;
+        }
+
+        function formatBudget(amount) {
+            return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr) return 'TBD';
+            return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function generateOutput() {
+            collectFormData();
+
+            // Generate all outputs
+            generatePitch();
+            generateFunnel();
+            generateMeasurement();
+            generateMediaPlan();
+            generateIncentives();
+            generateCreativeSupport();
+            generateBestPractices();
+
+            // Show output section
+            $('#questionnaire-section').style.display = 'none';
+            $('#output-section').classList.add('active');
+            $('#output-client-name').textContent = formData.clientName;
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function generatePitch() {
+            const goalActions = {
+                'Awareness': 'build brand recognition and reach new audiences',
+                'Consideration': 'drive consideration and engagement with the brand',
+                'Conversions': 'drive measurable conversions and sales',
+                'App Installs': 'acquire high-quality app users at scale',
+                'Lead Gen': 'generate qualified leads efficiently',
+                'Engagement': 'foster community engagement and brand love'
+            };
+
+            const challengeSolutions = {
+                'Reaching younger audiences': 'TikTok is THE platform to reach Gen Z and Millennials, with 60% of users aged 16-24.',
+                'Creative fatigue': 'TikTok\'s native, authentic content style combats creative fatigue with fresh, engaging formats.',
+                'Rising CPMs': 'TikTok offers competitive CPMs with strong performance, helping optimize your media efficiency.',
+                'Limited reach': 'With 1B+ monthly active users, TikTok provides massive incremental reach to complement existing channels.',
+                'Low engagement': 'TikTok users spend an average of 95 minutes per day on the app—the highest engagement of any platform.',
+                'Attribution issues': 'Our advanced measurement solutions including CAPI, Brand Lift, and Conversion Lift provide clear attribution.',
+                'Competition': 'Stand out from competitors by being an early mover on TikTok in your vertical.',
+                'Scaling issues': 'TikTok\'s diverse ad formats and broad reach enable efficient scaling of campaigns.',
+                'Brand perception': 'Build authentic connections with audiences through native, creator-driven content.',
+                'New market entry': 'TikTok\'s global reach and cultural relevance make it ideal for market expansion.'
+            };
+
+            const pitch = `
+🎯 PITCH FOR ${formData.clientName.toUpperCase()}
+
+THE OPPORTUNITY
+${formData.clientName} is looking to ${goalActions[formData.goal]} in the ${formData.market} market. As a ${formData.vertical} brand, there's a significant opportunity to leverage TikTok's unique ecosystem to achieve these goals.
+
+THE CHALLENGE
+${formData.challenge}: ${challengeSolutions[formData.challenge]}
+
+WHY TIKTOK NOW
+• TikTok has 1B+ monthly active users globally with exceptional engagement
+• ${formData.ages.length > 0 ? `Your target audience (${formData.ages.join(', ')}) is highly active on TikTok` : 'Your target audience is highly engaged on TikTok'}
+• ${formData.channels.length > 0 ? `Diversifying from ${formData.channels.join(', ')} with TikTok delivers incremental reach` : 'TikTok offers access to audiences not reachable on other platforms'}
+• TikTok drives action: users are 1.5x more likely to purchase products discovered on the platform
+
+THE SOLUTION
+With a ${formatBudget(formData.budget)} investment from ${formatDate(formData.startDate)} to ${formatDate(formData.endDate)}, we recommend a full-funnel TikTok strategy featuring:
+
+• ${formData.productName} promoted through native, authentic content
+${formData.sellingPoints ? `• Highlighting: ${formData.sellingPoints}` : ''}
+${formData.pricePoint ? `• Compelling offer: ${formData.pricePoint}` : ''}
+
+EXPECTED OUTCOMES
+• Incremental reach to ${formData.ages.length > 0 ? formData.ages.join(', ') : '18-34'} audiences
+• ${formData.goal === 'Awareness' ? 'Significant lift in brand awareness and recall' : formData.goal === 'Conversions' ? 'Strong ROAS and conversion performance' : 'Measurable impact on ' + formData.goal.toLowerCase()}
+• Authentic connection with the TikTok community
+• Learnings to scale and optimize future campaigns
+            `.trim();
+
+            $('#pitch-content').textContent = pitch;
+        }
+
+        function generateFunnel() {
+            const budgetSplit = {
+                'Awareness': { upper: 50, mid: 30, lower: 20 },
+                'Consideration': { upper: 30, mid: 45, lower: 25 },
+                'Conversions': { upper: 20, mid: 30, lower: 50 },
+                'App Installs': { upper: 25, mid: 25, lower: 50 },
+                'Lead Gen': { upper: 25, mid: 35, lower: 40 },
+                'Engagement': { upper: 35, mid: 45, lower: 20 }
+            };
+
+            const split = budgetSplit[formData.goal] || budgetSplit['Conversions'];
+
+            const funnel = `
+📊 FUNNEL STRATEGY FOR ${formData.clientName.toUpperCase()}
+
+RECOMMENDED BUDGET ALLOCATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+UPPER FUNNEL - AWARENESS (${split.upper}% = ${formatBudget(formData.budget * split.upper / 100)})
+┌─────────────────────────────────────────┐
+│ Objective: Reach & Video Views          │
+│ Target: Broad audiences, interests      │
+│ Formats: TopView, In-Feed, Branded      │
+│ KPIs: Reach, VTR, CPM                   │
+└─────────────────────────────────────────┘
+
+MID FUNNEL - CONSIDERATION (${split.mid}% = ${formatBudget(formData.budget * split.mid / 100)})
+┌─────────────────────────────────────────┐
+│ Objective: Traffic & Engagement         │
+│ Target: Custom audiences, lookalikes    │
+│ Formats: In-Feed, Spark Ads, Interactive│
+│ KPIs: CTR, Engagement Rate, CPC         │
+└─────────────────────────────────────────┘
+
+LOWER FUNNEL - CONVERSION (${split.lower}% = ${formatBudget(formData.budget * split.lower / 100)})
+┌─────────────────────────────────────────┐
+│ Objective: ${formData.goal}             │
+│ Target: Retargeting, high-intent        │
+│ Formats: In-Feed, Collection, Dynamic   │
+│ KPIs: CVR, CPA, ROAS                    │
+└─────────────────────────────────────────┘
+
+AUDIENCE STRATEGY
+• Primary: ${formData.audienceDesc || formData.ages.join(', ') + ' year olds'}
+• Prospecting: Interest & behavior targeting
+• Retargeting: Website visitors, video viewers, engagers
+• Lookalikes: Based on converters and high-value customers
+
+TESTING FRAMEWORK
+Week 1-2: Launch & Learn
+• Test 3-5 creative concepts
+• Test audience segments
+• Establish baseline performance
+
+Week 3-4: Optimize
+• Scale winning combinations
+• Pause underperformers
+• Refine targeting
+
+Ongoing: Scale
+• Expand winning strategies
+• Introduce new creative
+• Test new formats
+            `.trim();
+
+            $('#funnel-content').textContent = funnel;
+        }
+
+        function generateMeasurement() {
+            const measurementPlan = `
+📈 MEASUREMENT PLAN FOR ${formData.clientName.toUpperCase()}
+
+MEASUREMENT MATURITY: ${formData.measurement.toUpperCase()}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TRACKING SETUP
+${formData.measurement === 'Advanced' ? `
+✅ Marketing Mix Modeling (MMM) integration
+✅ Multi-Touch Attribution (MTA) setup
+✅ TikTok Pixel with Events API (CAPI)
+✅ Offline conversion tracking
+✅ Advanced matching enabled
+` : formData.measurement === 'Intermediate' ? `
+✅ TikTok Pixel implementation
+✅ Conversion API (CAPI) setup
+✅ Standard events configured
+✅ Custom events for key actions
+⬜ Consider: MMM integration for full picture
+` : `
+✅ TikTok Pixel implementation
+✅ Standard events (ViewContent, AddToCart, Purchase)
+✅ TikTok Ads Manager reporting
+⬜ Recommended: Upgrade to CAPI for better matching
+⬜ Consider: Brand Lift study for awareness measurement
+`}
+
+KEY PERFORMANCE INDICATORS
+
+Upper Funnel (Awareness)
+├── Reach & Frequency
+├── Video View Rate (VTR)
+├── Cost per 1000 Impressions (CPM)
+└── Brand Lift metrics${formData.brandLift ? ' ✓ Study planned' : ''}
+
+Mid Funnel (Consideration)
+├── Click-Through Rate (CTR)
+├── Engagement Rate
+├── Cost per Click (CPC)
+└── Landing page views
+
+Lower Funnel (Conversion)
+├── Conversion Rate (CVR)
+├── Cost per Acquisition (CPA)
+├── Return on Ad Spend (ROAS)
+└── ${formData.conversionLift ? 'Conversion Lift Study ✓ Planned' : 'Conversion volume'}
+
+REPORTING CADENCE
+• Daily: Spend pacing, key metrics monitoring
+• Weekly: Performance review, optimization actions
+• Bi-weekly: Stakeholder update, strategic adjustments
+• Monthly: Full performance report, insights & recommendations
+• Post-campaign: Wrap report with learnings & next steps
+
+${formData.brandLift || formData.conversionLift ? `
+LIFT STUDIES PLANNED
+${formData.brandLift ? '✅ Brand Lift Study - Measure awareness, consideration, intent' : ''}
+${formData.conversionLift ? '✅ Conversion Lift Study - Measure incremental conversions' : ''}
+` : `
+RECOMMENDED STUDIES
+⬜ Brand Lift Study - Measure brand impact (min. $50K spend)
+⬜ Conversion Lift Study - Measure incrementality (min. $100K spend)
+`}
+SUCCESS CRITERIA
+• Primary: ${formData.goal === 'Awareness' ? 'Brand Lift +10pts, Reach 70%+ of target' : formData.goal === 'Conversions' ? 'ROAS 3x+, CPA within target' : 'Hit ' + formData.goal + ' targets'}
+• Secondary: Strong engagement, positive sentiment
+• Learning: Clear creative and audience insights for future campaigns
+            `.trim();
+
+            $('#measurement-content').textContent = measurementPlan;
+        }
+
+        function generateMediaPlan() {
+            const start = new Date(formData.startDate);
+            const end = new Date(formData.endDate);
+            const weeks = Math.max(1, Math.ceil((end - start) / (7 * 24 * 60 * 60 * 1000)));
+            const weeklyBudget = formData.budget / weeks;
+
+            const adFormats = {
+                'Awareness': ['TopView', 'In-Feed Ads', 'Branded Hashtag Challenge', 'Branded Effect'],
+                'Consideration': ['In-Feed Ads', 'Spark Ads', 'Interactive Add-ons', 'Branded Effect'],
+                'Conversions': ['In-Feed Ads', 'Spark Ads', 'Collection Ads', 'Dynamic Showcase Ads'],
+                'App Installs': ['In-Feed Ads', 'Spark Ads', 'Playable Ads', 'App Install Ads'],
+                'Lead Gen': ['In-Feed Ads', 'Lead Gen Ads', 'Spark Ads', 'Instant Form'],
+                'Engagement': ['In-Feed Ads', 'Spark Ads', 'Duet/Stitch enabled', 'Interactive Add-ons']
+            };
+
+            const formats = adFormats[formData.goal] || adFormats['Conversions'];
+
+            let flightSchedule = `
+📅 MEDIA PLAN FOR ${formData.clientName.toUpperCase()}
+
+CAMPAIGN OVERVIEW
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Campaign Period: ${formatDate(formData.startDate)} - ${formatDate(formData.endDate)}
+Total Budget: ${formatBudget(formData.budget)}
+Duration: ${weeks} weeks
+Weekly Budget: ~${formatBudget(weeklyBudget)}
+Market: ${formData.market}
+Vertical: ${formData.vertical}
+
+FLIGHT SCHEDULE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+
+            for (let i = 0; i < Math.min(weeks, 8); i++) {
+                const weekStart = new Date(start);
+                weekStart.setDate(start.getDate() + (i * 7));
+                const weekEnd = new Date(weekStart);
+                weekEnd.setDate(weekStart.getDate() + 6);
+
+                const phase = i < 2 ? 'LAUNCH' : i < weeks - 1 ? 'OPTIMIZE' : 'SCALE';
+                const budgetMultiplier = i < 1 ? 0.8 : i < 2 ? 1.0 : i < weeks - 1 ? 1.1 : 1.2;
+
+                flightSchedule += `
+Week ${i + 1}: ${formatDate(weekStart.toISOString())} - ${formatDate(weekEnd.toISOString())}
+├── Phase: ${phase}
+├── Budget: ${formatBudget(weeklyBudget * budgetMultiplier)}
+└── Focus: ${i < 2 ? 'Testing & learning' : i < weeks - 1 ? 'Optimization & scaling' : 'Maximum performance'}
+`;
+            }
+
+            if (weeks > 8) {
+                flightSchedule += `\n... (${weeks - 8} more weeks following similar pattern)\n`;
+            }
+
+            flightSchedule += `
+RECOMMENDED AD FORMATS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+${formats.map((f, i) => `${i + 1}. ${f}`).join('\n')}
+
+FORMAT DETAILS
+
+${formats.includes('TopView') ? `TopView (Premium Placement)
+• Full-screen, sound-on video up to 60 seconds
+• First ad users see when opening TikTok
+• Best for: Maximum awareness and impact
+• Recommended: 3-5 days during key moments
+` : ''}
+${formats.includes('In-Feed Ads') ? `In-Feed Ads (Core Format)
+• Native, full-screen video ads in For You feed
+• 9-15 seconds recommended length
+• Best for: All objectives, always-on presence
+• Recommended: Throughout campaign
+` : ''}
+${formats.includes('Spark Ads') ? `Spark Ads (Boosted Native)
+• Boost organic TikToks or creator content
+• Authentic, native feel with ad capabilities
+• Best for: Engagement, authenticity
+• Recommended: 40-60% of In-Feed budget
+` : ''}
+${formats.includes('Collection Ads') ? `Collection Ads (E-commerce)
+• Product cards with instant gallery
+• Swipeable product catalog
+• Best for: Driving product discovery and sales
+` : ''}
+${formats.includes('Dynamic Showcase Ads') ? `Dynamic Showcase Ads (Personalized)
+• Auto-generated from product catalog
+• Personalized to user interests
+• Best for: Retargeting, large catalogs
+` : ''}
+
+PLACEMENT STRATEGY
+• TikTok Feed: Primary placement (100% of budget)
+• Pangle (if enabled): Extended reach in ${formData.market}
+
+BIDDING STRATEGY
+• Launch phase: Lowest Cost (maximize learnings)
+• Optimize phase: Cost Cap (efficiency focus)
+• Scale phase: Bid Cap or Target CPA (performance)
+            `.trim();
+
+            $('#media-content').textContent = flightSchedule;
+        }
+
+        function generateIncentives() {
+            const budget = formData.budget;
+
+            const incentives = [
+                { threshold: 25000, name: 'Starter Bonus', value: '5% media credit', unlocked: budget >= 25000 },
+                { threshold: 50000, name: 'Growth Accelerator', value: '10% media credit + priority support', unlocked: budget >= 50000 },
+                { threshold: 100000, name: 'Scale Package', value: '12% media credit + dedicated CSM', unlocked: budget >= 100000 },
+                { threshold: 250000, name: 'Premium Partner', value: '15% media credit + beta access + quarterly business reviews', unlocked: budget >= 250000 },
+                { threshold: 500000, name: 'Elite Partner', value: '18% media credit + custom solutions + executive sponsorship', unlocked: budget >= 500000 },
+                { threshold: 1000000, name: 'Strategic Partner', value: '20% media credit + full partnership benefits + co-marketing', unlocked: budget >= 1000000 }
+            ];
+
+            let html = `<div class="output-content">`;
+            html += `<p><strong>Budget Level:</strong> ${formatBudget(budget)}</p><br>`;
+
+            incentives.forEach(inc => {
+                html += `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: ${inc.unlocked ? 'rgba(0, 200, 83, 0.1)' : 'rgba(255, 255, 255, 0.05)'}; border-radius: 8px; margin-bottom: 10px; border: 1px solid ${inc.unlocked ? 'var(--success)' : 'var(--border-color)'};">
+                    <div>
+                        <strong style="color: ${inc.unlocked ? 'var(--success)' : 'var(--text-secondary)'};">${inc.name}</strong>
+                        <div style="font-size: 0.85rem; color: var(--text-secondary);">Min. spend: ${formatBudget(inc.threshold)}</div>
+                        <div style="font-size: 0.9rem; margin-top: 4px;">${inc.value}</div>
+                    </div>
+                    <span class="status-badge ${inc.unlocked ? 'status-unlocked' : 'status-locked'}">
+                        ${inc.unlocked ? '✓ Unlocked' : '🔒 Locked'}
+                    </span>
+                </div>`;
+            });
+
+            const nextUnlock = incentives.find(i => !i.unlocked);
+            if (nextUnlock) {
+                const needed = nextUnlock.threshold - budget;
+                html += `
+                <div class="threshold-info">
+                    💡 <strong>Next tier:</strong> Add ${formatBudget(needed)} to unlock "${nextUnlock.name}" (${nextUnlock.value})
+                </div>`;
+            }
+
+            html += `</div>`;
+            $('#incentives-content').innerHTML = html;
+        }
+
+        function generateCreativeSupport() {
+            const budget = formData.budget;
+            const creativeStatus = formData.creative;
+
+            const creativeOptions = [
+                { threshold: 0, name: 'Creative Center Access', desc: 'Free tools, templates, and best practices', unlocked: true },
+                { threshold: 0, name: 'TikTok Creative Exchange', desc: 'Connect with creator network for content', unlocked: true },
+                { threshold: 25000, name: 'Creative Consultation', desc: '1:1 session with creative strategist', unlocked: budget >= 25000 },
+                { threshold: 50000, name: 'Creative Playbook', desc: 'Custom creative guidelines and templates', unlocked: budget >= 50000 },
+                { threshold: 100000, name: 'Dedicated Creative Partner', desc: 'Ongoing creative strategy support', unlocked: budget >= 100000 },
+                { threshold: 150000, name: 'Creator Matching', desc: 'Curated creator recommendations and intros', unlocked: budget >= 150000 },
+                { threshold: 250000, name: 'Creative Production Credit', desc: 'Subsidized creative production', unlocked: budget >= 250000 },
+                { threshold: 500000, name: 'Full Creative Services', desc: 'End-to-end creative production support', unlocked: budget >= 500000 }
+            ];
+
+            let html = `<div class="output-content">`;
+            html += `<p><strong>Creative Status:</strong> ${creativeStatus}</p>`;
+            html += `<p><strong>Budget Level:</strong> ${formatBudget(budget)}</p><br>`;
+
+            if (creativeStatus === 'Needs support' || creativeStatus === 'No assets') {
+                html += `
+                <div style="background: rgba(254, 44, 85, 0.1); border: 1px solid var(--tiktok-red); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                    <strong style="color: var(--tiktok-red);">⚠️ Creative Support Recommended</strong>
+                    <p style="margin-top: 8px; font-size: 0.9rem;">Based on the client's creative situation, prioritize creative development before campaign launch.</p>
+                </div>`;
+            }
+
+            html += `<h4 style="margin-bottom: 12px;">Available Support:</h4>`;
+
+            creativeOptions.forEach(opt => {
+                html += `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: ${opt.unlocked ? 'rgba(0, 200, 83, 0.1)' : 'rgba(255, 255, 255, 0.05)'}; border-radius: 8px; margin-bottom: 10px; border: 1px solid ${opt.unlocked ? 'var(--success)' : 'var(--border-color)'};">
+                    <div>
+                        <strong style="color: ${opt.unlocked ? 'var(--success)' : 'var(--text-secondary)'};">${opt.name}</strong>
+                        ${opt.threshold > 0 ? `<div style="font-size: 0.85rem; color: var(--text-secondary);">Min. spend: ${formatBudget(opt.threshold)}</div>` : ''}
+                        <div style="font-size: 0.9rem; margin-top: 4px;">${opt.desc}</div>
+                    </div>
+                    <span class="status-badge ${opt.unlocked ? 'status-unlocked' : 'status-locked'}">
+                        ${opt.unlocked ? '✓ Available' : '🔒 Locked'}
+                    </span>
+                </div>`;
+            });
+
+            html += `
+            <div class="threshold-info" style="margin-top: 16px;">
+                💡 <strong>Pro tip:</strong> TikTok-first creative performs 2x better than repurposed content. Recommend vertical, sound-on videos under 15 seconds.
+            </div>`;
+
+            html += `</div>`;
+            $('#creative-content').innerHTML = html;
+        }
+
+        function generateBestPractices() {
+            const verticalPractices = {
+                'E-commerce': [
+                    'Use Spark Ads to boost authentic creator content featuring products',
+                    'Implement TikTok Shop for seamless in-app purchasing',
+                    'Show products in action with quick, engaging demonstrations',
+                    'Use urgency-driving hooks like "limited time" or "selling fast"',
+                    'Test Collection Ads to showcase multiple products'
+                ],
+                'Gaming': [
+                    'Feature actual gameplay footage in the first 3 seconds',
+                    'Partner with gaming creators for authentic endorsements',
+                    'Use Playable Ads for interactive game demos',
+                    'Target by gaming interests and related game titles',
+                    'Show game progression and rewards to drive installs'
+                ],
+                'App': [
+                    'Demo the core app experience in under 15 seconds',
+                    'Use screen recordings with engaging voiceovers',
+                    'Highlight the immediate value/benefit users get',
+                    'Test Playable Ads for interactive previews',
+                    'Partner with creators who authentically use the app'
+                ],
+                'Finance': [
+                    'Make complex topics simple and relatable',
+                    'Use educational, value-driven content hooks',
+                    'Partner with finance creators for credibility',
+                    'Focus on life improvements, not just features',
+                    'Ensure compliance with financial advertising regulations'
+                ],
+                'Beauty': [
+                    'Feature before/after transformations',
+                    'Partner with beauty creators for tutorials',
+                    'Use ASMR and satisfying application moments',
+                    'Show real results from real people',
+                    'Leverage trending sounds and effects'
+                ],
+                'Fashion': [
+                    'Show outfit transitions and styling tips',
+                    'Use trending sounds for outfit reveals',
+                    'Partner with fashion creators for OOTD content',
+                    'Feature inclusive sizing and diverse models',
+                    'Create shoppable looks with Collection Ads'
+                ]
+            };
+
+            const goalPractices = {
+                'Awareness': [
+                    'Focus on entertainment value first, brand second',
+                    'Use TopView for maximum impact during key moments',
+                    'Invest in Branded Hashtag Challenges for virality',
+                    'Prioritize reach over frequency initially',
+                    'Measure success with Brand Lift studies'
+                ],
+                'Conversions': [
+                    'Implement TikTok Pixel + Conversion API for optimal tracking',
+                    'Use Value-Based Optimization to find high-value customers',
+                    'Test Dynamic Showcase Ads for personalized recommendations',
+                    'Retarget video viewers and website visitors',
+                    'Set up Conversion Lift studies to measure incrementality'
+                ],
+                'App Installs': [
+                    'Optimize for in-app events, not just installs',
+                    'Use deep linking to specific app content',
+                    'Show the app experience in the first 3 seconds',
+                    'Target by relevant app and interest categories',
+                    'Measure post-install events and LTV'
+                ]
+            };
+
+            const universalPractices = [
+                'Hook viewers in the first 1-2 seconds with movement, text, or intrigue',
+                'Create native content that feels organic to TikTok, not like an ad',
+                'Use trending sounds strategically (check Commercial Music Library)',
+                'Keep videos between 9-15 seconds for optimal completion rates',
+                'Include clear CTAs but make them feel natural to the content',
+                'Test 3-5 creative concepts per ad group for variety',
+                'Refresh creative every 7-14 days to combat fatigue',
+                'Use text overlays - 40% of users watch with sound off',
+                'Feature real people over polished productions when possible',
+                'Engage with comments to boost organic visibility'
+            ];
+
+            let html = `<div class="output-content">`;
+
+            html += `<h4 style="margin-bottom: 12px;">🏆 ${formData.vertical} Best Practices</h4>`;
+            html += `<ul class="best-practices-list" style="list-style: none; padding: 0; margin-bottom: 20px;">`;
+            const vPractices = verticalPractices[formData.vertical] || verticalPractices['E-commerce'];
+            vPractices.forEach(p => {
+                html += `<li style="padding: 10px 14px; background: var(--tiktok-light-gray); border-radius: 6px; margin-bottom: 8px;">✓ ${p}</li>`;
+            });
+            html += `</ul>`;
+
+            html += `<h4 style="margin-bottom: 12px;">🎯 ${formData.goal} Optimization Tips</h4>`;
+            html += `<ul class="best-practices-list" style="list-style: none; padding: 0; margin-bottom: 20px;">`;
+            const gPractices = goalPractices[formData.goal] || goalPractices['Conversions'];
+            gPractices.forEach(p => {
+                html += `<li style="padding: 10px 14px; background: var(--tiktok-light-gray); border-radius: 6px; margin-bottom: 8px;">✓ ${p}</li>`;
+            });
+            html += `</ul>`;
+
+            html += `<h4 style="margin-bottom: 12px;">💡 Universal TikTok Best Practices</h4>`;
+            html += `<ul class="best-practices-list" style="list-style: none; padding: 0;">`;
+            universalPractices.forEach(p => {
+                html += `<li style="padding: 10px 14px; background: var(--tiktok-light-gray); border-radius: 6px; margin-bottom: 8px;">✓ ${p}</li>`;
+            });
+            html += `</ul>`;
+
+            html += `</div>`;
+            $('#bestpractices-content').innerHTML = html;
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            const text = element.textContent || element.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = element.parentElement.querySelector('.copy-btn');
+                btn.textContent = '✓ Copied!';
+                setTimeout(() => btn.textContent = '📋 Copy', 2000);
+            });
+        }
+
+        function copyAll() {
+            const sections = ['pitch-content', 'funnel-content', 'measurement-content', 'media-content'];
+            let allContent = `TIKTOK SALES ENABLEMENT PACK\nGenerated for: ${formData.clientName}\nDate: ${new Date().toLocaleDateString()}\n\n`;
+
+            sections.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) allContent += el.textContent + '\n\n---\n\n';
+            });
+
+            navigator.clipboard.writeText(allContent).then(() => {
+                alert('All content copied to clipboard!');
+            });
+        }
+
+        function startOver() {
+            if (confirm('Start a new questionnaire? Current data will be cleared.')) {
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
