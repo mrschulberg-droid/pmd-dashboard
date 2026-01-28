@@ -1532,83 +1532,143 @@ Ongoing: Scale
         }
 
         function generateMeasurement() {
-            const measurementPlan = `
-📈 MEASUREMENT PLAN FOR ${formData.clientName.toUpperCase()}
+            const level = formData.measurement || 'Basic';
+            const budget = formData.budget || 0;
+            const goals = formData.goals || ['Conversions'];
 
-MEASUREMENT MATURITY: ${formData.measurement.toUpperCase()}
+            // Get JSON data with fallbacks
+            const setupData = tiktokData.measurementSetup || {};
+            const kpisData = tiktokData.kpis || {};
+            const cadenceData = tiktokData.reportingCadence || [];
+            const liftData = tiktokData.liftStudies || {};
+            const recsData = tiktokData.measurementRecommendations || {};
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+            let output = [];
 
-TRACKING SETUP
-${formData.measurement === 'Advanced' ? `
-✅ Marketing Mix Modeling (MMM) integration
-✅ Multi-Touch Attribution (MTA) setup
-✅ TikTok Pixel with Events API (CAPI)
-✅ Offline conversion tracking
-✅ Advanced matching enabled
-` : formData.measurement === 'Intermediate' ? `
-✅ TikTok Pixel implementation
-✅ Conversion API (CAPI) setup
-✅ Standard events configured
-✅ Custom events for key actions
-⬜ Consider: MMM integration for full picture
-` : `
-✅ TikTok Pixel implementation
-✅ Standard events (ViewContent, AddToCart, Purchase)
-✅ TikTok Ads Manager reporting
-⬜ Recommended: Upgrade to CAPI for better matching
-⬜ Consider: Brand Lift study for awareness measurement
-`}
+            // Header
+            output.push(`MEASUREMENT PLAN FOR ${formData.clientName.toUpperCase()}`);
+            output.push(`MEASUREMENT MATURITY: ${level.toUpperCase()}`);
+            output.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-KEY PERFORMANCE INDICATORS
+            // Tracking Setup (from JSON or fallback)
+            output.push('\nTRACKING SETUP');
+            const setupItems = setupData[level];
+            if (setupItems && setupItems.length) {
+                setupItems.forEach(item => output.push(`✅ ${item}`));
+            } else {
+                // Fallback if JSON missing
+                output.push('✅ TikTok Pixel implementation');
+                output.push('✅ Standard events configured');
+            }
 
-Upper Funnel (Awareness)
-├── Reach & Frequency
-├── Video View Rate (VTR)
-├── Cost per 1000 Impressions (CPM)
-└── Brand Lift metrics${formData.brandLift ? ' ✓ Study planned' : ''}
+            // Add recommendations for non-Advanced
+            if (level !== 'Advanced' && recsData[level]) {
+                recsData[level].split('. ').forEach(rec => {
+                    if (rec.trim()) output.push(`⬜ ${rec.trim()}`);
+                });
+            }
 
-Mid Funnel (Consideration)
-├── Click-Through Rate (CTR)
-├── Engagement Rate
-├── Cost per Click (CPC)
-└── Landing page views
+            // KPIs section - Basic shows core only, others show full
+            output.push('\nKEY PERFORMANCE INDICATORS');
 
-Lower Funnel (Conversion)
-├── Conversion Rate (CVR)
-├── Cost per Acquisition (CPA)
-├── Return on Ad Spend (ROAS)
-└── ${formData.conversionLift ? 'Conversion Lift Study ✓ Planned' : 'Conversion volume'}
+            if (level === 'Basic') {
+                // Core KPIs only for Basic
+                output.push('\nCore Metrics');
+                const coreKpis = [
+                    ...(kpisData.upperFunnel || []).slice(0, 2),
+                    ...(kpisData.lowerFunnel || []).slice(0, 2)
+                ];
+                if (coreKpis.length) {
+                    coreKpis.forEach((kpi, i) => {
+                        const prefix = i === coreKpis.length - 1 ? '└──' : '├──';
+                        output.push(`${prefix} ${kpi}`);
+                    });
+                } else {
+                    output.push('├── Reach & Impressions');
+                    output.push('├── Video Views');
+                    output.push('├── Conversions');
+                    output.push('└── ROAS');
+                }
+            } else {
+                // Full KPIs for Intermediate/Advanced
+                if (kpisData.upperFunnel && kpisData.upperFunnel.length) {
+                    output.push('\nUpper Funnel (Awareness)');
+                    kpisData.upperFunnel.forEach((kpi, i) => {
+                        const prefix = i === kpisData.upperFunnel.length - 1 ? '└──' : '├──';
+                        output.push(`${prefix} ${kpi}`);
+                    });
+                }
+                if (kpisData.midFunnel && kpisData.midFunnel.length) {
+                    output.push('\nMid Funnel (Consideration)');
+                    kpisData.midFunnel.forEach((kpi, i) => {
+                        const prefix = i === kpisData.midFunnel.length - 1 ? '└──' : '├──';
+                        output.push(`${prefix} ${kpi}`);
+                    });
+                }
+                if (kpisData.lowerFunnel && kpisData.lowerFunnel.length) {
+                    output.push('\nLower Funnel (Conversion)');
+                    kpisData.lowerFunnel.forEach((kpi, i) => {
+                        const prefix = i === kpisData.lowerFunnel.length - 1 ? '└──' : '├──';
+                        output.push(`${prefix} ${kpi}`);
+                    });
+                }
+            }
 
-REPORTING CADENCE
-• Daily: Spend pacing, key metrics monitoring
-• Weekly: Performance review, optimization actions
-• Bi-weekly: Stakeholder update, strategic adjustments
-• Monthly: Full performance report, insights & recommendations
-• Post-campaign: Wrap report with learnings & next steps
+            // Reporting Cadence (always included)
+            output.push('\nREPORTING CADENCE');
+            if (cadenceData.length) {
+                cadenceData.forEach(item => {
+                    output.push(`• ${item.frequency}: ${item.focus}`);
+                });
+            } else {
+                // Fallback
+                output.push('• Weekly: Performance review');
+                output.push('• Monthly: Full report');
+                output.push('• Post-campaign: Wrap report');
+            }
 
-${formData.brandLift || formData.conversionLift ? `
-LIFT STUDIES PLANNED
-${formData.brandLift ? '✅ Brand Lift Study - Measure awareness, consideration, intent' : ''}
-${formData.conversionLift ? '✅ Conversion Lift Study - Measure incremental conversions' : ''}
-` : `
-RECOMMENDED STUDIES
-⬜ Brand Lift Study - Measure brand impact (min. $50K spend)
-⬜ Conversion Lift Study - Measure incrementality (min. $100K spend)
-`}
-SUCCESS CRITERIA
-• Primary: ${(formData.goals || ['Conversions']).map(g => {
-    if (g === 'Awareness') return 'Brand Lift +10pts, Reach 70%+ of target';
-    if (g === 'Conversions') return 'ROAS 3x+, CPA within target';
-    if (g === 'App Installs') return 'CPI within target, quality installs';
-    if (g === 'Lead Gen') return 'CPL within target, quality leads';
-    return 'Hit ' + g + ' targets';
-}).join('; ')}
-• Secondary: Strong engagement, positive sentiment
-• Learning: Clear creative and audience insights for future campaigns
-            `.trim();
+            // Lift Studies - recommend if Advanced + budget qualifies
+            const brandLiftMin = liftData.brandLift?.minSpend || 50000;
+            const convLiftMin = liftData.conversionLift?.minSpend || 100000;
+            const qualifiesBrandLift = level === 'Advanced' && budget >= brandLiftMin;
+            const qualifiesConvLift = level === 'Advanced' && budget >= convLiftMin;
 
-            $('#measurement-content').textContent = measurementPlan;
+            if (qualifiesBrandLift || qualifiesConvLift) {
+                output.push('\nRECOMMENDED LIFT STUDIES');
+                if (qualifiesBrandLift && liftData.brandLift) {
+                    output.push(`✅ ${liftData.brandLift.name} - ${liftData.brandLift.description}`);
+                    output.push(`   Budget qualifies (min: ${formatBudget(brandLiftMin)})`);
+                }
+                if (qualifiesConvLift && liftData.conversionLift) {
+                    output.push(`✅ ${liftData.conversionLift.name} - ${liftData.conversionLift.description}`);
+                    output.push(`   Budget qualifies (min: ${formatBudget(convLiftMin)})`);
+                }
+            } else if (level !== 'Basic') {
+                output.push('\nAVAILABLE LIFT STUDIES');
+                if (liftData.brandLift) {
+                    const status = budget >= brandLiftMin ? '✅' : '⬜';
+                    output.push(`${status} ${liftData.brandLift.name} (min: ${formatBudget(brandLiftMin)})`);
+                }
+                if (liftData.conversionLift) {
+                    const status = budget >= convLiftMin ? '✅' : '⬜';
+                    output.push(`${status} ${liftData.conversionLift.name} (min: ${formatBudget(convLiftMin)})`);
+                }
+            }
+
+            // Success Criteria
+            output.push('\nSUCCESS CRITERIA');
+            const primaryCriteria = goals.map(g => {
+                if (g === 'Awareness') return 'Brand Lift +10pts, Reach 70%+ of target';
+                if (g === 'Conversions') return 'ROAS 3x+, CPA within target';
+                if (g === 'App Installs') return 'CPI within target, quality installs';
+                if (g === 'Lead Gen') return 'CPL within target, quality leads';
+                return 'Hit ' + g + ' targets';
+            }).join('; ');
+            output.push(`• Primary: ${primaryCriteria}`);
+            output.push('• Secondary: Strong engagement, positive sentiment');
+            output.push('• Learning: Clear creative and audience insights');
+
+            $('#measurement-content').textContent = output.join('\n');
         }
 
         function generateMediaPlan() {
