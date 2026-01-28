@@ -1151,8 +1151,11 @@
                 rawData = getEmbeddedData();
             }
 
-            // Get selected market region from Step 1 (default to 'US')
-            const marketRegion = $('input[name="market"]:checked')?.value || 'US';
+            // Get selected market region from Step 1 radio buttons (default to 'US')
+            const marketRegion =
+                document.querySelector('input[name="market"]:checked')?.value ||
+                document.querySelector('[data-step="1"] input[name="market"]:checked')?.value ||
+                'US';
 
             // Normalize data with region-based content packs (if available)
             tiktokData = normalizeTikTokData(rawData, marketRegion);
