@@ -1227,11 +1227,10 @@
         function setupCheckboxItems() {
             $$('.checkbox-item').forEach(item => {
                 item.addEventListener('click', (e) => {
-                    if (e.target.tagName !== 'INPUT') {
-                        const input = item.querySelector('input');
-                        input.checked = !input.checked;
-                    }
-                    item.classList.toggle('selected', item.querySelector('input').checked);
+                    e.preventDefault(); // Stop label's native toggle behavior
+                    const input = item.querySelector('input');
+                    input.checked = !input.checked;
+                    item.classList.toggle('selected', input.checked);
                 });
             });
         }
