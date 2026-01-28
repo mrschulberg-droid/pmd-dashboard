@@ -652,6 +652,38 @@
                             <div class="radio-label">Engagement</div>
                         </label>
                     </div>
+
+                    <div class="form-group" style="margin-top: 24px;">
+                        <label>Campaign Scenario (optional)</label>
+                        <p class="description" style="margin-bottom: 12px;">What's the context for this campaign?</p>
+                        <div class="checkbox-group">
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="scenario" value="New Product Launch">
+                                🚀 New Product Launch
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="scenario" value="Geo Expansion">
+                                🌍 Geo Expansion
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="scenario" value="Rebrand">
+                                ✨ Rebrand
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="scenario" value="Full Funnel">
+                                📊 Full Funnel
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="scenario" value="Seasonal Campaign">
+                                🎄 Seasonal Campaign
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="checkbox" name="scenario" value="Always On">
+                                🔄 Always On
+                            </label>
+                        </div>
+                    </div>
+
                     <div class="button-group">
                         <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
                         <button class="btn btn-primary" onclick="nextStep()">Next →</button>
@@ -1105,6 +1137,7 @@
                 market: $('input[name="market"]:checked')?.value || 'US',
                 vertical: $('#vertical').value || 'E-commerce',
                 goal: $('input[name="goal"]:checked')?.value || 'Conversions',
+                scenarios: Array.from($$('input[name="scenario"]:checked')).map(i => i.value),
                 challenge: $('#challenge').value || 'Reaching younger audiences',
                 challengeContext: $('textarea[name="challenge_context"]').value,
                 ages: Array.from($$('input[name="age"]:checked')).map(i => i.value),
@@ -1177,11 +1210,15 @@
                 'New market entry': 'TikTok\'s global reach and cultural relevance make it ideal for market expansion.'
             };
 
+            const scenarioContext = formData.scenarios.length > 0
+                ? `\n\nCAMPAIGN CONTEXT: ${formData.scenarios.join(' + ')}`
+                : '';
+
             const pitch = `
-🎯 PITCH FOR ${formData.clientName.toUpperCase()}
+🎯 PITCH FOR ${formData.clientName.toUpperCase()}${scenarioContext}
 
 THE OPPORTUNITY
-${formData.clientName} is looking to ${goalActions[formData.goal]} in the ${formData.market} market. As a ${formData.vertical} brand, there's a significant opportunity to leverage TikTok's unique ecosystem to achieve these goals.
+${formData.clientName} is looking to ${goalActions[formData.goal]} in the ${formData.market} market.${formData.scenarios.includes('New Product Launch') ? ' With a new product launch on the horizon, timing is critical to capture market attention.' : ''}${formData.scenarios.includes('Geo Expansion') ? ' As they expand into new geographic markets, reaching new audiences is essential.' : ''}${formData.scenarios.includes('Rebrand') ? ' With a rebrand underway, this is the perfect moment to reintroduce the brand to audiences.' : ''}${formData.scenarios.includes('Full Funnel') ? ' A full-funnel approach will maximize impact across awareness, consideration, and conversion.' : ''} As a ${formData.vertical} brand, there's a significant opportunity to leverage TikTok's unique ecosystem to achieve these goals.
 
 THE CHALLENGE
 ${formData.challenge}: ${challengeSolutions[formData.challenge]}
