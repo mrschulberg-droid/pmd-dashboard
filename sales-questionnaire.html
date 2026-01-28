@@ -1044,19 +1044,145 @@
         let currentStep = 1;
         const totalSteps = 10;
         let formData = {};
+        let tiktokData = null; // Will be loaded from JSON
 
         // DOM helpers
         const $ = (sel) => document.querySelector(sel);
         const $$ = (sel) => document.querySelectorAll(sel);
 
         // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load TikTok data from JSON file
+            await loadTikTokData();
+
             updateProgress();
             setupRadioCards();
             setupCheckboxItems();
             setupOutputTabs();
             setDefaultDates();
         });
+
+        // Load data from JSON file
+        async function loadTikTokData() {
+            try {
+                // Try to load from JSON file (works when hosted on a server)
+                const response = await fetch('tiktok-data.json');
+                if (response.ok) {
+                    tiktokData = await response.json();
+                    console.log('TikTok data loaded from JSON file');
+                    return;
+                }
+            } catch (e) {
+                console.log('Could not load JSON file, using embedded data');
+            }
+
+            // Fallback: use embedded data (for local file:// access)
+            tiktokData = getEmbeddedData();
+        }
+
+        // Embedded fallback data (copy of key JSON data for offline use)
+        function getEmbeddedData() {
+            return {
+                platformStats: {
+                    monthlyActiveUsers: "1B+",
+                    avgDailyTimeSpent: "95 minutes",
+                    purchaseLikelihood: "1.5x more likely to purchase products discovered on platform",
+                    genZReach: "60% of users aged 16-24"
+                },
+                goalActions: {
+                    "Awareness": "build brand recognition and reach new audiences",
+                    "Consideration": "drive consideration and engagement with the brand",
+                    "Conversions": "drive measurable conversions and sales",
+                    "App Installs": "acquire high-quality app users at scale",
+                    "Lead Gen": "generate qualified leads efficiently",
+                    "Engagement": "foster community engagement and brand love"
+                },
+                challengeSolutions: {
+                    "Reaching younger audiences": "TikTok is THE platform to reach Gen Z and Millennials, with 60% of users aged 16-24.",
+                    "Creative fatigue": "TikTok's native, authentic content style combats creative fatigue with fresh, engaging formats.",
+                    "Rising CPMs": "TikTok offers competitive CPMs with strong performance, helping optimize your media efficiency.",
+                    "Limited reach": "With 1B+ monthly active users, TikTok provides massive incremental reach to complement existing channels.",
+                    "Low engagement": "TikTok users spend an average of 95 minutes per day on the app—the highest engagement of any platform.",
+                    "Attribution issues": "Our advanced measurement solutions including CAPI, Brand Lift, and Conversion Lift provide clear attribution.",
+                    "Competition": "Stand out from competitors by being an early mover on TikTok in your vertical.",
+                    "Scaling issues": "TikTok's diverse ad formats and broad reach enable efficient scaling of campaigns.",
+                    "Brand perception": "Build authentic connections with audiences through native, creator-driven content.",
+                    "New market entry": "TikTok's global reach and cultural relevance make it ideal for market expansion."
+                },
+                scenarioMessages: {
+                    "New Product Launch": "With a new product launch on the horizon, timing is critical to capture market attention.",
+                    "Geo Expansion": "As they expand into new geographic markets, reaching new audiences is essential.",
+                    "Rebrand": "With a rebrand underway, this is the perfect moment to reintroduce the brand to audiences.",
+                    "Full Funnel": "A full-funnel approach will maximize impact across awareness, consideration, and conversion.",
+                    "Seasonal Campaign": "Seasonal moments drive peak consumer intent—perfect timing to maximize TikTok's engaged audiences.",
+                    "Always On": "An always-on presence builds sustained brand awareness and keeps the brand top-of-mind."
+                },
+                budgetSplits: {
+                    "Awareness": { upper: 50, mid: 30, lower: 20 },
+                    "Consideration": { upper: 30, mid: 45, lower: 25 },
+                    "Conversions": { upper: 20, mid: 30, lower: 50 },
+                    "App Installs": { upper: 25, mid: 25, lower: 50 },
+                    "Lead Gen": { upper: 25, mid: 35, lower: 40 },
+                    "Engagement": { upper: 35, mid: 45, lower: 20 }
+                },
+                adFormats: {
+                    "Awareness": ["TopView", "In-Feed Ads", "Branded Hashtag Challenge", "Branded Effect"],
+                    "Consideration": ["In-Feed Ads", "Spark Ads", "Interactive Add-ons", "Branded Effect"],
+                    "Conversions": ["In-Feed Ads", "Spark Ads", "Collection Ads", "Dynamic Showcase Ads"],
+                    "App Installs": ["In-Feed Ads", "Spark Ads", "Playable Ads", "App Install Ads"],
+                    "Lead Gen": ["In-Feed Ads", "Lead Gen Ads", "Spark Ads", "Instant Form"],
+                    "Engagement": ["In-Feed Ads", "Spark Ads", "Duet/Stitch enabled", "Interactive Add-ons"]
+                },
+                mediaIncentives: [
+                    { threshold: 25000, name: "Starter Bonus", value: "5% media credit" },
+                    { threshold: 50000, name: "Growth Accelerator", value: "10% media credit + priority support" },
+                    { threshold: 100000, name: "Scale Package", value: "12% media credit + dedicated CSM" },
+                    { threshold: 250000, name: "Premium Partner", value: "15% media credit + beta access + quarterly business reviews" },
+                    { threshold: 500000, name: "Elite Partner", value: "18% media credit + custom solutions + executive sponsorship" },
+                    { threshold: 1000000, name: "Strategic Partner", value: "20% media credit + full partnership benefits + co-marketing" }
+                ],
+                creativeSupport: [
+                    { threshold: 0, name: "Creative Center Access", description: "Free tools, templates, and best practices" },
+                    { threshold: 0, name: "TikTok Creative Exchange", description: "Connect with creator network for content" },
+                    { threshold: 25000, name: "Creative Consultation", description: "1:1 session with creative strategist" },
+                    { threshold: 50000, name: "Creative Playbook", description: "Custom creative guidelines and templates" },
+                    { threshold: 100000, name: "Dedicated Creative Partner", description: "Ongoing creative strategy support" },
+                    { threshold: 150000, name: "Creator Matching", description: "Curated creator recommendations and intros" },
+                    { threshold: 250000, name: "Creative Production Credit", description: "Subsidized creative production" },
+                    { threshold: 500000, name: "Full Creative Services", description: "End-to-end creative production support" }
+                ],
+                bestPractices: {
+                    universal: [
+                        "Hook viewers in the first 1-2 seconds with movement, text, or intrigue",
+                        "Create native content that feels organic to TikTok, not like an ad",
+                        "Use trending sounds strategically (check Commercial Music Library)",
+                        "Keep videos between 9-15 seconds for optimal completion rates",
+                        "Include clear CTAs but make them feel natural to the content",
+                        "Test 3-5 creative concepts per ad group for variety",
+                        "Refresh creative every 7-14 days to combat fatigue",
+                        "Use text overlays - 40% of users watch with sound off",
+                        "Feature real people over polished productions when possible",
+                        "Engage with comments to boost organic visibility"
+                    ],
+                    byVertical: {
+                        "E-commerce": ["Use Spark Ads to boost authentic creator content featuring products", "Implement TikTok Shop for seamless in-app purchasing", "Show products in action with quick, engaging demonstrations", "Use urgency-driving hooks like 'limited time' or 'selling fast'", "Test Collection Ads to showcase multiple products"],
+                        "Gaming": ["Feature actual gameplay footage in the first 3 seconds", "Partner with gaming creators for authentic endorsements", "Use Playable Ads for interactive game demos", "Target by gaming interests and related game titles", "Show game progression and rewards to drive installs"],
+                        "App": ["Demo the core app experience in under 15 seconds", "Use screen recordings with engaging voiceovers", "Highlight the immediate value/benefit users get", "Test Playable Ads for interactive previews", "Partner with creators who authentically use the app"],
+                        "Finance": ["Make complex topics simple and relatable", "Use educational, value-driven content hooks", "Partner with finance creators for credibility", "Focus on life improvements, not just features", "Ensure compliance with financial advertising regulations"],
+                        "Beauty": ["Feature before/after transformations", "Partner with beauty creators for tutorials", "Use ASMR and satisfying application moments", "Show real results from real people", "Leverage trending sounds and effects"],
+                        "Fashion": ["Show outfit transitions and styling tips", "Use trending sounds for outfit reveals", "Partner with fashion creators for OOTD content", "Feature inclusive sizing and diverse models", "Create shoppable looks with Collection Ads"]
+                    },
+                    byGoal: {
+                        "Awareness": ["Focus on entertainment value first, brand second", "Use TopView for maximum impact during key moments", "Invest in Branded Hashtag Challenges for virality", "Prioritize reach over frequency initially", "Measure success with Brand Lift studies"],
+                        "Consideration": ["Create content that invites engagement (comments, shares)", "Use Interactive Add-ons to boost engagement", "Partner with creators for authentic endorsements", "Focus on brand story and values", "Retarget video viewers with deeper content"],
+                        "Conversions": ["Implement TikTok Pixel + Conversion API for optimal tracking", "Use Value-Based Optimization to find high-value customers", "Test Dynamic Showcase Ads for personalized recommendations", "Retarget video viewers and website visitors", "Set up Conversion Lift studies to measure incrementality"],
+                        "App Installs": ["Optimize for in-app events, not just installs", "Use deep linking to specific app content", "Show the app experience in the first 3 seconds", "Target by relevant app and interest categories", "Measure post-install events and LTV"],
+                        "Lead Gen": ["Use native Lead Gen forms for seamless capture", "Offer clear value exchange for information", "Keep forms short - 3-5 fields maximum", "Use qualifying questions to improve lead quality", "Set up CRM integration for immediate follow-up"],
+                        "Engagement": ["Create content that invites participation", "Use Duet and Stitch-enabled content", "Partner with creators for authentic engagement", "Respond to comments to boost visibility", "Leverage trending challenges and sounds"]
+                    }
+                }
+            };
+        }
 
         function setDefaultDates() {
             const today = new Date();
@@ -1188,46 +1314,35 @@
         }
 
         function generatePitch() {
-            const goalActions = {
-                'Awareness': 'build brand recognition and reach new audiences',
-                'Consideration': 'drive consideration and engagement with the brand',
-                'Conversions': 'drive measurable conversions and sales',
-                'App Installs': 'acquire high-quality app users at scale',
-                'Lead Gen': 'generate qualified leads efficiently',
-                'Engagement': 'foster community engagement and brand love'
-            };
-
-            const challengeSolutions = {
-                'Reaching younger audiences': 'TikTok is THE platform to reach Gen Z and Millennials, with 60% of users aged 16-24.',
-                'Creative fatigue': 'TikTok\'s native, authentic content style combats creative fatigue with fresh, engaging formats.',
-                'Rising CPMs': 'TikTok offers competitive CPMs with strong performance, helping optimize your media efficiency.',
-                'Limited reach': 'With 1B+ monthly active users, TikTok provides massive incremental reach to complement existing channels.',
-                'Low engagement': 'TikTok users spend an average of 95 minutes per day on the app—the highest engagement of any platform.',
-                'Attribution issues': 'Our advanced measurement solutions including CAPI, Brand Lift, and Conversion Lift provide clear attribution.',
-                'Competition': 'Stand out from competitors by being an early mover on TikTok in your vertical.',
-                'Scaling issues': 'TikTok\'s diverse ad formats and broad reach enable efficient scaling of campaigns.',
-                'Brand perception': 'Build authentic connections with audiences through native, creator-driven content.',
-                'New market entry': 'TikTok\'s global reach and cultural relevance make it ideal for market expansion.'
-            };
+            // Use data from JSON file
+            const goalActions = tiktokData.goalActions;
+            const challengeSolutions = tiktokData.challengeSolutions;
+            const scenarioMessages = tiktokData.scenarioMessages;
+            const stats = tiktokData.platformStats;
 
             const scenarioContext = formData.scenarios.length > 0
                 ? `\n\nCAMPAIGN CONTEXT: ${formData.scenarios.join(' + ')}`
                 : '';
 
+            // Build scenario-specific messaging from JSON
+            const scenarioText = formData.scenarios
+                .map(s => scenarioMessages[s] ? ' ' + scenarioMessages[s] : '')
+                .join('');
+
             const pitch = `
 🎯 PITCH FOR ${formData.clientName.toUpperCase()}${scenarioContext}
 
 THE OPPORTUNITY
-${formData.clientName} is looking to ${goalActions[formData.goal]} in the ${formData.market} market.${formData.scenarios.includes('New Product Launch') ? ' With a new product launch on the horizon, timing is critical to capture market attention.' : ''}${formData.scenarios.includes('Geo Expansion') ? ' As they expand into new geographic markets, reaching new audiences is essential.' : ''}${formData.scenarios.includes('Rebrand') ? ' With a rebrand underway, this is the perfect moment to reintroduce the brand to audiences.' : ''}${formData.scenarios.includes('Full Funnel') ? ' A full-funnel approach will maximize impact across awareness, consideration, and conversion.' : ''} As a ${formData.vertical} brand, there's a significant opportunity to leverage TikTok's unique ecosystem to achieve these goals.
+${formData.clientName} is looking to ${goalActions[formData.goal]} in the ${formData.market} market.${scenarioText} As a ${formData.vertical} brand, there's a significant opportunity to leverage TikTok's unique ecosystem to achieve these goals.
 
 THE CHALLENGE
 ${formData.challenge}: ${challengeSolutions[formData.challenge]}
 
 WHY TIKTOK NOW
-• TikTok has 1B+ monthly active users globally with exceptional engagement
+• TikTok has ${stats.monthlyActiveUsers} monthly active users globally with exceptional engagement
 • ${formData.ages.length > 0 ? `Your target audience (${formData.ages.join(', ')}) is highly active on TikTok` : 'Your target audience is highly engaged on TikTok'}
 • ${formData.channels.length > 0 ? `Diversifying from ${formData.channels.join(', ')} with TikTok delivers incremental reach` : 'TikTok offers access to audiences not reachable on other platforms'}
-• TikTok drives action: users are 1.5x more likely to purchase products discovered on the platform
+• TikTok drives action: users are ${stats.purchaseLikelihood}
 
 THE SOLUTION
 With a ${formatBudget(formData.budget)} investment from ${formatDate(formData.startDate)} to ${formatDate(formData.endDate)}, we recommend a full-funnel TikTok strategy featuring:
@@ -1247,14 +1362,8 @@ EXPECTED OUTCOMES
         }
 
         function generateFunnel() {
-            const budgetSplit = {
-                'Awareness': { upper: 50, mid: 30, lower: 20 },
-                'Consideration': { upper: 30, mid: 45, lower: 25 },
-                'Conversions': { upper: 20, mid: 30, lower: 50 },
-                'App Installs': { upper: 25, mid: 25, lower: 50 },
-                'Lead Gen': { upper: 25, mid: 35, lower: 40 },
-                'Engagement': { upper: 35, mid: 45, lower: 20 }
-            };
+            // Use data from JSON file
+            const budgetSplit = tiktokData.budgetSplits;
 
             const split = budgetSplit[formData.goal] || budgetSplit['Conversions'];
 
@@ -1394,14 +1503,8 @@ SUCCESS CRITERIA
             const weeks = Math.max(1, Math.ceil((end - start) / (7 * 24 * 60 * 60 * 1000)));
             const weeklyBudget = formData.budget / weeks;
 
-            const adFormats = {
-                'Awareness': ['TopView', 'In-Feed Ads', 'Branded Hashtag Challenge', 'Branded Effect'],
-                'Consideration': ['In-Feed Ads', 'Spark Ads', 'Interactive Add-ons', 'Branded Effect'],
-                'Conversions': ['In-Feed Ads', 'Spark Ads', 'Collection Ads', 'Dynamic Showcase Ads'],
-                'App Installs': ['In-Feed Ads', 'Spark Ads', 'Playable Ads', 'App Install Ads'],
-                'Lead Gen': ['In-Feed Ads', 'Lead Gen Ads', 'Spark Ads', 'Instant Form'],
-                'Engagement': ['In-Feed Ads', 'Spark Ads', 'Duet/Stitch enabled', 'Interactive Add-ons']
-            };
+            // Use data from JSON file
+            const adFormats = tiktokData.adFormats;
 
             const formats = adFormats[formData.goal] || adFormats['Conversions'];
 
@@ -1494,14 +1597,11 @@ BIDDING STRATEGY
         function generateIncentives() {
             const budget = formData.budget;
 
-            const incentives = [
-                { threshold: 25000, name: 'Starter Bonus', value: '5% media credit', unlocked: budget >= 25000 },
-                { threshold: 50000, name: 'Growth Accelerator', value: '10% media credit + priority support', unlocked: budget >= 50000 },
-                { threshold: 100000, name: 'Scale Package', value: '12% media credit + dedicated CSM', unlocked: budget >= 100000 },
-                { threshold: 250000, name: 'Premium Partner', value: '15% media credit + beta access + quarterly business reviews', unlocked: budget >= 250000 },
-                { threshold: 500000, name: 'Elite Partner', value: '18% media credit + custom solutions + executive sponsorship', unlocked: budget >= 500000 },
-                { threshold: 1000000, name: 'Strategic Partner', value: '20% media credit + full partnership benefits + co-marketing', unlocked: budget >= 1000000 }
-            ];
+            // Use data from JSON file - map to add unlocked status
+            const incentives = tiktokData.mediaIncentives.map(inc => ({
+                ...inc,
+                unlocked: budget >= inc.threshold
+            }));
 
             let html = `<div class="output-content">`;
             html += `<p><strong>Budget Level:</strong> ${formatBudget(budget)}</p><br>`;
@@ -1537,16 +1637,12 @@ BIDDING STRATEGY
             const budget = formData.budget;
             const creativeStatus = formData.creative;
 
-            const creativeOptions = [
-                { threshold: 0, name: 'Creative Center Access', desc: 'Free tools, templates, and best practices', unlocked: true },
-                { threshold: 0, name: 'TikTok Creative Exchange', desc: 'Connect with creator network for content', unlocked: true },
-                { threshold: 25000, name: 'Creative Consultation', desc: '1:1 session with creative strategist', unlocked: budget >= 25000 },
-                { threshold: 50000, name: 'Creative Playbook', desc: 'Custom creative guidelines and templates', unlocked: budget >= 50000 },
-                { threshold: 100000, name: 'Dedicated Creative Partner', desc: 'Ongoing creative strategy support', unlocked: budget >= 100000 },
-                { threshold: 150000, name: 'Creator Matching', desc: 'Curated creator recommendations and intros', unlocked: budget >= 150000 },
-                { threshold: 250000, name: 'Creative Production Credit', desc: 'Subsidized creative production', unlocked: budget >= 250000 },
-                { threshold: 500000, name: 'Full Creative Services', desc: 'End-to-end creative production support', unlocked: budget >= 500000 }
-            ];
+            // Use data from JSON file - map to add unlocked status and desc alias
+            const creativeOptions = tiktokData.creativeSupport.map(opt => ({
+                ...opt,
+                desc: opt.description,
+                unlocked: budget >= opt.threshold
+            }));
 
             let html = `<div class="output-content">`;
             html += `<p><strong>Creative Status:</strong> ${creativeStatus}</p>`;
@@ -1586,87 +1682,10 @@ BIDDING STRATEGY
         }
 
         function generateBestPractices() {
-            const verticalPractices = {
-                'E-commerce': [
-                    'Use Spark Ads to boost authentic creator content featuring products',
-                    'Implement TikTok Shop for seamless in-app purchasing',
-                    'Show products in action with quick, engaging demonstrations',
-                    'Use urgency-driving hooks like "limited time" or "selling fast"',
-                    'Test Collection Ads to showcase multiple products'
-                ],
-                'Gaming': [
-                    'Feature actual gameplay footage in the first 3 seconds',
-                    'Partner with gaming creators for authentic endorsements',
-                    'Use Playable Ads for interactive game demos',
-                    'Target by gaming interests and related game titles',
-                    'Show game progression and rewards to drive installs'
-                ],
-                'App': [
-                    'Demo the core app experience in under 15 seconds',
-                    'Use screen recordings with engaging voiceovers',
-                    'Highlight the immediate value/benefit users get',
-                    'Test Playable Ads for interactive previews',
-                    'Partner with creators who authentically use the app'
-                ],
-                'Finance': [
-                    'Make complex topics simple and relatable',
-                    'Use educational, value-driven content hooks',
-                    'Partner with finance creators for credibility',
-                    'Focus on life improvements, not just features',
-                    'Ensure compliance with financial advertising regulations'
-                ],
-                'Beauty': [
-                    'Feature before/after transformations',
-                    'Partner with beauty creators for tutorials',
-                    'Use ASMR and satisfying application moments',
-                    'Show real results from real people',
-                    'Leverage trending sounds and effects'
-                ],
-                'Fashion': [
-                    'Show outfit transitions and styling tips',
-                    'Use trending sounds for outfit reveals',
-                    'Partner with fashion creators for OOTD content',
-                    'Feature inclusive sizing and diverse models',
-                    'Create shoppable looks with Collection Ads'
-                ]
-            };
-
-            const goalPractices = {
-                'Awareness': [
-                    'Focus on entertainment value first, brand second',
-                    'Use TopView for maximum impact during key moments',
-                    'Invest in Branded Hashtag Challenges for virality',
-                    'Prioritize reach over frequency initially',
-                    'Measure success with Brand Lift studies'
-                ],
-                'Conversions': [
-                    'Implement TikTok Pixel + Conversion API for optimal tracking',
-                    'Use Value-Based Optimization to find high-value customers',
-                    'Test Dynamic Showcase Ads for personalized recommendations',
-                    'Retarget video viewers and website visitors',
-                    'Set up Conversion Lift studies to measure incrementality'
-                ],
-                'App Installs': [
-                    'Optimize for in-app events, not just installs',
-                    'Use deep linking to specific app content',
-                    'Show the app experience in the first 3 seconds',
-                    'Target by relevant app and interest categories',
-                    'Measure post-install events and LTV'
-                ]
-            };
-
-            const universalPractices = [
-                'Hook viewers in the first 1-2 seconds with movement, text, or intrigue',
-                'Create native content that feels organic to TikTok, not like an ad',
-                'Use trending sounds strategically (check Commercial Music Library)',
-                'Keep videos between 9-15 seconds for optimal completion rates',
-                'Include clear CTAs but make them feel natural to the content',
-                'Test 3-5 creative concepts per ad group for variety',
-                'Refresh creative every 7-14 days to combat fatigue',
-                'Use text overlays - 40% of users watch with sound off',
-                'Feature real people over polished productions when possible',
-                'Engage with comments to boost organic visibility'
-            ];
+            // Use data from JSON file
+            const verticalPractices = tiktokData.bestPractices.byVertical;
+            const goalPractices = tiktokData.bestPractices.byGoal;
+            const universalPractices = tiktokData.bestPractices.universal;
 
             let html = `<div class="output-content">`;
 

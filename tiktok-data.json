@@ -1,0 +1,429 @@
+{
+  "_meta": {
+    "version": "1.0",
+    "lastUpdated": "2025-01-28",
+    "description": "TikTok Sales Enablement Data - Edit this file to update content in the questionnaire tool"
+  },
+
+  "platformStats": {
+    "monthlyActiveUsers": "1B+",
+    "avgDailyTimeSpent": "95 minutes",
+    "purchaseLikelihood": "1.5x more likely to purchase products discovered on platform",
+    "genZReach": "60% of users aged 16-24"
+  },
+
+  "goalActions": {
+    "Awareness": "build brand recognition and reach new audiences",
+    "Consideration": "drive consideration and engagement with the brand",
+    "Conversions": "drive measurable conversions and sales",
+    "App Installs": "acquire high-quality app users at scale",
+    "Lead Gen": "generate qualified leads efficiently",
+    "Engagement": "foster community engagement and brand love"
+  },
+
+  "challengeSolutions": {
+    "Reaching younger audiences": "TikTok is THE platform to reach Gen Z and Millennials, with 60% of users aged 16-24.",
+    "Creative fatigue": "TikTok's native, authentic content style combats creative fatigue with fresh, engaging formats.",
+    "Rising CPMs": "TikTok offers competitive CPMs with strong performance, helping optimize your media efficiency.",
+    "Limited reach": "With 1B+ monthly active users, TikTok provides massive incremental reach to complement existing channels.",
+    "Low engagement": "TikTok users spend an average of 95 minutes per day on the app—the highest engagement of any platform.",
+    "Attribution issues": "Our advanced measurement solutions including CAPI, Brand Lift, and Conversion Lift provide clear attribution.",
+    "Competition": "Stand out from competitors by being an early mover on TikTok in your vertical.",
+    "Scaling issues": "TikTok's diverse ad formats and broad reach enable efficient scaling of campaigns.",
+    "Brand perception": "Build authentic connections with audiences through native, creator-driven content.",
+    "New market entry": "TikTok's global reach and cultural relevance make it ideal for market expansion."
+  },
+
+  "scenarioMessages": {
+    "New Product Launch": "With a new product launch on the horizon, timing is critical to capture market attention.",
+    "Geo Expansion": "As they expand into new geographic markets, reaching new audiences is essential.",
+    "Rebrand": "With a rebrand underway, this is the perfect moment to reintroduce the brand to audiences.",
+    "Full Funnel": "A full-funnel approach will maximize impact across awareness, consideration, and conversion.",
+    "Seasonal Campaign": "Seasonal moments drive peak consumer intent—perfect timing to maximize TikTok's engaged audiences.",
+    "Always On": "An always-on presence builds sustained brand awareness and keeps the brand top-of-mind."
+  },
+
+  "budgetSplits": {
+    "Awareness": { "upper": 50, "mid": 30, "lower": 20 },
+    "Consideration": { "upper": 30, "mid": 45, "lower": 25 },
+    "Conversions": { "upper": 20, "mid": 30, "lower": 50 },
+    "App Installs": { "upper": 25, "mid": 25, "lower": 50 },
+    "Lead Gen": { "upper": 25, "mid": 35, "lower": 40 },
+    "Engagement": { "upper": 35, "mid": 45, "lower": 20 }
+  },
+
+  "adFormats": {
+    "Awareness": ["TopView", "In-Feed Ads", "Branded Hashtag Challenge", "Branded Effect"],
+    "Consideration": ["In-Feed Ads", "Spark Ads", "Interactive Add-ons", "Branded Effect"],
+    "Conversions": ["In-Feed Ads", "Spark Ads", "Collection Ads", "Dynamic Showcase Ads"],
+    "App Installs": ["In-Feed Ads", "Spark Ads", "Playable Ads", "App Install Ads"],
+    "Lead Gen": ["In-Feed Ads", "Lead Gen Ads", "Spark Ads", "Instant Form"],
+    "Engagement": ["In-Feed Ads", "Spark Ads", "Duet/Stitch enabled", "Interactive Add-ons"]
+  },
+
+  "adFormatDetails": {
+    "TopView": {
+      "name": "TopView",
+      "type": "Premium Placement",
+      "description": "Full-screen, sound-on video up to 60 seconds",
+      "placement": "First ad users see when opening TikTok",
+      "bestFor": "Maximum awareness and impact",
+      "recommendation": "3-5 days during key moments"
+    },
+    "In-Feed Ads": {
+      "name": "In-Feed Ads",
+      "type": "Core Format",
+      "description": "Native, full-screen video ads in For You feed",
+      "placement": "For You feed",
+      "bestFor": "All objectives, always-on presence",
+      "recommendation": "Throughout campaign",
+      "optimalLength": "9-15 seconds"
+    },
+    "Spark Ads": {
+      "name": "Spark Ads",
+      "type": "Boosted Native",
+      "description": "Boost organic TikToks or creator content",
+      "placement": "For You feed",
+      "bestFor": "Engagement, authenticity",
+      "recommendation": "40-60% of In-Feed budget"
+    },
+    "Collection Ads": {
+      "name": "Collection Ads",
+      "type": "E-commerce",
+      "description": "Product cards with instant gallery",
+      "placement": "For You feed with product tiles",
+      "bestFor": "Driving product discovery and sales"
+    },
+    "Dynamic Showcase Ads": {
+      "name": "Dynamic Showcase Ads",
+      "type": "Personalized",
+      "description": "Auto-generated from product catalog",
+      "placement": "For You feed",
+      "bestFor": "Retargeting, large catalogs"
+    },
+    "Branded Hashtag Challenge": {
+      "name": "Branded Hashtag Challenge",
+      "type": "Premium",
+      "description": "Sponsored hashtag with dedicated landing page",
+      "placement": "Discover page + For You feed",
+      "bestFor": "Virality, UGC generation, brand awareness"
+    },
+    "Branded Effect": {
+      "name": "Branded Effect",
+      "type": "Interactive",
+      "description": "Custom AR filters, stickers, and effects",
+      "placement": "Effects panel + organic content",
+      "bestFor": "Engagement, brand interaction, UGC"
+    },
+    "Playable Ads": {
+      "name": "Playable Ads",
+      "type": "Interactive",
+      "description": "Mini interactive game experience",
+      "placement": "For You feed",
+      "bestFor": "Gaming, app previews"
+    },
+    "Lead Gen Ads": {
+      "name": "Lead Gen Ads",
+      "type": "Performance",
+      "description": "Native lead capture forms",
+      "placement": "For You feed with instant form",
+      "bestFor": "Lead collection without leaving TikTok"
+    }
+  },
+
+  "mediaIncentives": [
+    {
+      "threshold": 25000,
+      "name": "Starter Bonus",
+      "value": "5% media credit",
+      "details": "Applied to first campaign"
+    },
+    {
+      "threshold": 50000,
+      "name": "Growth Accelerator",
+      "value": "10% media credit + priority support",
+      "details": "Dedicated support queue access"
+    },
+    {
+      "threshold": 100000,
+      "name": "Scale Package",
+      "value": "12% media credit + dedicated CSM",
+      "details": "Named Customer Success Manager"
+    },
+    {
+      "threshold": 250000,
+      "name": "Premium Partner",
+      "value": "15% media credit + beta access + quarterly business reviews",
+      "details": "Early access to new features"
+    },
+    {
+      "threshold": 500000,
+      "name": "Elite Partner",
+      "value": "18% media credit + custom solutions + executive sponsorship",
+      "details": "Custom integrations available"
+    },
+    {
+      "threshold": 1000000,
+      "name": "Strategic Partner",
+      "value": "20% media credit + full partnership benefits + co-marketing",
+      "details": "Joint marketing opportunities"
+    }
+  ],
+
+  "creativeSupport": [
+    {
+      "threshold": 0,
+      "name": "Creative Center Access",
+      "description": "Free tools, templates, and best practices",
+      "alwaysAvailable": true
+    },
+    {
+      "threshold": 0,
+      "name": "TikTok Creative Exchange",
+      "description": "Connect with creator network for content",
+      "alwaysAvailable": true
+    },
+    {
+      "threshold": 25000,
+      "name": "Creative Consultation",
+      "description": "1:1 session with creative strategist"
+    },
+    {
+      "threshold": 50000,
+      "name": "Creative Playbook",
+      "description": "Custom creative guidelines and templates"
+    },
+    {
+      "threshold": 100000,
+      "name": "Dedicated Creative Partner",
+      "description": "Ongoing creative strategy support"
+    },
+    {
+      "threshold": 150000,
+      "name": "Creator Matching",
+      "description": "Curated creator recommendations and intros"
+    },
+    {
+      "threshold": 250000,
+      "name": "Creative Production Credit",
+      "description": "Subsidized creative production"
+    },
+    {
+      "threshold": 500000,
+      "name": "Full Creative Services",
+      "description": "End-to-end creative production support"
+    }
+  ],
+
+  "bestPractices": {
+    "universal": [
+      "Hook viewers in the first 1-2 seconds with movement, text, or intrigue",
+      "Create native content that feels organic to TikTok, not like an ad",
+      "Use trending sounds strategically (check Commercial Music Library)",
+      "Keep videos between 9-15 seconds for optimal completion rates",
+      "Include clear CTAs but make them feel natural to the content",
+      "Test 3-5 creative concepts per ad group for variety",
+      "Refresh creative every 7-14 days to combat fatigue",
+      "Use text overlays - 40% of users watch with sound off",
+      "Feature real people over polished productions when possible",
+      "Engage with comments to boost organic visibility"
+    ],
+    "byVertical": {
+      "E-commerce": [
+        "Use Spark Ads to boost authentic creator content featuring products",
+        "Implement TikTok Shop for seamless in-app purchasing",
+        "Show products in action with quick, engaging demonstrations",
+        "Use urgency-driving hooks like 'limited time' or 'selling fast'",
+        "Test Collection Ads to showcase multiple products"
+      ],
+      "Gaming": [
+        "Feature actual gameplay footage in the first 3 seconds",
+        "Partner with gaming creators for authentic endorsements",
+        "Use Playable Ads for interactive game demos",
+        "Target by gaming interests and related game titles",
+        "Show game progression and rewards to drive installs"
+      ],
+      "App": [
+        "Demo the core app experience in under 15 seconds",
+        "Use screen recordings with engaging voiceovers",
+        "Highlight the immediate value/benefit users get",
+        "Test Playable Ads for interactive previews",
+        "Partner with creators who authentically use the app"
+      ],
+      "Finance": [
+        "Make complex topics simple and relatable",
+        "Use educational, value-driven content hooks",
+        "Partner with finance creators for credibility",
+        "Focus on life improvements, not just features",
+        "Ensure compliance with financial advertising regulations"
+      ],
+      "CPG": [
+        "Show product in real-life usage scenarios",
+        "Partner with lifestyle creators for authentic content",
+        "Use before/after or transformation content",
+        "Leverage seasonal moments and trending topics",
+        "Create shareable, entertaining content"
+      ],
+      "Auto": [
+        "Highlight key features through dynamic visuals",
+        "Use POV and lifestyle content over traditional car ads",
+        "Partner with auto enthusiast creators",
+        "Show the driving experience, not just the vehicle",
+        "Target by life events (new job, family, etc.)"
+      ],
+      "Travel": [
+        "Use immersive, destination-focused content",
+        "Partner with travel creators for authentic experiences",
+        "Show the feeling of being there, not just logistics",
+        "Use trending sounds and effects for discovery",
+        "Target by travel interests and intent signals"
+      ],
+      "Entertainment": [
+        "Tease content without giving too much away",
+        "Use clips that create FOMO or curiosity",
+        "Partner with entertainment creators for reactions",
+        "Leverage trending moments and cultural conversations",
+        "Create interactive content (polls, duets)"
+      ],
+      "Tech": [
+        "Show the product solving real problems",
+        "Use quick demos and feature highlights",
+        "Partner with tech reviewers and enthusiasts",
+        "Compare to alternatives in subtle ways",
+        "Focus on outcomes, not specs"
+      ],
+      "Food": [
+        "Use satisfying, ASMR-style food content",
+        "Show preparation and finished dishes",
+        "Partner with food creators and home cooks",
+        "Leverage meal occasions and cultural moments",
+        "Create craveable, shareable content"
+      ],
+      "Beauty": [
+        "Feature before/after transformations",
+        "Partner with beauty creators for tutorials",
+        "Use ASMR and satisfying application moments",
+        "Show real results from real people",
+        "Leverage trending sounds and effects"
+      ],
+      "Fashion": [
+        "Show outfit transitions and styling tips",
+        "Use trending sounds for outfit reveals",
+        "Partner with fashion creators for OOTD content",
+        "Feature inclusive sizing and diverse models",
+        "Create shoppable looks with Collection Ads"
+      ],
+      "Health": [
+        "Focus on wellness journeys and transformations",
+        "Partner with fitness and health creators",
+        "Use motivational and educational content",
+        "Ensure compliance with health advertising regulations",
+        "Show real people achieving real results"
+      ],
+      "Education": [
+        "Use quick, valuable educational snippets",
+        "Partner with educator and expert creators",
+        "Show learning outcomes and success stories",
+        "Make complex topics accessible and engaging",
+        "Use trending formats for educational content"
+      ]
+    },
+    "byGoal": {
+      "Awareness": [
+        "Focus on entertainment value first, brand second",
+        "Use TopView for maximum impact during key moments",
+        "Invest in Branded Hashtag Challenges for virality",
+        "Prioritize reach over frequency initially",
+        "Measure success with Brand Lift studies"
+      ],
+      "Consideration": [
+        "Create content that invites engagement (comments, shares)",
+        "Use Interactive Add-ons to boost engagement",
+        "Partner with creators for authentic endorsements",
+        "Focus on brand story and values",
+        "Retarget video viewers with deeper content"
+      ],
+      "Conversions": [
+        "Implement TikTok Pixel + Conversion API for optimal tracking",
+        "Use Value-Based Optimization to find high-value customers",
+        "Test Dynamic Showcase Ads for personalized recommendations",
+        "Retarget video viewers and website visitors",
+        "Set up Conversion Lift studies to measure incrementality"
+      ],
+      "App Installs": [
+        "Optimize for in-app events, not just installs",
+        "Use deep linking to specific app content",
+        "Show the app experience in the first 3 seconds",
+        "Target by relevant app and interest categories",
+        "Measure post-install events and LTV"
+      ],
+      "Lead Gen": [
+        "Use native Lead Gen forms for seamless capture",
+        "Offer clear value exchange for information",
+        "Keep forms short - 3-5 fields maximum",
+        "Use qualifying questions to improve lead quality",
+        "Set up CRM integration for immediate follow-up"
+      ],
+      "Engagement": [
+        "Create content that invites participation",
+        "Use Duet and Stitch-enabled content",
+        "Partner with creators for authentic engagement",
+        "Respond to comments to boost visibility",
+        "Leverage trending challenges and sounds"
+      ]
+    }
+  },
+
+  "measurementSetup": {
+    "Advanced": [
+      "Marketing Mix Modeling (MMM) integration",
+      "Multi-Touch Attribution (MTA) setup",
+      "TikTok Pixel with Events API (CAPI)",
+      "Offline conversion tracking",
+      "Advanced matching enabled"
+    ],
+    "Intermediate": [
+      "TikTok Pixel implementation",
+      "Conversion API (CAPI) setup",
+      "Standard events configured",
+      "Custom events for key actions"
+    ],
+    "Basic": [
+      "TikTok Pixel implementation",
+      "Standard events (ViewContent, AddToCart, Purchase)",
+      "TikTok Ads Manager reporting"
+    ]
+  },
+
+  "measurementRecommendations": {
+    "Intermediate": "Consider: MMM integration for full picture",
+    "Basic": "Recommended: Upgrade to CAPI for better matching. Consider: Brand Lift study for awareness measurement"
+  },
+
+  "liftStudies": {
+    "brandLift": {
+      "name": "Brand Lift Study",
+      "description": "Measure awareness, consideration, intent",
+      "minSpend": 50000
+    },
+    "conversionLift": {
+      "name": "Conversion Lift Study",
+      "description": "Measure incremental conversions",
+      "minSpend": 100000
+    }
+  },
+
+  "kpis": {
+    "upperFunnel": ["Reach", "Frequency", "Video View Rate (VTR)", "Cost per 1000 Impressions (CPM)", "Brand Lift metrics"],
+    "midFunnel": ["Click-Through Rate (CTR)", "Engagement Rate", "Cost per Click (CPC)", "Landing page views"],
+    "lowerFunnel": ["Conversion Rate (CVR)", "Cost per Acquisition (CPA)", "Return on Ad Spend (ROAS)", "Conversion volume"]
+  },
+
+  "reportingCadence": [
+    { "frequency": "Daily", "focus": "Spend pacing, key metrics monitoring" },
+    { "frequency": "Weekly", "focus": "Performance review, optimization actions" },
+    { "frequency": "Bi-weekly", "focus": "Stakeholder update, strategic adjustments" },
+    { "frequency": "Monthly", "focus": "Full performance report, insights & recommendations" },
+    { "frequency": "Post-campaign", "focus": "Wrap report with learnings & next steps" }
+  ]
+}
