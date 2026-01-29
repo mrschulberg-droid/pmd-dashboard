@@ -107,26 +107,13 @@
     "liftStudies": {
       "brandLift": {
         "byRegion": {
-          "Global": {
-            "minSpend": 150000,
-            "minUniqueReach": 5500000,
-            "maxQuestions": 4,
-            "mandatoryQuestion": "Ad Recall",
-            "leadTimeDays": 5,
-            "buyingTypes": {
-              "auction":            { "eligible": true, "minSpend": 150000, "sourceOfTruth": "Check BLS All-in-One sheet or BLS setup UI for current thresholds." },
-              "reachAndFrequency":  { "eligible": true, "minSpend": null,   "sourceOfTruth": "Check BLS All-in-One sheet — R&F thresholds differ from auction." }
-            }
-          },
-          "NA":    { "minUniqueReach": 6000000, "buyingTypes": { "auction": { "minSpend": 150000, "sourceOfTruth": "Check BLS All-in-One sheet or BLS setup UI for current NA thresholds." } } },
-          "EUI":   { "sourceOfTruth": "Uses Global defaults. Check BLS All-in-One sheet for EUI-specific overrides." },
-          "LATAM": { "sourceOfTruth": "Uses Global defaults. Check BLS All-in-One sheet for LATAM-specific overrides." },
-          "APAC":  { "sourceOfTruth": "Uses Global defaults. Check BLS All-in-One sheet for APAC-specific overrides." }
+          "Global": { "minSpend": 150000, "minUniqueReach": 5500000, "maxQuestions": 4, "mandatoryQuestion": "Ad Recall", "leadTimeDays": 5 },
+          "NA":     { "minUniqueReach": 6000000 }
         }
       },
       "conversionLift": {
         "byRegion": {
-          "Global": { "minSpend": 100000, "sourceOfTruth": "Check Conversion Lift setup docs for current thresholds." }
+          "Global": { "sourceOfTruth": "Check Conversion Lift setup docs for current thresholds." }
         }
       }
     },
