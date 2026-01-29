@@ -1099,6 +1099,109 @@
         }
 
         /**
+         * Determine lift study eligibility status.
+         * Returns { status, liftType, region, thresholds, disclaimer, safeZoneHint?, plan?, sourceOfTruth? }
+         */
+        function getLiftStudyStatus({ market, measurementMode, liftStudyType, plannedSpendUsd, plannedUniqueReach, buyingType, tiktokData }) {
+            // A) Not in lift mode
+            if (measurementMode !== 'lift') {
+                return { status: 'standard' };
+            }
+
+            const regionPack = mapMarketToRegionPack(market);
+
+            // B) Brand Lift Study
+            if (liftStudyType === 'bls') {
+                const byRegion = tiktokData.volatile?.liftStudies?.brandLift?.byRegion;
+                if (!byRegion) {
+                    return { status: 'unknown', liftType: 'bls', region: regionPack,
+                             sourceOfTruth: 'volatile.liftStudies.brandLift.byRegion is missing from JSON.' };
+                }
+
+                // Merge Global defaults + region overrides
+                const global = byRegion.Global || {};
+                const regional = byRegion[regionPack] || {};
+                const merged = { ...global, ...regional };
+
+                // Resolve buying-type-specific minSpend if available
+                const bt = buyingType || 'auction';
+                const globalBt = global.buyingTypes?.[bt] || {};
+                const regionalBt = regional.buyingTypes?.[bt] || {};
+                const mergedBt = { ...globalBt, ...regionalBt };
+                const minSpend = mergedBt.minSpend ?? merged.minSpend ?? null;
+                const minReach = merged.minUniqueReach ?? null;
+
+                const disclaimer = 'Meeting minimum spend does NOT guarantee hitting minimum unique reach/sample. Best practice is to invest more to be in the safe zone.';
+
+                const result = {
+                    liftType: 'bls',
+                    region: regionPack,
+                    buyingType: bt,
+                    thresholds: { minSpend, minUniqueReach: minReach },
+                    disclaimer
+                };
+
+                // Unknown thresholds
+                if (minSpend === null) {
+                    result.status = 'unknown';
+                    result.sourceOfTruth = mergedBt.sourceOfTruth || regional.sourceOfTruth || 'Check BLS All-in-One sheet for thresholds.';
+                    return result;
+                }
+
+                // Spend check
+                if (plannedSpendUsd == null || plannedSpendUsd < minSpend) {
+                    result.status = 'not_eligible';
+                    result.reason = plannedSpendUsd == null
+                        ? 'Planned spend not provided.'
+                        : `Planned spend ($${plannedSpendUsd.toLocaleString()}) is below minimum ($${minSpend.toLocaleString()}).`;
+                    return result;
+                }
+
+                // Reach check
+                if (plannedUniqueReach == null) {
+                    result.status = 'potentially_eligible';
+                    result.reason = 'Spend meets minimum. Unique reach not provided — confirm reach estimate to verify full eligibility.';
+                } else if (minReach !== null && plannedUniqueReach < minReach) {
+                    result.status = 'not_eligible';
+                    result.reason = `Estimated reach (${plannedUniqueReach.toLocaleString()}) is below minimum (${minReach.toLocaleString()}).`;
+                } else {
+                    result.status = 'eligible';
+                }
+
+                // Safe-zone hint: spend within 0–20% above minSpend
+                if (plannedSpendUsd <= minSpend * 1.2) {
+                    result.safeZoneHint = 'You\'re close to the minimum. Consider increasing spend to improve reach reliability.';
+                }
+
+                return result;
+            }
+
+            // C) Multi-cell Conversion Lift Study
+            if (liftStudyType === 'cls_multicell') {
+                return {
+                    status: 'consult_ms',
+                    liftType: 'cls_multicell',
+                    region: regionPack,
+                    plan: {
+                        holdout: '15%',
+                        cells: [
+                            { id: 'B', mix: '100% Brand Auction' },
+                            { id: 'C', mix: '70% Brand Auction + 30% Consideration Ads' }
+                        ],
+                        duration: '~4 weeks',
+                        primaryKPI: 'Incremental CVR',
+                        secondaryKPIs: ['iCPA', 'iROAS']
+                    },
+                    disclaimer: 'Minimum spend/feasibility confirmed with Marketing Science.'
+                };
+            }
+
+            // Fallback: unknown lift type
+            return { status: 'unknown', liftType: liftStudyType, region: regionPack,
+                     sourceOfTruth: 'Unrecognized lift study type.' };
+        }
+
+        /**
          * Normalizes TikTok data with optional region-based content packs.
          * If contentPacks exists, merges: base + Global + region-specific pack.
          * Backward compatible: returns raw unchanged if no contentPacks.
