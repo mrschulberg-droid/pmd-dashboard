@@ -1,0 +1,12 @@
+{
+  "volatile": {
+    "_meta": { "lastReviewed": "2026-01-29" },
+    "liftStudies": {
+      "brandLift": {
+        "byRegion": {
+          "NA": { "minUniqueReach": 6000000 }
+        }
+      }
+    }
+  }
+}
