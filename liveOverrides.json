@@ -1,6 +1,15 @@
 {
   "volatile": {
-    "_meta": { "lastReviewed": "2026-01-29" },
+    "_meta": {
+      "lastReviewed": "2026-01-29",
+      "sources": [
+        {
+          "title": "BLS setup UI / All-in-One thresholds sheet",
+          "ref": "Internal TikTok doc",
+          "checkedOn": "2026-01-29"
+        }
+      ]
+    },
     "liftStudies": {
       "brandLift": {
         "byRegion": {
