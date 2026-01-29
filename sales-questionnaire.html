@@ -1243,6 +1243,57 @@
             return merged;
         }
 
+        // Validate liveOverrides structure before merging
+        function validateOverrides(o) {
+            const dateRe = /^\d{4}-\d{2}-\d{2}$/;
+
+            // Top-level: only "volatile" key allowed
+            if (!o || typeof o !== 'object') return 'overrides is not an object';
+            const keys = Object.keys(o);
+            if (keys.length === 0 || keys.some(k => k !== 'volatile')) {
+                return 'overrides must contain only a "volatile" key';
+            }
+
+            const vol = o.volatile;
+            if (!vol || typeof vol !== 'object') return 'volatile is not an object';
+
+            // _meta.lastReviewed
+            if (!vol._meta || !dateRe.test(vol._meta.lastReviewed)) {
+                return '_meta.lastReviewed must exist and match YYYY-MM-DD';
+            }
+
+            // _meta.sources
+            const src = vol._meta.sources;
+            if (!Array.isArray(src) || src.length === 0) {
+                return '_meta.sources must be a non-empty array';
+            }
+            for (let i = 0; i < src.length; i++) {
+                const s = src[i];
+                if (!s.title || !s.ref || !dateRe.test(s.checkedOn)) {
+                    return `_meta.sources[${i}] must have title, ref, and checkedOn (YYYY-MM-DD)`;
+                }
+            }
+
+            // Recursively check that minSpend/minUniqueReach are numbers
+            const checkNumbers = (obj, path) => {
+                if (!obj || typeof obj !== 'object') return null;
+                for (const k of Object.keys(obj)) {
+                    if ((k === 'minSpend' || k === 'minUniqueReach') && typeof obj[k] !== 'number') {
+                        return `${path}.${k} must be a number, got ${typeof obj[k]}`;
+                    }
+                    if (typeof obj[k] === 'object' && obj[k] !== null) {
+                        const err = checkNumbers(obj[k], `${path}.${k}`);
+                        if (err) return err;
+                    }
+                }
+                return null;
+            };
+            const numErr = checkNumbers(vol, 'volatile');
+            if (numErr) return numErr;
+
+            return null; // valid
+        }
+
         // Deep-merge helper: recursively merges source into target (objects only; arrays/primitives overwrite)
         function deepMerge(target, source) {
             const out = { ...target };
@@ -1275,15 +1326,18 @@
                 rawData = getEmbeddedData();
             }
 
-            // Optional: load live overrides and deep-merge volatile layer
+            // Optional: load live overrides, validate, then deep-merge volatile layer
             try {
                 const overResp = await fetch('liveOverrides.json');
                 if (overResp.ok) {
                     const overrides = await overResp.json();
-                    if (overrides.volatile && rawData.volatile) {
+                    const vErr = validateOverrides(overrides);
+                    if (vErr) {
+                        console.warn('liveOverrides rejected:', vErr);
+                    } else if (rawData.volatile) {
                         rawData.volatile = deepMerge(rawData.volatile, overrides.volatile);
+                        console.log('liveOverrides loaded');
                     }
-                    console.log('liveOverrides loaded');
                 }
             } catch (e) { /* 404 or network error — continue silently */ }
 
