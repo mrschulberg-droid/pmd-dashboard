@@ -1,0 +1,207 @@
+{
+  "volatile": {
+    "_meta": {
+      "description": "Frequently-changing fields. Review monthly or when notified of updates.",
+      "lastReviewed": null,
+      "reviewedBy": null
+    },
+    "measurement": {
+      "liftStudies": {
+        "sourceOfTruth": "Check BLS All-in-One sheet or BLS setup UI in TikTok Ads Manager for current thresholds. Values change by region and buying type.",
+        "thresholdsByRegion": {
+          "US": {
+            "auction": {
+              "minSpend": null,
+              "minImpressions": null,
+              "recommendedFlightDays": null,
+              "notes": "Populate from BLS All-in-One sheet"
+            },
+            "reachAndFrequency": {
+              "minSpend": null,
+              "minImpressions": null,
+              "recommendedFlightDays": null,
+              "notes": "Populate from BLS All-in-One sheet"
+            }
+          },
+          "UK": {
+            "auction": {
+              "minSpend": null,
+              "minImpressions": null,
+              "recommendedFlightDays": null,
+              "notes": "Populate from BLS All-in-One sheet"
+            },
+            "reachAndFrequency": {
+              "minSpend": null,
+              "minImpressions": null,
+              "recommendedFlightDays": null,
+              "notes": "Populate from BLS All-in-One sheet"
+            }
+          },
+          "DACH": {
+            "auction": {
+              "minSpend": null,
+              "minImpressions": null,
+              "recommendedFlightDays": null,
+              "notes": "Populate from BLS All-in-One sheet"
+            },
+            "reachAndFrequency": {
+              "minSpend": null,
+              "minImpressions": null,
+              "recommendedFlightDays": null,
+              "notes": "Populate from BLS All-in-One sheet"
+            }
+          },
+          "LATAM": {
+            "auction": {
+              "minSpend": null,
+              "minImpressions": null,
+              "recommendedFlightDays": null,
+              "notes": "Populate from BLS All-in-One sheet"
+            },
+            "reachAndFrequency": {
+              "minSpend": null,
+              "minImpressions": null,
+              "recommendedFlightDays": null,
+              "notes": "Populate from BLS All-in-One sheet"
+            }
+          },
+          "APAC": {
+            "auction": {
+              "minSpend": null,
+              "minImpressions": null,
+              "recommendedFlightDays": null,
+              "notes": "Populate from BLS All-in-One sheet"
+            },
+            "reachAndFrequency": {
+              "minSpend": null,
+              "minImpressions": null,
+              "recommendedFlightDays": null,
+              "notes": "Populate from BLS All-in-One sheet"
+            }
+          }
+        },
+        "studyTypes": {
+          "brandLift": {
+            "available": true,
+            "sourceOfTruth": "BLS setup UI"
+          },
+          "conversionLift": {
+            "available": true,
+            "sourceOfTruth": "BLS setup UI"
+          },
+          "salesLift": {
+            "available": true,
+            "sourceOfTruth": "Contact measurement team for partner availability"
+          }
+        }
+      }
+    },
+    "quotas": {
+      "_note": "Quotas are market monthly caps. Check with your GBM or quota tracker for current availability.",
+      "sourceOfTruth": "Internal quota tracker / GBM team",
+      "byRegion": {
+        "US": {
+          "brandLiftStudies": null,
+          "topViewSlots": null,
+          "reachAndFrequencyReservations": null,
+          "notes": "Check quota tracker for current month availability"
+        },
+        "UK": {
+          "brandLiftStudies": null,
+          "topViewSlots": null,
+          "reachAndFrequencyReservations": null,
+          "notes": "Check quota tracker for current month availability"
+        },
+        "DACH": {
+          "brandLiftStudies": null,
+          "topViewSlots": null,
+          "reachAndFrequencyReservations": null,
+          "notes": "Check quota tracker for current month availability"
+        },
+        "LATAM": {
+          "brandLiftStudies": null,
+          "topViewSlots": null,
+          "reachAndFrequencyReservations": null,
+          "notes": "Check quota tracker for current month availability"
+        },
+        "APAC": {
+          "brandLiftStudies": null,
+          "topViewSlots": null,
+          "reachAndFrequencyReservations": null,
+          "notes": "Check quota tracker for current month availability"
+        }
+      }
+    },
+    "productAvailability": {
+      "sourceOfTruth": "Product release notes / regional product team",
+      "byRegion": {
+        "US": {
+          "searchAds": { "available": true, "namingVariant": "Search Ads" },
+          "smartPlus": { "available": true, "namingVariant": "Smart+" },
+          "gmv": { "available": true, "namingVariant": "GMV Max" },
+          "unifiedLift": { "available": true, "namingVariant": "Unified Lift" },
+          "interactiveAddOns": { "available": true, "namingVariant": "Interactive Add-Ons" }
+        },
+        "UK": {
+          "searchAds": { "available": true, "namingVariant": "Search Ads" },
+          "smartPlus": { "available": true, "namingVariant": "Smart+" },
+          "gmv": { "available": false, "namingVariant": null },
+          "unifiedLift": { "available": true, "namingVariant": "Unified Lift" },
+          "interactiveAddOns": { "available": true, "namingVariant": "Interactive Add-Ons" }
+        },
+        "DACH": {
+          "searchAds": { "available": null, "namingVariant": null, "notes": "Check regional availability" },
+          "smartPlus": { "available": true, "namingVariant": "Smart+" },
+          "gmv": { "available": false, "namingVariant": null },
+          "unifiedLift": { "available": null, "namingVariant": null, "notes": "Check regional availability" },
+          "interactiveAddOns": { "available": true, "namingVariant": "Interactive Add-Ons" }
+        },
+        "LATAM": {
+          "searchAds": { "available": null, "namingVariant": null, "notes": "Check regional availability" },
+          "smartPlus": { "available": true, "namingVariant": "Smart+" },
+          "gmv": { "available": null, "namingVariant": null, "notes": "Check regional availability" },
+          "unifiedLift": { "available": null, "namingVariant": null, "notes": "Check regional availability" },
+          "interactiveAddOns": { "available": null, "namingVariant": null, "notes": "Check regional availability" }
+        },
+        "APAC": {
+          "searchAds": { "available": null, "namingVariant": null, "notes": "Check regional availability" },
+          "smartPlus": { "available": true, "namingVariant": "Smart+" },
+          "gmv": { "available": null, "namingVariant": null, "notes": "Check regional availability" },
+          "unifiedLift": { "available": null, "namingVariant": null, "notes": "Check regional availability" },
+          "interactiveAddOns": { "available": null, "namingVariant": null, "notes": "Check regional availability" }
+        }
+      }
+    },
+    "incentives": {
+      "sourceOfTruth": "Check current incentive programs with your sales finance / incentives team",
+      "programs": [
+        {
+          "name": "placeholder_incentive_program",
+          "eligibility": {
+            "verticals": [],
+            "minSpend": null,
+            "newAdvertiserOnly": null,
+            "regions": []
+          },
+          "caps": {
+            "maxMatchAmount": null,
+            "maxPercentage": null
+          },
+          "validFrom": null,
+          "validTo": null,
+          "notes": "Populate with current incentive details from incentives team"
+        }
+      ]
+    },
+    "platformStats": {
+      "_note": "Optional stats for pitch decks. Verify before external use.",
+      "sourceOfTruth": "Marketing / comms approved stats, earnings calls, press releases",
+      "globalMAU": null,
+      "avgTimeSpentMinutes": null,
+      "topDemoPercentage": null,
+      "topDemoDescription": null,
+      "lastUpdated": null,
+      "approvedForExternalUse": false
+    }
+  }
+}
