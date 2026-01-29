@@ -1675,22 +1675,12 @@ Ongoing: Scale
         function generateMeasurement() {
             const mode = formData.measurementMode || 'standard';
             const liftType = formData.liftStudyType || null;
-            const budget = formData.budget || 0;
-            const goals = formData.goals || ['Conversions'];
-            // Map new mode to old level for backward-compat with setup/KPI logic
-            const level = mode === 'lift' ? 'Advanced' : 'Basic';
-            const isBasic = level === 'Basic';
-
-            // Get JSON data with fallbacks
-            const setupData = tiktokData.measurementSetup || {};
             const kpisData = tiktokData.kpis || {};
             const cadenceData = tiktokData.reportingCadence || [];
-            const liftData = tiktokData.liftStudies || {};
-            const recsData = tiktokData.measurementRecommendations || {};
 
             let output = [];
 
-            // Header
+            // ── Header ──
             output.push(`MEASUREMENT PLAN FOR ${formData.clientName.toUpperCase()}`);
             const modeLabel = mode === 'lift'
                 ? `LIFT STUDY — ${liftType === 'bls' ? 'Brand Lift Study (BLS)' : liftType === 'cls_multicell' ? 'Multi-cell Conversion Lift (CLS)' : 'Type TBD'}`
@@ -1698,123 +1688,112 @@ Ongoing: Scale
             output.push(`MEASUREMENT MODE: ${modeLabel}`);
             output.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-            // ── 1. Tracking Setup (all levels) ──
+            // ── 1. Tracking Setup (always — Pixel assumed) ──
             output.push('\nTRACKING SETUP');
-            const setupItems = setupData[level];
-            if (setupItems && setupItems.length) {
-                setupItems.forEach(item => output.push(`✅ ${item}`));
-            } else {
-                output.push('✅ TikTok Pixel implementation');
-                output.push('✅ Standard events configured');
+            output.push('✅ TikTok Pixel implementation');
+            output.push('✅ Standard events (ViewContent, AddToCart, Purchase)');
+            if (mode === 'lift') {
+                output.push('✅ Conversion API (CAPI) recommended for lift accuracy');
             }
 
-            // Upgrade recommendations (Intermediate only — Basic gets nothing extra)
-            if (!isBasic && level !== 'Advanced' && recsData[level]) {
-                recsData[level].split('. ').forEach(rec => {
-                    const trimmed = rec.trim();
-                    if (trimmed) output.push(`⬜ ${trimmed}`);
-                });
-            }
-
-            // ── 2. KPIs (all levels; Basic = core only) ──
+            // ── 2. Core KPIs (always) ──
             output.push('\nKEY PERFORMANCE INDICATORS');
-
-            if (isBasic) {
-                output.push('\nCore Metrics');
-                const coreKpis = [
-                    ...(kpisData.upperFunnel || []).slice(0, 2),
-                    ...(kpisData.lowerFunnel || []).slice(0, 2)
-                ].filter(k => !/lift/i.test(k));
-                if (coreKpis.length) {
-                    coreKpis.forEach((kpi, i) => {
-                        const prefix = i === coreKpis.length - 1 ? '└──' : '├──';
-                        output.push(`${prefix} ${kpi}`);
-                    });
-                } else {
-                    output.push('├── Reach & Impressions');
-                    output.push('├── Video Views');
-                    output.push('├── Conversions');
-                    output.push('└── ROAS');
-                }
+            output.push('\nCore Metrics');
+            const coreKpis = [
+                ...(kpisData.upperFunnel || []).slice(0, 2),
+                ...(kpisData.lowerFunnel || []).slice(0, 2)
+            ].filter(k => !/lift/i.test(k));
+            if (coreKpis.length) {
+                coreKpis.forEach((kpi, i) => {
+                    output.push(`${i === coreKpis.length - 1 ? '└──' : '├──'} ${kpi}`);
+                });
             } else {
-                if (kpisData.upperFunnel && kpisData.upperFunnel.length) {
-                    output.push('\nUpper Funnel (Awareness)');
-                    kpisData.upperFunnel.forEach((kpi, i) => {
-                        const prefix = i === kpisData.upperFunnel.length - 1 ? '└──' : '├──';
-                        output.push(`${prefix} ${kpi}`);
-                    });
-                }
-                if (kpisData.midFunnel && kpisData.midFunnel.length) {
-                    output.push('\nMid Funnel (Consideration)');
-                    kpisData.midFunnel.forEach((kpi, i) => {
-                        const prefix = i === kpisData.midFunnel.length - 1 ? '└──' : '├──';
-                        output.push(`${prefix} ${kpi}`);
-                    });
-                }
-                if (kpisData.lowerFunnel && kpisData.lowerFunnel.length) {
-                    output.push('\nLower Funnel (Conversion)');
-                    kpisData.lowerFunnel.forEach((kpi, i) => {
-                        const prefix = i === kpisData.lowerFunnel.length - 1 ? '└──' : '├──';
-                        output.push(`${prefix} ${kpi}`);
-                    });
-                }
+                output.push('├── Reach & Frequency');
+                output.push('├── Video Views');
+                output.push('├── Conversions');
+                output.push('└── ROAS');
             }
 
-            // ── 3. Reporting Cadence (all levels) ──
+            // ── 3. Reporting Cadence (always) ──
             output.push('\nREPORTING CADENCE');
             if (cadenceData.length) {
-                cadenceData.forEach(item => {
-                    output.push(`• ${item.frequency}: ${item.focus}`);
-                });
+                cadenceData.forEach(item => output.push(`• ${item.frequency}: ${item.focus}`));
             } else {
                 output.push('• Weekly: Performance review');
                 output.push('• Monthly: Full report');
                 output.push('• Post-campaign: Wrap report');
             }
 
-            // ── Basic stops here. No lift studies, no success criteria. ──
-            if (!isBasic) {
+            // ── Standard stops here ──
+            if (mode === 'lift') {
+                // Get eligibility from helper
+                const eligibility = getLiftStudyStatus({
+                    market: formData.market,
+                    measurementMode: mode,
+                    liftStudyType: liftType,
+                    plannedSpendUsd: formData.plannedSpendUsd,
+                    plannedUniqueReach: formData.plannedUniqueReach,
+                    buyingType: 'auction',
+                    tiktokData
+                });
 
-                // ── 4. Lift Studies (Advanced only) ──
-                if (level === 'Advanced') {
-                    const brandLiftMin = liftData.brandLift?.minSpend || 50000;
-                    const convLiftMin = liftData.conversionLift?.minSpend || 100000;
-                    const qualifiesBrandLift = budget >= brandLiftMin;
-                    const qualifiesConvLift = budget >= convLiftMin;
+                // ── 4. Eligibility ──
+                const statusLabels = {
+                    eligible: '✅ ELIGIBLE',
+                    potentially_eligible: '⚠️ POTENTIALLY ELIGIBLE',
+                    not_eligible: '❌ NOT ELIGIBLE',
+                    unknown: '❓ UNKNOWN — check source of truth',
+                    consult_ms: '🔬 CONSULT MARKETING SCIENCE'
+                };
+                output.push(`\nELIGIBILITY: ${statusLabels[eligibility.status] || eligibility.status}`);
+                if (eligibility.reason) {
+                    output.push(`  ${eligibility.reason}`);
+                }
+                if (eligibility.sourceOfTruth) {
+                    output.push(`  Source of truth: ${eligibility.sourceOfTruth}`);
+                }
 
-                    if (qualifiesBrandLift || qualifiesConvLift) {
-                        output.push('\nRECOMMENDED LIFT STUDIES');
-                        if (qualifiesBrandLift && liftData.brandLift) {
-                            output.push(`✅ ${liftData.brandLift.name} - ${liftData.brandLift.description}`);
-                            output.push(`   Budget qualifies (min: ${formatBudget(brandLiftMin)})`);
+                // ── 5. BLS details ──
+                if (liftType === 'bls') {
+                    output.push('\nBLS THRESHOLDS');
+                    const t = eligibility.thresholds || {};
+                    output.push(`• Min spend: ${t.minSpend != null ? formatBudget(t.minSpend) : 'Unknown'}`);
+                    output.push(`• Min unique reach: ${t.minUniqueReach != null ? t.minUniqueReach.toLocaleString() : 'Unknown'}`);
+                    output.push(`• Region: ${eligibility.region || 'Global'}`);
+
+                    // Operational notes from volatile
+                    const byRegion = tiktokData.volatile?.liftStudies?.brandLift?.byRegion;
+                    const globalBls = byRegion?.Global || {};
+                    if (globalBls.mandatoryQuestion || globalBls.maxQuestions || globalBls.leadTimeDays) {
+                        output.push('\nOPERATIONAL NOTES');
+                        if (globalBls.mandatoryQuestion) {
+                            output.push(`• ${globalBls.mandatoryQuestion} is mandatory`);
                         }
-                        if (qualifiesConvLift && liftData.conversionLift) {
-                            output.push(`✅ ${liftData.conversionLift.name} - ${liftData.conversionLift.description}`);
-                            output.push(`   Budget qualifies (min: ${formatBudget(convLiftMin)})`);
+                        if (globalBls.maxQuestions) {
+                            output.push(`• Max ${globalBls.maxQuestions} questions total`);
                         }
-                    } else {
-                        output.push('\nAVAILABLE LIFT STUDIES');
-                        if (liftData.brandLift) {
-                            output.push(`⬜ ${liftData.brandLift.name} (min: ${formatBudget(brandLiftMin)})`);
+                        if (globalBls.leadTimeDays) {
+                            output.push(`• Provide campaign IDs + approved questions ${globalBls.leadTimeDays} business days before launch`);
                         }
-                        if (liftData.conversionLift) {
-                            output.push(`⬜ ${liftData.conversionLift.name} (min: ${formatBudget(convLiftMin)})`);
-                        }
+                    }
+
+                    output.push(`\n⚠️ ${eligibility.disclaimer}`);
+                    if (eligibility.safeZoneHint) {
+                        output.push(`💡 ${eligibility.safeZoneHint}`);
                     }
                 }
 
-                // ── 5. Success Criteria (Intermediate + Advanced) ──
-                output.push('\nSUCCESS CRITERIA');
-                const primaryCriteria = goals.map(g => {
-                    if (g === 'Awareness') return 'Brand Lift +10pts, Reach 70%+ of target';
-                    if (g === 'Conversions') return 'ROAS 3x+, CPA within target';
-                    if (g === 'App Installs') return 'CPI within target, quality installs';
-                    if (g === 'Lead Gen') return 'CPL within target, quality leads';
-                    return 'Hit ' + g + ' targets';
-                }).join('; ');
-                output.push(`• Primary: ${primaryCriteria}`);
-                output.push('• Secondary: Strong engagement, positive sentiment');
-                output.push('• Learning: Clear creative and audience insights');
+                // ── 6. CLS multi-cell details ──
+                if (liftType === 'cls_multicell' && eligibility.plan) {
+                    const p = eligibility.plan;
+                    output.push('\nTEST DESIGN');
+                    output.push(`• Holdout: ${p.holdout}`);
+                    p.cells.forEach(c => output.push(`• Cell ${c.id}: ${c.mix}`));
+                    output.push(`• Duration: ${p.duration}`);
+                    output.push(`• Primary KPI: ${p.primaryKPI}`);
+                    output.push(`• Secondary KPIs: ${p.secondaryKPIs.join(', ')}`);
+                    output.push(`\n🔬 ${eligibility.disclaimer}`);
+                }
             }
 
             $('#measurement-content').textContent = output.join('\n');
