@@ -1154,6 +1154,10 @@
             // Store raw data globally; normalization happens in generateOutput()
             window.rawTikTokData = rawData;
             tiktokData = rawData; // Default to raw data for backward compatibility
+
+            // DEBUG — remove after confirming volatile layer loads
+            console.log('Loaded tiktokData keys:', Object.keys(tiktokData));
+            console.log('Volatile brandLift Global:', tiktokData.volatile?.liftStudies?.brandLift?.byRegion?.Global);
         }
 
         // Embedded fallback data (copy of key JSON data for offline use)
