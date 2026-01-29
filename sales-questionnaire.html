@@ -1545,6 +1545,13 @@
             const marketRegion = formData.market || 'US';
             tiktokData = normalizeTikTokData(window.rawTikTokData, marketRegion);
 
+            // DEBUG — trace volatile after normalization
+            console.log("[POST-NORMALIZE DEBUG]", {
+                hasVolatile: !!tiktokData.volatile,
+                volatileKeys: tiktokData.volatile ? Object.keys(tiktokData.volatile) : null,
+                byRegion: tiktokData.volatile?.liftStudies?.brandLift?.byRegion
+            });
+
             // Generate all outputs
             generatePitch();
             generateFunnel();
