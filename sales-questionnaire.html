@@ -1704,7 +1704,15 @@ Ongoing: Scale
                 plannedUniqueReach: formData.plannedUniqueReach
             });
             const mode = formData.measurementMode || 'standard';
-            const liftType = formData.liftStudyType || null;
+
+            // Normalize liftStudyType synonyms
+            const rawType = (formData.liftStudyType || '').toLowerCase().trim();
+            const liftTypeMap = {
+                'bls': 'bls', 'brandlift': 'bls', 'brand_lift': 'bls', 'brand lift study': 'bls',
+                'cls': 'cls_multicell', 'conversionlift': 'cls_multicell', 'conversion_lift': 'cls_multicell',
+                'multicell': 'cls_multicell', 'multi-cell': 'cls_multicell', 'cls_multicell': 'cls_multicell'
+            };
+            const liftType = liftTypeMap[rawType] || (mode === 'lift' ? 'bls' : null);
             const kpisData = tiktokData.kpis || {};
             const cadenceData = tiktokData.reportingCadence || [];
 
