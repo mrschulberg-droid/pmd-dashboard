@@ -531,6 +531,8 @@
             <h1>TikTok Sales Enablement Tool</h1>
             <p>Generate customized pitches, media plans, and recommendations in seconds</p>
             <span id="data-verified-badge" style="display:inline-block;margin-top:6px;padding:3px 10px;font-size:11px;color:#888;background:#f0f0f0;border-radius:10px"></span>
+            <button id="debug-volatile-btn" style="display:none;margin-top:6px;margin-left:8px;padding:3px 10px;font-size:11px;cursor:pointer;border:1px solid #ccc;border-radius:10px;background:#fff" onclick="showVolatileDebug()">Show volatile overrides</button>
+            <pre id="debug-volatile-output" style="display:none;margin-top:8px;padding:12px;font-size:12px;background:#1e1e1e;color:#d4d4d4;border-radius:8px;text-align:left;overflow-x:auto;max-height:300px"></pre>
         </header>
 
         <!-- Progress -->
@@ -1065,6 +1067,7 @@
         let currentStep = 1;
         const totalSteps = 10;
         let formData = {};
+        const DEBUG = true; // Set to false to hide debug UI
         let tiktokData = null; // Will be loaded from JSON
 
         // DOM helpers
@@ -1075,6 +1078,11 @@
         document.addEventListener('DOMContentLoaded', async () => {
             // Load TikTok data from JSON file
             await loadTikTokData();
+
+            if (DEBUG) {
+                const btn = $('#debug-volatile-btn');
+                if (btn) btn.style.display = 'inline-block';
+            }
 
             updateProgress();
             setupRadioCards();
@@ -1097,6 +1105,32 @@
                 'APAC': 'APAC'
             };
             return map[market] || 'Global';
+        }
+
+        // Debug: render volatile override details
+        function showVolatileDebug() {
+            const out = $('#debug-volatile-output');
+            if (!out) return;
+
+            const market = $('input[name="market"]:checked')?.value || 'US';
+            const region = mapMarketToRegionPack(market);
+            const vol = tiktokData?.volatile;
+            const meta = vol?._meta;
+
+            const byRegion = vol?.liftStudies?.brandLift?.byRegion || {};
+            const globalBls = byRegion.Global || {};
+            const regionalBls = byRegion[region] || {};
+            const mergedBls = { ...globalBls, ...regionalBls };
+
+            const info = {
+                activeRegionPack: region,
+                lastReviewed: meta?.lastReviewed || 'N/A',
+                blsThresholds: mergedBls,
+                sources: meta?.sources || []
+            };
+
+            out.textContent = JSON.stringify(info, null, 2);
+            out.style.display = out.style.display === 'none' ? 'block' : 'none';
         }
 
         /**
