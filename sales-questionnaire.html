@@ -950,6 +950,14 @@
                         </select>
                     </div>
                     <div class="form-group">
+                        <label>Planned Spend (USD) <span style="color:#888;font-weight:normal">(optional)</span></label>
+                        <input type="text" id="plannedSpendUsd" placeholder="e.g., 200000">
+                    </div>
+                    <div class="form-group">
+                        <label>Estimated Unique Reach <span style="color:#888;font-weight:normal">(optional)</span></label>
+                        <input type="text" id="plannedUniqueReach" placeholder="e.g., 6000000 or 6M">
+                    </div>
+                    <div class="form-group">
                         <label>Campaign Start Date</label>
                         <input type="date" name="start_date" id="start_date">
                     </div>
@@ -1356,11 +1364,23 @@
                 brandLift: $('input[name="brand_lift"]')?.checked,
                 conversionLift: $('input[name="conversion_lift"]')?.checked,
                 budget: parseInt($('#budget').value) || 50000,
+                plannedSpendUsd: parseReachOrSpend($('#plannedSpendUsd').value),
+                plannedUniqueReach: parseReachOrSpend($('#plannedUniqueReach').value),
                 startDate: $('#start_date').value,
                 endDate: $('#end_date').value,
                 clientName: $('input[name="client_name"]').value || 'Client'
             };
             return formData;
+        }
+
+        // Parse "6M", "5.5M", "6000000", or "" → number | null
+        function parseReachOrSpend(val) {
+            if (!val) return null;
+            const s = val.trim().toUpperCase();
+            const m = s.match(/^([\d.]+)\s*M$/);
+            if (m) return Math.round(parseFloat(m[1]) * 1000000);
+            const n = parseFloat(s.replace(/,/g, ''));
+            return isNaN(n) ? null : Math.round(n);
         }
 
         function formatBudget(amount) {
