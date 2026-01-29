@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "version": "2.0",
-    "lastUpdated": "2026-01-28",
-    "description": "TikTok Sales Enablement Data - Edit this file to update content in the questionnaire tool"
+    "version": "3.0",
+    "lastUpdated": "2026-01-29",
+    "description": "Minimal config: thresholds, region mapping, volatile data, sourceOfTruth. Long-form copy (best practices, ad format details) deferred to Gemini."
   },
   "platformStats": {
     "monthlyActiveUsers": "1B+",
@@ -39,462 +39,65 @@
     "Always On": "An always-on presence builds sustained brand awareness and keeps the brand top-of-mind."
   },
   "budgetSplits": {
-    "Awareness": {
-      "upper": 50,
-      "mid": 30,
-      "lower": 20
-    },
-    "Consideration": {
-      "upper": 30,
-      "mid": 45,
-      "lower": 25
-    },
-    "Conversions": {
-      "upper": 20,
-      "mid": 30,
-      "lower": 50
-    },
-    "App Installs": {
-      "upper": 25,
-      "mid": 25,
-      "lower": 50
-    },
-    "Lead Gen": {
-      "upper": 25,
-      "mid": 35,
-      "lower": 40
-    },
-    "Engagement": {
-      "upper": 35,
-      "mid": 45,
-      "lower": 20
-    }
+    "Awareness":   { "upper": 50, "mid": 30, "lower": 20 },
+    "Consideration":{ "upper": 30, "mid": 45, "lower": 25 },
+    "Conversions":  { "upper": 20, "mid": 30, "lower": 50 },
+    "App Installs": { "upper": 25, "mid": 25, "lower": 50 },
+    "Lead Gen":     { "upper": 25, "mid": 35, "lower": 40 },
+    "Engagement":   { "upper": 35, "mid": 45, "lower": 20 }
   },
   "adFormats": {
-    "Awareness": [
-      "TopView",
-      "In-Feed Ads",
-      "Branded Hashtag Challenge",
-      "Branded Effect"
-    ],
-    "Consideration": [
-      "In-Feed Ads",
-      "Spark Ads",
-      "Interactive Add-ons",
-      "Branded Effect"
-    ],
-    "Conversions": [
-      "In-Feed Ads",
-      "Spark Ads",
-      "Collection Ads",
-      "Dynamic Showcase Ads"
-    ],
-    "App Installs": [
-      "In-Feed Ads",
-      "Spark Ads",
-      "Playable Ads",
-      "App Install Ads"
-    ],
-    "Lead Gen": [
-      "In-Feed Ads",
-      "Lead Gen Ads",
-      "Spark Ads",
-      "Instant Form"
-    ],
-    "Engagement": [
-      "In-Feed Ads",
-      "Spark Ads",
-      "Duet/Stitch enabled",
-      "Interactive Add-ons"
-    ]
+    "Awareness":    ["TopView", "In-Feed Ads", "Branded Hashtag Challenge", "Branded Effect"],
+    "Consideration":["In-Feed Ads", "Spark Ads", "Interactive Add-ons", "Branded Effect"],
+    "Conversions":  ["In-Feed Ads", "Spark Ads", "Collection Ads", "Dynamic Showcase Ads"],
+    "App Installs": ["In-Feed Ads", "Spark Ads", "Playable Ads", "App Install Ads"],
+    "Lead Gen":     ["In-Feed Ads", "Lead Gen Ads", "Spark Ads", "Instant Form"],
+    "Engagement":   ["In-Feed Ads", "Spark Ads", "Duet/Stitch enabled", "Interactive Add-ons"]
   },
-  "adFormatDetails": {
-    "TopView": {
-      "name": "TopView",
-      "type": "Premium Placement",
-      "description": "Full-screen, sound-on video up to 60 seconds",
-      "placement": "First ad users see when opening TikTok",
-      "bestFor": "Maximum awareness and impact",
-      "recommendation": "3-5 days during key moments"
-    },
-    "In-Feed Ads": {
-      "name": "In-Feed Ads",
-      "type": "Core Format",
-      "description": "Native, full-screen video ads in For You feed",
-      "placement": "For You feed",
-      "bestFor": "All objectives, always-on presence",
-      "recommendation": "Throughout campaign",
-      "optimalLength": "9-15 seconds"
-    },
-    "Spark Ads": {
-      "name": "Spark Ads",
-      "type": "Boosted Native",
-      "description": "Boost organic TikToks or creator content",
-      "placement": "For You feed",
-      "bestFor": "Engagement, authenticity",
-      "recommendation": "40-60% of In-Feed budget"
-    },
-    "Collection Ads": {
-      "name": "Collection Ads",
-      "type": "E-commerce",
-      "description": "Product cards with instant gallery",
-      "placement": "For You feed with product tiles",
-      "bestFor": "Driving product discovery and sales"
-    },
-    "Dynamic Showcase Ads": {
-      "name": "Dynamic Showcase Ads",
-      "type": "Personalized",
-      "description": "Auto-generated from product catalog",
-      "placement": "For You feed",
-      "bestFor": "Retargeting, large catalogs"
-    },
-    "Branded Hashtag Challenge": {
-      "name": "Branded Hashtag Challenge",
-      "type": "Premium",
-      "description": "Sponsored hashtag with dedicated landing page",
-      "placement": "Discover page + For You feed",
-      "bestFor": "Virality, UGC generation, brand awareness"
-    },
-    "Branded Effect": {
-      "name": "Branded Effect",
-      "type": "Interactive",
-      "description": "Custom AR filters, stickers, and effects",
-      "placement": "Effects panel + organic content",
-      "bestFor": "Engagement, brand interaction, UGC"
-    },
-    "Playable Ads": {
-      "name": "Playable Ads",
-      "type": "Interactive",
-      "description": "Mini interactive game experience",
-      "placement": "For You feed",
-      "bestFor": "Gaming, app previews"
-    },
-    "Lead Gen Ads": {
-      "name": "Lead Gen Ads",
-      "type": "Performance",
-      "description": "Native lead capture forms",
-      "placement": "For You feed with instant form",
-      "bestFor": "Lead collection without leaving TikTok"
-    }
-  },
+  "adFormatDetails": { "_gemini": true, "_note": "Fetch ad format descriptions from Gemini at runtime." },
   "mediaIncentives": [
-    {
-      "threshold": 25000,
-      "name": "Starter Bonus",
-      "value": "5% media credit",
-      "details": "Applied to first campaign"
-    },
-    {
-      "threshold": 50000,
-      "name": "Growth Accelerator",
-      "value": "10% media credit + priority support",
-      "details": "Dedicated support queue access"
-    },
-    {
-      "threshold": 100000,
-      "name": "Scale Package",
-      "value": "12% media credit + dedicated CSM",
-      "details": "Named Customer Success Manager"
-    },
-    {
-      "threshold": 250000,
-      "name": "Premium Partner",
-      "value": "15% media credit + beta access + quarterly business reviews",
-      "details": "Early access to new features"
-    },
-    {
-      "threshold": 500000,
-      "name": "Elite Partner",
-      "value": "18% media credit + custom solutions + executive sponsorship",
-      "details": "Custom integrations available"
-    },
-    {
-      "threshold": 1000000,
-      "name": "Strategic Partner",
-      "value": "20% media credit + full partnership benefits + co-marketing",
-      "details": "Joint marketing opportunities"
-    }
+    { "threshold": 25000,   "name": "Starter Bonus",    "value": "5% media credit",   "details": "Applied to first campaign" },
+    { "threshold": 50000,   "name": "Growth Accelerator","value": "10% media credit + priority support", "details": "Dedicated support queue access" },
+    { "threshold": 100000,  "name": "Scale Package",     "value": "12% media credit + dedicated CSM",   "details": "Named Customer Success Manager" },
+    { "threshold": 250000,  "name": "Premium Partner",   "value": "15% media credit + beta access + quarterly business reviews", "details": "Early access to new features" },
+    { "threshold": 500000,  "name": "Elite Partner",     "value": "18% media credit + custom solutions + executive sponsorship", "details": "Custom integrations available" },
+    { "threshold": 1000000, "name": "Strategic Partner",  "value": "20% media credit + full partnership benefits + co-marketing", "details": "Joint marketing opportunities" }
   ],
   "creativeSupport": [
-    {
-      "threshold": 0,
-      "name": "Creative Center Access",
-      "description": "Free tools, templates, and best practices",
-      "alwaysAvailable": true
-    },
-    {
-      "threshold": 0,
-      "name": "TikTok Creative Exchange",
-      "description": "Connect with creator network for content",
-      "alwaysAvailable": true
-    },
-    {
-      "threshold": 25000,
-      "name": "Creative Consultation",
-      "description": "1:1 session with creative strategist"
-    },
-    {
-      "threshold": 50000,
-      "name": "Creative Playbook",
-      "description": "Custom creative guidelines and templates"
-    },
-    {
-      "threshold": 100000,
-      "name": "Dedicated Creative Partner",
-      "description": "Ongoing creative strategy support"
-    },
-    {
-      "threshold": 150000,
-      "name": "Creator Matching",
-      "description": "Curated creator recommendations and intros"
-    },
-    {
-      "threshold": 250000,
-      "name": "Creative Production Credit",
-      "description": "Subsidized creative production"
-    },
-    {
-      "threshold": 500000,
-      "name": "Full Creative Services",
-      "description": "End-to-end creative production support"
-    }
+    { "threshold": 0,      "name": "Creative Center Access",    "description": "Free tools, templates, and best practices", "alwaysAvailable": true },
+    { "threshold": 0,      "name": "TikTok Creative Exchange",  "description": "Connect with creator network for content",  "alwaysAvailable": true },
+    { "threshold": 25000,  "name": "Creative Consultation",     "description": "1:1 session with creative strategist" },
+    { "threshold": 50000,  "name": "Creative Playbook",         "description": "Custom creative guidelines and templates" },
+    { "threshold": 100000, "name": "Dedicated Creative Partner", "description": "Ongoing creative strategy support" },
+    { "threshold": 150000, "name": "Creator Matching",           "description": "Curated creator recommendations and intros" },
+    { "threshold": 250000, "name": "Creative Production Credit", "description": "Subsidized creative production" },
+    { "threshold": 500000, "name": "Full Creative Services",     "description": "End-to-end creative production support" }
   ],
-  "bestPractices": {
-    "universal": [
-      "Hook viewers in the first 1-2 seconds with movement, text, or intrigue",
-      "Create native content that feels organic to TikTok, not like an ad",
-      "Use trending sounds strategically (check Commercial Music Library)",
-      "Keep videos between 9-15 seconds for optimal completion rates",
-      "Include clear CTAs but make them feel natural to the content",
-      "Test 3-5 creative concepts per ad group for variety",
-      "Refresh creative every 7-14 days to combat fatigue",
-      "Use text overlays - 40% of users watch with sound off",
-      "Feature real people over polished productions when possible",
-      "Engage with comments to boost organic visibility"
-    ],
-    "byVertical": {
-      "E-commerce": [
-        "Use Spark Ads to boost authentic creator content featuring products",
-        "Implement TikTok Shop for seamless in-app purchasing",
-        "Show products in action with quick, engaging demonstrations",
-        "Use urgency-driving hooks like 'limited time' or 'selling fast'",
-        "Test Collection Ads to showcase multiple products"
-      ],
-      "Gaming": [
-        "Feature actual gameplay footage in the first 3 seconds",
-        "Partner with gaming creators for authentic endorsements",
-        "Use Playable Ads for interactive game demos",
-        "Target by gaming interests and related game titles",
-        "Show game progression and rewards to drive installs"
-      ],
-      "App": [
-        "Demo the core app experience in under 15 seconds",
-        "Use screen recordings with engaging voiceovers",
-        "Highlight the immediate value/benefit users get",
-        "Test Playable Ads for interactive previews",
-        "Partner with creators who authentically use the app"
-      ],
-      "Finance": [
-        "Make complex topics simple and relatable",
-        "Use educational, value-driven content hooks",
-        "Partner with finance creators for credibility",
-        "Focus on life improvements, not just features",
-        "Ensure compliance with financial advertising regulations"
-      ],
-      "CPG": [
-        "Show product in real-life usage scenarios",
-        "Partner with lifestyle creators for authentic content",
-        "Use before/after or transformation content",
-        "Leverage seasonal moments and trending topics",
-        "Create shareable, entertaining content"
-      ],
-      "Auto": [
-        "Highlight key features through dynamic visuals",
-        "Use POV and lifestyle content over traditional car ads",
-        "Partner with auto enthusiast creators",
-        "Show the driving experience, not just the vehicle",
-        "Target by life events (new job, family, etc.)"
-      ],
-      "Travel": [
-        "Use immersive, destination-focused content",
-        "Partner with travel creators for authentic experiences",
-        "Show the feeling of being there, not just logistics",
-        "Use trending sounds and effects for discovery",
-        "Target by travel interests and intent signals"
-      ],
-      "Entertainment": [
-        "Tease content without giving too much away",
-        "Use clips that create FOMO or curiosity",
-        "Partner with entertainment creators for reactions",
-        "Leverage trending moments and cultural conversations",
-        "Create interactive content (polls, duets)"
-      ],
-      "Tech": [
-        "Show the product solving real problems",
-        "Use quick demos and feature highlights",
-        "Partner with tech reviewers and enthusiasts",
-        "Compare to alternatives in subtle ways",
-        "Focus on outcomes, not specs"
-      ],
-      "Food": [
-        "Use satisfying, ASMR-style food content",
-        "Show preparation and finished dishes",
-        "Partner with food creators and home cooks",
-        "Leverage meal occasions and cultural moments",
-        "Create craveable, shareable content"
-      ],
-      "Beauty": [
-        "Feature before/after transformations",
-        "Partner with beauty creators for tutorials",
-        "Use ASMR and satisfying application moments",
-        "Show real results from real people",
-        "Leverage trending sounds and effects"
-      ],
-      "Fashion": [
-        "Show outfit transitions and styling tips",
-        "Use trending sounds for outfit reveals",
-        "Partner with fashion creators for OOTD content",
-        "Feature inclusive sizing and diverse models",
-        "Create shoppable looks with Collection Ads"
-      ],
-      "Health": [
-        "Focus on wellness journeys and transformations",
-        "Partner with fitness and health creators",
-        "Use motivational and educational content",
-        "Ensure compliance with health advertising regulations",
-        "Show real people achieving real results"
-      ],
-      "Education": [
-        "Use quick, valuable educational snippets",
-        "Partner with educator and expert creators",
-        "Show learning outcomes and success stories",
-        "Make complex topics accessible and engaging",
-        "Use trending formats for educational content"
-      ]
-    },
-    "byGoal": {
-      "Awareness": [
-        "Focus on entertainment value first, brand second",
-        "Use TopView for maximum impact during key moments",
-        "Invest in Branded Hashtag Challenges for virality",
-        "Prioritize reach over frequency initially",
-        "Measure success with Brand Lift studies"
-      ],
-      "Consideration": [
-        "Create content that invites engagement (comments, shares)",
-        "Use Interactive Add-ons to boost engagement",
-        "Partner with creators for authentic endorsements",
-        "Focus on brand story and values",
-        "Retarget video viewers with deeper content"
-      ],
-      "Conversions": [
-        "Implement TikTok Pixel + Conversion API for optimal tracking",
-        "Use Value-Based Optimization to find high-value customers",
-        "Test Dynamic Showcase Ads for personalized recommendations",
-        "Retarget video viewers and website visitors",
-        "Set up Conversion Lift studies to measure incrementality"
-      ],
-      "App Installs": [
-        "Optimize for in-app events, not just installs",
-        "Use deep linking to specific app content",
-        "Show the app experience in the first 3 seconds",
-        "Target by relevant app and interest categories",
-        "Measure post-install events and LTV"
-      ],
-      "Lead Gen": [
-        "Use native Lead Gen forms for seamless capture",
-        "Offer clear value exchange for information",
-        "Keep forms short - 3-5 fields maximum",
-        "Use qualifying questions to improve lead quality",
-        "Set up CRM integration for immediate follow-up"
-      ],
-      "Engagement": [
-        "Create content that invites participation",
-        "Use Duet and Stitch-enabled content",
-        "Partner with creators for authentic engagement",
-        "Respond to comments to boost visibility",
-        "Leverage trending challenges and sounds"
-      ]
-    }
-  },
+  "bestPractices": { "_gemini": true, "_note": "Fetch universal, byVertical, and byGoal best practices from Gemini at runtime." },
   "measurementSetup": {
-    "Advanced": [
-      "Marketing Mix Modeling (MMM) integration",
-      "Multi-Touch Attribution (MTA) setup",
-      "TikTok Pixel with Events API (CAPI)",
-      "Offline conversion tracking",
-      "Advanced matching enabled"
-    ],
-    "Intermediate": [
-      "TikTok Pixel implementation",
-      "Conversion API (CAPI) setup",
-      "Standard events configured",
-      "Custom events for key actions"
-    ],
-    "Basic": [
-      "TikTok Pixel implementation",
-      "Standard events (ViewContent, AddToCart, Purchase)",
-      "TikTok Ads Manager reporting"
-    ]
+    "Advanced":     ["Marketing Mix Modeling (MMM) integration", "Multi-Touch Attribution (MTA) setup", "TikTok Pixel with Events API (CAPI)", "Offline conversion tracking", "Advanced matching enabled"],
+    "Intermediate": ["TikTok Pixel implementation", "Conversion API (CAPI) setup", "Standard events configured", "Custom events for key actions"],
+    "Basic":        ["TikTok Pixel implementation", "Standard events (ViewContent, AddToCart, Purchase)", "TikTok Ads Manager reporting"]
   },
   "measurementRecommendations": {
     "Intermediate": "Consider: MMM integration for full picture",
-    "Basic": "Recommended: Upgrade to CAPI for better matching. Consider: Brand Lift study for awareness measurement"
+    "Basic": "Recommended: Upgrade to CAPI for better matching"
   },
   "liftStudies": {
-    "brandLift": {
-      "name": "Brand Lift Study",
-      "description": "Measure awareness, consideration, intent",
-      "minSpend": 50000
-    },
-    "conversionLift": {
-      "name": "Conversion Lift Study",
-      "description": "Measure incremental conversions",
-      "minSpend": 100000
-    }
+    "brandLift":     { "name": "Brand Lift Study",     "description": "Measure awareness, consideration, intent", "minSpend": 50000 },
+    "conversionLift":{ "name": "Conversion Lift Study", "description": "Measure incremental conversions",        "minSpend": 100000 }
   },
   "kpis": {
-    "upperFunnel": [
-      "Reach",
-      "Frequency",
-      "Video View Rate (VTR)",
-      "Cost per 1000 Impressions (CPM)",
-      "Brand Lift metrics"
-    ],
-    "midFunnel": [
-      "Click-Through Rate (CTR)",
-      "Engagement Rate",
-      "Cost per Click (CPC)",
-      "Landing page views"
-    ],
-    "lowerFunnel": [
-      "Conversion Rate (CVR)",
-      "Cost per Acquisition (CPA)",
-      "Return on Ad Spend (ROAS)",
-      "Conversion volume"
-    ]
+    "upperFunnel": ["Reach", "Frequency", "Video View Rate (VTR)", "Cost per 1000 Impressions (CPM)", "Brand Lift metrics"],
+    "midFunnel":   ["Click-Through Rate (CTR)", "Engagement Rate", "Cost per Click (CPC)", "Landing page views"],
+    "lowerFunnel": ["Conversion Rate (CVR)", "Cost per Acquisition (CPA)", "Return on Ad Spend (ROAS)", "Conversion volume"]
   },
   "reportingCadence": [
-    {
-      "frequency": "Daily",
-      "focus": "Spend pacing, key metrics monitoring"
-    },
-    {
-      "frequency": "Weekly",
-      "focus": "Performance review, optimization actions"
-    },
-    {
-      "frequency": "Bi-weekly",
-      "focus": "Stakeholder update, strategic adjustments"
-    },
-    {
-      "frequency": "Monthly",
-      "focus": "Full performance report, insights & recommendations"
-    },
-    {
-      "frequency": "Post-campaign",
-      "focus": "Wrap report with learnings & next steps"
-    }
+    { "frequency": "Daily",         "focus": "Spend pacing, key metrics monitoring" },
+    { "frequency": "Weekly",        "focus": "Performance review, optimization actions" },
+    { "frequency": "Bi-weekly",     "focus": "Stakeholder update, strategic adjustments" },
+    { "frequency": "Monthly",       "focus": "Full performance report, insights & recommendations" },
+    { "frequency": "Post-campaign", "focus": "Wrap report with learnings & next steps" }
   ],
   "volatile": {
     "_meta": {
@@ -511,91 +114,38 @@
             "mandatoryQuestion": "Ad Recall",
             "leadTimeDays": 5,
             "buyingTypes": {
-              "auction": {
-                "eligible": true,
-                "minSpend": 150000,
-                "sourceOfTruth": "Check BLS All-in-One sheet or BLS setup UI for current thresholds."
-              },
-              "reachAndFrequency": {
-                "eligible": true,
-                "minSpend": null,
-                "sourceOfTruth": "Check BLS All-in-One sheet — R&F thresholds differ from auction."
-              }
+              "auction":            { "eligible": true, "minSpend": 150000, "sourceOfTruth": "Check BLS All-in-One sheet or BLS setup UI for current thresholds." },
+              "reachAndFrequency":  { "eligible": true, "minSpend": null,   "sourceOfTruth": "Check BLS All-in-One sheet — R&F thresholds differ from auction." }
             }
           },
-          "NA": {
-            "minUniqueReach": 6000000,
-            "buyingTypes": {
-              "auction": {
-                "minSpend": 150000,
-                "sourceOfTruth": "Check BLS All-in-One sheet or BLS setup UI for current NA thresholds."
-              }
-            }
-          },
-          "EUI": {
-            "sourceOfTruth": "Uses Global defaults. Check BLS All-in-One sheet for EUI-specific overrides."
-          },
-          "LATAM": {
-            "sourceOfTruth": "Uses Global defaults. Check BLS All-in-One sheet for LATAM-specific overrides."
-          },
-          "APAC": {
-            "sourceOfTruth": "Uses Global defaults. Check BLS All-in-One sheet for APAC-specific overrides."
-          }
+          "NA":    { "minUniqueReach": 6000000, "buyingTypes": { "auction": { "minSpend": 150000, "sourceOfTruth": "Check BLS All-in-One sheet or BLS setup UI for current NA thresholds." } } },
+          "EUI":   { "sourceOfTruth": "Uses Global defaults. Check BLS All-in-One sheet for EUI-specific overrides." },
+          "LATAM": { "sourceOfTruth": "Uses Global defaults. Check BLS All-in-One sheet for LATAM-specific overrides." },
+          "APAC":  { "sourceOfTruth": "Uses Global defaults. Check BLS All-in-One sheet for APAC-specific overrides." }
         }
       },
       "conversionLift": {
         "byRegion": {
-          "Global": {
-            "minSpend": 100000,
-            "sourceOfTruth": "Check Conversion Lift setup docs for current thresholds."
-          }
+          "Global": { "minSpend": 100000, "sourceOfTruth": "Check Conversion Lift setup docs for current thresholds." }
         }
       }
     },
     "quotas": {
       "_note": "Quotas are market-level monthly caps. They reset each calendar month and are subject to change.",
       "byRegion": {
-        "NA": {
-          "brandLiftStudies": null,
-          "sourceOfTruth": "Check with regional Measurement team for current NA monthly BLS quota."
-        },
-        "EUI": {
-          "brandLiftStudies": null,
-          "sourceOfTruth": "Check with regional Measurement team for current EUI monthly BLS quota."
-        },
-        "LATAM": {
-          "brandLiftStudies": null,
-          "sourceOfTruth": "Check with regional Measurement team for current LATAM monthly BLS quota."
-        },
-        "APAC": {
-          "brandLiftStudies": null,
-          "sourceOfTruth": "Check with regional Measurement team for current APAC monthly BLS quota."
-        }
+        "NA":    { "brandLiftStudies": null, "sourceOfTruth": "Check with regional Measurement team for current NA monthly BLS quota." },
+        "EUI":   { "brandLiftStudies": null, "sourceOfTruth": "Check with regional Measurement team for current EUI monthly BLS quota." },
+        "LATAM": { "brandLiftStudies": null, "sourceOfTruth": "Check with regional Measurement team for current LATAM monthly BLS quota." },
+        "APAC":  { "brandLiftStudies": null, "sourceOfTruth": "Check with regional Measurement team for current APAC monthly BLS quota." }
       }
     },
     "productAvailability": {
       "_note": "Product names and availability vary by region. Null means not yet confirmed.",
       "byRegion": {
-        "NA": {
-          "TopView": { "available": true, "name": "TopView" },
-          "BrandedHashtagChallenge": { "available": true, "name": "Branded Hashtag Challenge" },
-          "BrandedEffect": { "available": true, "name": "Branded Effect" },
-          "TikTokShop": { "available": true, "name": "TikTok Shop" }
-        },
-        "EUI": {
-          "TopView": { "available": true, "name": "TopView" },
-          "BrandedHashtagChallenge": { "available": true, "name": "Branded Hashtag Challenge" },
-          "BrandedEffect": { "available": true, "name": "Branded Effect" },
-          "TikTokShop": { "available": null, "name": "TikTok Shop", "sourceOfTruth": "Check regional product team for market-level TikTok Shop availability." }
-        },
-        "LATAM": {
-          "TopView": { "available": null, "sourceOfTruth": "Check regional product team for LATAM TopView availability." },
-          "TikTokShop": { "available": null, "sourceOfTruth": "Check regional product team for LATAM TikTok Shop availability." }
-        },
-        "APAC": {
-          "TopView": { "available": null, "sourceOfTruth": "Check regional product team for APAC TopView availability." },
-          "TikTokShop": { "available": null, "sourceOfTruth": "Check regional product team for APAC TikTok Shop availability." }
-        }
+        "NA":    { "TopView": { "available": true }, "BrandedHashtagChallenge": { "available": true }, "BrandedEffect": { "available": true }, "TikTokShop": { "available": true } },
+        "EUI":   { "TopView": { "available": true }, "BrandedHashtagChallenge": { "available": true }, "BrandedEffect": { "available": true }, "TikTokShop": { "available": null, "sourceOfTruth": "Check regional product team." } },
+        "LATAM": { "TopView": { "available": null, "sourceOfTruth": "Check regional product team." }, "TikTokShop": { "available": null, "sourceOfTruth": "Check regional product team." } },
+        "APAC":  { "TopView": { "available": null, "sourceOfTruth": "Check regional product team." }, "TikTokShop": { "available": null, "sourceOfTruth": "Check regional product team." } }
       }
     },
     "incentiveCaps": {
@@ -609,7 +159,7 @@
       "sourceOfTruth": "Check current incentive grid from Sales Ops / regional incentive tracker."
     },
     "platformStats": {
-      "_note": "Optional. Override top-level platformStats here when newer figures are available.",
+      "_note": "Override top-level platformStats here when newer figures are available.",
       "monthlyActiveUsers": "1B+",
       "avgDailyTimeSpent": "95 minutes",
       "sourceOfTruth": "TikTok Newsroom or latest earnings release."
@@ -631,42 +181,12 @@
     },
     "NA": {
       "guardrails": [
-        {
-          "id": "sponsorship_availability",
-          "appliesTo": [
-            "pitch",
-            "mediaPlan"
-          ],
-          "severity": "warning",
-          "text": "Sponsorship solutions are subject to availability and approval. Do not pitch unconfirmed packages."
-        }
+        { "id": "sponsorship_availability", "appliesTo": ["pitch","mediaPlan"], "severity": "warning", "text": "Sponsorship solutions are subject to availability and approval. Do not pitch unconfirmed packages." }
       ],
-      "liftStudies": {
-        "brandLift": {
-          "minUniqueReach": 6000000
-        }
-      }
+      "liftStudies": { "brandLift": { "minUniqueReach": 6000000 } }
     },
-    "EUI": {
-      "bestPractices": {
-        "universal": [
-          "Hook viewers in the first 1-2 seconds with movement, text, or intrigue",
-          "Create native content that feels organic to TikTok, not like an ad",
-          "Use trending sounds strategically (check Commercial Music Library)",
-          "Keep videos between 9-15 seconds for optimal completion rates",
-          "Include clear CTAs but make them feel natural to the content",
-          "Test 3-5 creative concepts per ad group for variety",
-          "Refresh creative every 7-14 days to combat fatigue",
-          "Use text overlays - 40% of users watch with sound off",
-          "Feature real people over polished productions when possible",
-          "Engage with comments to boost organic visibility",
-          "Plan for at least 3 weeks to drive meaningful impact (avoid flights that are too short).",
-          "Aim for ~2x/week frequency to keep momentum and avoid under-delivery.",
-          "Use at least 3 creatives to maintain freshness and reduce fatigue."
-        ]
-      }
-    },
+    "EUI":   {},
     "LATAM": {},
-    "APAC": {}
+    "APAC":  {}
   }
 }
