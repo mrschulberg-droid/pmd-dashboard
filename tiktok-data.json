@@ -496,6 +496,125 @@
       "focus": "Wrap report with learnings & next steps"
     }
   ],
+  "volatile": {
+    "_meta": {
+      "description": "Fields that change frequently. Update here first; contentPacks merges region overrides on top.",
+      "lastReviewed": "2026-01-28"
+    },
+    "liftStudies": {
+      "brandLift": {
+        "byRegion": {
+          "Global": {
+            "minSpend": 150000,
+            "minUniqueReach": 5500000,
+            "maxQuestions": 4,
+            "mandatoryQuestion": "Ad Recall",
+            "leadTimeDays": 5,
+            "buyingTypes": {
+              "auction": {
+                "eligible": true,
+                "minSpend": 150000,
+                "sourceOfTruth": "Check BLS All-in-One sheet or BLS setup UI for current thresholds."
+              },
+              "reachAndFrequency": {
+                "eligible": true,
+                "minSpend": null,
+                "sourceOfTruth": "Check BLS All-in-One sheet — R&F thresholds differ from auction."
+              }
+            }
+          },
+          "NA": {
+            "minUniqueReach": 6000000,
+            "buyingTypes": {
+              "auction": {
+                "minSpend": 150000,
+                "sourceOfTruth": "Check BLS All-in-One sheet or BLS setup UI for current NA thresholds."
+              }
+            }
+          },
+          "EUI": {
+            "sourceOfTruth": "Uses Global defaults. Check BLS All-in-One sheet for EUI-specific overrides."
+          },
+          "LATAM": {
+            "sourceOfTruth": "Uses Global defaults. Check BLS All-in-One sheet for LATAM-specific overrides."
+          },
+          "APAC": {
+            "sourceOfTruth": "Uses Global defaults. Check BLS All-in-One sheet for APAC-specific overrides."
+          }
+        }
+      },
+      "conversionLift": {
+        "byRegion": {
+          "Global": {
+            "minSpend": 100000,
+            "sourceOfTruth": "Check Conversion Lift setup docs for current thresholds."
+          }
+        }
+      }
+    },
+    "quotas": {
+      "_note": "Quotas are market-level monthly caps. They reset each calendar month and are subject to change.",
+      "byRegion": {
+        "NA": {
+          "brandLiftStudies": null,
+          "sourceOfTruth": "Check with regional Measurement team for current NA monthly BLS quota."
+        },
+        "EUI": {
+          "brandLiftStudies": null,
+          "sourceOfTruth": "Check with regional Measurement team for current EUI monthly BLS quota."
+        },
+        "LATAM": {
+          "brandLiftStudies": null,
+          "sourceOfTruth": "Check with regional Measurement team for current LATAM monthly BLS quota."
+        },
+        "APAC": {
+          "brandLiftStudies": null,
+          "sourceOfTruth": "Check with regional Measurement team for current APAC monthly BLS quota."
+        }
+      }
+    },
+    "productAvailability": {
+      "_note": "Product names and availability vary by region. Null means not yet confirmed.",
+      "byRegion": {
+        "NA": {
+          "TopView": { "available": true, "name": "TopView" },
+          "BrandedHashtagChallenge": { "available": true, "name": "Branded Hashtag Challenge" },
+          "BrandedEffect": { "available": true, "name": "Branded Effect" },
+          "TikTokShop": { "available": true, "name": "TikTok Shop" }
+        },
+        "EUI": {
+          "TopView": { "available": true, "name": "TopView" },
+          "BrandedHashtagChallenge": { "available": true, "name": "Branded Hashtag Challenge" },
+          "BrandedEffect": { "available": true, "name": "Branded Effect" },
+          "TikTokShop": { "available": null, "name": "TikTok Shop", "sourceOfTruth": "Check regional product team for market-level TikTok Shop availability." }
+        },
+        "LATAM": {
+          "TopView": { "available": null, "sourceOfTruth": "Check regional product team for LATAM TopView availability." },
+          "TikTokShop": { "available": null, "sourceOfTruth": "Check regional product team for LATAM TikTok Shop availability." }
+        },
+        "APAC": {
+          "TopView": { "available": null, "sourceOfTruth": "Check regional product team for APAC TopView availability." },
+          "TikTokShop": { "available": null, "sourceOfTruth": "Check regional product team for APAC TikTok Shop availability." }
+        }
+      }
+    },
+    "incentiveCaps": {
+      "_note": "Incentive eligibility and caps may change quarterly. Verify before pitching.",
+      "maxCreditPercent": 20,
+      "eligibilityRules": [
+        "New advertisers or advertisers returning after 90+ day lapse.",
+        "Credits apply to net-new spend only (not renewals of existing IO).",
+        "Credits expire 30 days after issuance unless otherwise noted."
+      ],
+      "sourceOfTruth": "Check current incentive grid from Sales Ops / regional incentive tracker."
+    },
+    "platformStats": {
+      "_note": "Optional. Override top-level platformStats here when newer figures are available.",
+      "monthlyActiveUsers": "1B+",
+      "avgDailyTimeSpent": "95 minutes",
+      "sourceOfTruth": "TikTok Newsroom or latest earnings release."
+    }
+  },
   "contentPacks": {
     "Global": {
       "liftStudies": {
