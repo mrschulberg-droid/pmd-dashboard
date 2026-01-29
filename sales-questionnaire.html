@@ -530,6 +530,7 @@
         <header>
             <h1>TikTok Sales Enablement Tool</h1>
             <p>Generate customized pitches, media plans, and recommendations in seconds</p>
+            <span id="data-verified-badge" style="display:inline-block;margin-top:6px;padding:3px 10px;font-size:11px;color:#888;background:#f0f0f0;border-radius:10px"></span>
         </header>
 
         <!-- Progress -->
@@ -1327,6 +1328,7 @@
             }
 
             // Optional: load live overrides, validate, then deep-merge volatile layer
+            let liveOverrideApplied = false;
             try {
                 const overResp = await fetch('liveOverrides.json');
                 if (overResp.ok) {
@@ -1336,6 +1338,7 @@
                         console.warn('liveOverrides rejected:', vErr);
                     } else if (rawData.volatile) {
                         rawData.volatile = deepMerge(rawData.volatile, overrides.volatile);
+                        liveOverrideApplied = true;
                         console.log('liveOverrides loaded');
                     }
                 }
@@ -1343,6 +1346,13 @@
 
             window.rawTikTokData = rawData;
             tiktokData = rawData;
+
+            // Set data-verified badge
+            const reviewed = tiktokData.volatile?._meta?.lastReviewed;
+            const badge = $('#data-verified-badge');
+            if (badge && reviewed) {
+                badge.textContent = 'Data verified: ' + reviewed + (liveOverrideApplied ? ' (live override)' : '');
+            }
 
             // DEBUG — remove after confirming volatile layer loads
             console.log('Loaded tiktokData keys:', Object.keys(tiktokData));
