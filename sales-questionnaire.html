@@ -886,41 +886,38 @@
                 </div>
             </div>
 
-            <!-- Question 9: Measurement Constraints -->
+            <!-- Question 9: Measurement Mode -->
             <div class="question-section" data-step="9">
                 <div class="card">
-                    <h2><span class="icon">📊</span> Measurement Constraints</h2>
-                    <p class="description">What are the measurement limitations or requirements?</p>
+                    <h2><span class="icon">📊</span> Measurement</h2>
+                    <p class="description">Tracking (Pixel + standard events) is included by default. Choose your measurement approach.</p>
                     <div class="form-group">
-                        <label>Measurement Maturity</label>
+                        <label>Measurement Mode</label>
                         <div class="radio-cards">
                             <label class="radio-card">
-                                <input type="radio" name="measurement" value="Advanced">
-                                <div class="radio-icon">🚀</div>
-                                <div class="radio-label">Advanced (MMM, MTA)</div>
-                            </label>
-                            <label class="radio-card">
-                                <input type="radio" name="measurement" value="Intermediate">
+                                <input type="radio" name="measurementMode" value="standard" checked>
                                 <div class="radio-icon">📈</div>
-                                <div class="radio-label">Intermediate (Pixels, CAPI)</div>
+                                <div class="radio-label">Standard reporting (default)</div>
                             </label>
                             <label class="radio-card">
-                                <input type="radio" name="measurement" value="Basic">
-                                <div class="radio-icon">📉</div>
-                                <div class="radio-label">Basic (Platform metrics)</div>
+                                <input type="radio" name="measurementMode" value="lift">
+                                <div class="radio-icon">🔬</div>
+                                <div class="radio-label">Lift study (prove impact)</div>
                             </label>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Can run Brand Lift Studies?</label>
-                        <div class="checkbox-group">
-                            <label class="checkbox-item">
-                                <input type="checkbox" name="brand_lift" value="yes">
-                                Yes, interested in Brand Lift
+                    <div class="form-group" id="liftStudyTypeGroup" style="display:none">
+                        <label>Lift Study Type</label>
+                        <div class="radio-cards">
+                            <label class="radio-card">
+                                <input type="radio" name="liftStudyType" value="bls">
+                                <div class="radio-icon">📊</div>
+                                <div class="radio-label">Brand Lift Study (BLS)</div>
                             </label>
-                            <label class="checkbox-item">
-                                <input type="checkbox" name="conversion_lift" value="yes">
-                                Yes, interested in Conversion Lift
+                            <label class="radio-card">
+                                <input type="radio" name="liftStudyType" value="cls_multicell">
+                                <div class="radio-icon">🧪</div>
+                                <div class="radio-label">Multi-cell Conversion Lift (CLS)</div>
                             </label>
                         </div>
                     </div>
@@ -1083,6 +1080,7 @@
             setupCheckboxItems();
             setupOutputTabs();
             setDefaultDates();
+            setupMeasurementToggle();
         });
 
         // Map a market name to a region pack key (NA, EUI, LATAM, APAC, Global)
@@ -1286,6 +1284,20 @@
             $('#end_date').value = endDate.toISOString().split('T')[0];
         }
 
+        function setupMeasurementToggle() {
+            const radios = $$('input[name="measurementMode"]');
+            const liftGroup = $('#liftStudyTypeGroup');
+            radios.forEach(r => {
+                r.addEventListener('change', () => {
+                    liftGroup.style.display = r.value === 'lift' && r.checked ? '' : 'none';
+                    // Clear lift type selection when switching back to standard
+                    if (r.value === 'standard') {
+                        $$('input[name="liftStudyType"]').forEach(lt => lt.checked = false);
+                    }
+                });
+            });
+        }
+
         function setupRadioCards() {
             $$('.radio-card').forEach(card => {
                 card.addEventListener('click', () => {
@@ -1363,9 +1375,8 @@
                 pricePoint: $('input[name="price_point"]').value,
                 channels: Array.from($$('input[name="channels"]:checked')).map(i => i.value),
                 creativeStatus: Array.from($$('input[name="creative"]:checked')).map(i => i.value),
-                measurement: $('input[name="measurement"]:checked')?.value || 'Basic',
-                brandLift: $('input[name="brand_lift"]')?.checked,
-                conversionLift: $('input[name="conversion_lift"]')?.checked,
+                measurementMode: $('input[name="measurementMode"]:checked')?.value || 'standard',
+                liftStudyType: $('input[name="liftStudyType"]:checked')?.value || null,
                 budget: parseInt($('#budget').value) || 50000,
                 plannedSpendUsd: parseReachOrSpend($('#plannedSpendUsd').value),
                 plannedUniqueReach: parseReachOrSpend($('#plannedUniqueReach').value),
@@ -1559,9 +1570,12 @@ Ongoing: Scale
         }
 
         function generateMeasurement() {
-            const level = formData.measurement || 'Basic';
+            const mode = formData.measurementMode || 'standard';
+            const liftType = formData.liftStudyType || null;
             const budget = formData.budget || 0;
             const goals = formData.goals || ['Conversions'];
+            // Map new mode to old level for backward-compat with setup/KPI logic
+            const level = mode === 'lift' ? 'Advanced' : 'Basic';
             const isBasic = level === 'Basic';
 
             // Get JSON data with fallbacks
@@ -1575,7 +1589,10 @@ Ongoing: Scale
 
             // Header
             output.push(`MEASUREMENT PLAN FOR ${formData.clientName.toUpperCase()}`);
-            output.push(`MEASUREMENT MATURITY: ${level.toUpperCase()}`);
+            const modeLabel = mode === 'lift'
+                ? `LIFT STUDY — ${liftType === 'bls' ? 'Brand Lift Study (BLS)' : liftType === 'cls_multicell' ? 'Multi-cell Conversion Lift (CLS)' : 'Type TBD'}`
+                : 'STANDARD REPORTING';
+            output.push(`MEASUREMENT MODE: ${modeLabel}`);
             output.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
             // ── 1. Tracking Setup (all levels) ──
