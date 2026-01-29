@@ -1401,6 +1401,43 @@
                         "Lead Gen": ["Use native Lead Gen forms for seamless capture", "Offer clear value exchange for information", "Keep forms short - 3-5 fields maximum", "Use qualifying questions to improve lead quality", "Set up CRM integration for immediate follow-up"],
                         "Engagement": ["Create content that invites participation", "Use Duet and Stitch-enabled content", "Partner with creators for authentic engagement", "Respond to comments to boost visibility", "Leverage trending challenges and sounds"]
                     }
+                },
+                measurementSetup: {
+                    "Advanced": ["Marketing Mix Modeling (MMM) integration", "Multi-Touch Attribution (MTA) setup", "TikTok Pixel with Events API (CAPI)", "Offline conversion tracking", "Advanced matching enabled"],
+                    "Intermediate": ["TikTok Pixel implementation", "Conversion API (CAPI) setup", "Standard events configured", "Custom events for key actions"],
+                    "Basic": ["TikTok Pixel implementation", "Standard events (ViewContent, AddToCart, Purchase)", "TikTok Ads Manager reporting"]
+                },
+                kpis: {
+                    upperFunnel: ["Reach", "Frequency", "Video View Rate (VTR)", "Cost per 1000 Impressions (CPM)", "Brand Lift metrics"],
+                    midFunnel: ["Click-Through Rate (CTR)", "Engagement Rate", "Cost per Click (CPC)", "Landing page views"],
+                    lowerFunnel: ["Conversion Rate (CVR)", "Cost per Acquisition (CPA)", "Return on Ad Spend (ROAS)", "Conversion volume"]
+                },
+                reportingCadence: [
+                    { frequency: "Daily", focus: "Spend pacing, key metrics monitoring" },
+                    { frequency: "Weekly", focus: "Performance review, optimization actions" },
+                    { frequency: "Bi-weekly", focus: "Stakeholder update, strategic adjustments" },
+                    { frequency: "Monthly", focus: "Full performance report, insights & recommendations" },
+                    { frequency: "Post-campaign", focus: "Wrap report with learnings & next steps" }
+                ],
+                volatile: {
+                    liftStudies: {
+                        brandLift: {
+                            byRegion: {
+                                Global: { minSpend: 150000, minUniqueReach: 5500000, maxQuestions: 4, mandatoryQuestion: "Ad Recall", leadTimeDays: 5 },
+                                NA: { minUniqueReach: 6000000 }
+                            }
+                        },
+                        conversionLift: {
+                            byRegion: {
+                                Global: { sourceOfTruth: "Check Conversion Lift setup docs for current thresholds." }
+                            }
+                        }
+                    }
+                },
+                contentPacks: {
+                    Global: { liftStudies: { brandLift: { minSpend: 150000, minUniqueReach: 5500000 } } },
+                    NA: { liftStudies: { brandLift: { minUniqueReach: 6000000 } } },
+                    EUI: {}, LATAM: {}, APAC: {}
                 }
             };
         }
@@ -1828,7 +1865,7 @@ Ongoing: Scale
                         }
                     }
 
-                    output.push(`\n⚠️ ${eligibility.disclaimer}`);
+                    if (eligibility.disclaimer) output.push(`\n⚠️ ${eligibility.disclaimer}`);
                     if (eligibility.safeZoneHint) {
                         output.push(`💡 ${eligibility.safeZoneHint}`);
                     }
@@ -1843,7 +1880,7 @@ Ongoing: Scale
                     output.push(`• Duration: ${p.duration}`);
                     output.push(`• Primary KPI: ${p.primaryKPI}`);
                     output.push(`• Secondary KPIs: ${p.secondaryKPIs.join(', ')}`);
-                    output.push(`\n🔬 ${eligibility.disclaimer}`);
+                    if (eligibility.disclaimer) output.push(`\n🔬 ${eligibility.disclaimer}`);
                 }
             }
 
