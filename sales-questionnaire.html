@@ -1243,12 +1243,25 @@
             return merged;
         }
 
+        // Deep-merge helper: recursively merges source into target (objects only; arrays/primitives overwrite)
+        function deepMerge(target, source) {
+            const out = { ...target };
+            for (const key of Object.keys(source)) {
+                if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])
+                    && target[key] && typeof target[key] === 'object' && !Array.isArray(target[key])) {
+                    out[key] = deepMerge(target[key], source[key]);
+                } else {
+                    out[key] = source[key];
+                }
+            }
+            return out;
+        }
+
         // Load data from JSON file (stores raw data; normalization happens before output)
         async function loadTikTokData() {
             let rawData;
 
             try {
-                // Try to load from JSON file (works when hosted on a server)
                 const response = await fetch('tiktok-data.json');
                 if (response.ok) {
                     rawData = await response.json();
@@ -1258,14 +1271,24 @@
                 console.log('Could not load JSON file, using embedded data');
             }
 
-            // Fallback: use embedded data (for local file:// access)
             if (!rawData) {
                 rawData = getEmbeddedData();
             }
 
-            // Store raw data globally; normalization happens in generateOutput()
+            // Optional: load live overrides and deep-merge volatile layer
+            try {
+                const overResp = await fetch('liveOverrides.json');
+                if (overResp.ok) {
+                    const overrides = await overResp.json();
+                    if (overrides.volatile && rawData.volatile) {
+                        rawData.volatile = deepMerge(rawData.volatile, overrides.volatile);
+                    }
+                    console.log('liveOverrides loaded');
+                }
+            } catch (e) { /* 404 or network error — continue silently */ }
+
             window.rawTikTokData = rawData;
-            tiktokData = rawData; // Default to raw data for backward compatibility
+            tiktokData = rawData;
 
             // DEBUG — remove after confirming volatile layer loads
             console.log('Loaded tiktokData keys:', Object.keys(tiktokData));
