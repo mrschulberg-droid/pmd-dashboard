@@ -1502,7 +1502,7 @@
                 channels: Array.from($$('input[name="channels"]:checked')).map(i => i.value),
                 creativeStatus: Array.from($$('input[name="creative"]:checked')).map(i => i.value),
                 measurementMode: $('input[name="measurementMode"]:checked')?.value || 'standard',
-                liftStudyType: $('input[name="liftStudyType"]:checked')?.value || null,
+                liftStudyType: $('input[name="liftStudyType"]:checked')?.value || "",
                 budget: parseInt($('#budget').value) || 50000,
                 plannedSpendUsd: parseReachOrSpend($('#plannedSpendUsd').value),
                 plannedUniqueReach: parseReachOrSpend($('#plannedUniqueReach').value),
