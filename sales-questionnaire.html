@@ -1696,6 +1696,13 @@ Ongoing: Scale
         }
 
         function generateMeasurement() {
+            console.log("[MEAS DEBUG]", {
+                measurementMode: formData.measurementMode,
+                liftStudyType: formData.liftStudyType,
+                market: formData.market,
+                plannedSpendUsd: formData.plannedSpendUsd,
+                plannedUniqueReach: formData.plannedUniqueReach
+            });
             const mode = formData.measurementMode || 'standard';
             const liftType = formData.liftStudyType || null;
             const kpisData = tiktokData.kpis || {};
