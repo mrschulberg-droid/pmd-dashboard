@@ -1293,6 +1293,12 @@
             // DEBUG — remove after confirming volatile layer loads
             console.log('Loaded tiktokData keys:', Object.keys(tiktokData));
             console.log('Volatile brandLift Global:', tiktokData.volatile?.liftStudies?.brandLift?.byRegion?.Global);
+            console.log("[VOLATILE DEBUG]", {
+                hasVolatile: !!tiktokData.volatile,
+                volatileKeys: tiktokData.volatile ? Object.keys(tiktokData.volatile) : null,
+                liftStudiesPath: tiktokData.volatile?.liftStudies,
+                brandLiftPath: tiktokData.volatile?.liftStudies?.brandLift,
+            });
         }
 
         // Embedded fallback data (copy of key JSON data for offline use)
