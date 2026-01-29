@@ -1539,6 +1539,7 @@ Ongoing: Scale
             const level = formData.measurement || 'Basic';
             const budget = formData.budget || 0;
             const goals = formData.goals || ['Conversions'];
+            const isBasic = level === 'Basic';
 
             // Get JSON data with fallbacks
             const setupData = tiktokData.measurementSetup || {};
@@ -1554,37 +1555,33 @@ Ongoing: Scale
             output.push(`MEASUREMENT MATURITY: ${level.toUpperCase()}`);
             output.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-            // Tracking Setup (from JSON or fallback)
+            // ── 1. Tracking Setup (all levels) ──
             output.push('\nTRACKING SETUP');
             const setupItems = setupData[level];
             if (setupItems && setupItems.length) {
                 setupItems.forEach(item => output.push(`✅ ${item}`));
             } else {
-                // Fallback if JSON missing
                 output.push('✅ TikTok Pixel implementation');
                 output.push('✅ Standard events configured');
             }
 
-            // Add recommendations for non-Advanced (filter out lift language for Basic)
-            if (level !== 'Advanced' && recsData[level]) {
+            // Upgrade recommendations (Intermediate only — Basic gets nothing extra)
+            if (!isBasic && level !== 'Advanced' && recsData[level]) {
                 recsData[level].split('. ').forEach(rec => {
                     const trimmed = rec.trim();
-                    // Skip lift study recommendations for Basic
-                    if (level === 'Basic' && /lift|survey/i.test(trimmed)) return;
                     if (trimmed) output.push(`⬜ ${trimmed}`);
                 });
             }
 
-            // KPIs section - Basic shows core only, others show full
+            // ── 2. KPIs (all levels; Basic = core only) ──
             output.push('\nKEY PERFORMANCE INDICATORS');
 
-            if (level === 'Basic') {
-                // Core KPIs only for Basic
+            if (isBasic) {
                 output.push('\nCore Metrics');
                 const coreKpis = [
                     ...(kpisData.upperFunnel || []).slice(0, 2),
                     ...(kpisData.lowerFunnel || []).slice(0, 2)
-                ];
+                ].filter(k => !/lift/i.test(k));
                 if (coreKpis.length) {
                     coreKpis.forEach((kpi, i) => {
                         const prefix = i === coreKpis.length - 1 ? '└──' : '├──';
@@ -1597,7 +1594,6 @@ Ongoing: Scale
                     output.push('└── ROAS');
                 }
             } else {
-                // Full KPIs for Intermediate/Advanced
                 if (kpisData.upperFunnel && kpisData.upperFunnel.length) {
                     output.push('\nUpper Funnel (Awareness)');
                     kpisData.upperFunnel.forEach((kpi, i) => {
@@ -1621,63 +1617,62 @@ Ongoing: Scale
                 }
             }
 
-            // Reporting Cadence (always included)
+            // ── 3. Reporting Cadence (all levels) ──
             output.push('\nREPORTING CADENCE');
             if (cadenceData.length) {
                 cadenceData.forEach(item => {
                     output.push(`• ${item.frequency}: ${item.focus}`);
                 });
             } else {
-                // Fallback
                 output.push('• Weekly: Performance review');
                 output.push('• Monthly: Full report');
                 output.push('• Post-campaign: Wrap report');
             }
 
-            // Lift Studies - only for Advanced + budget qualifies (never for Basic)
-            if (level === 'Advanced') {
-                const brandLiftMin = liftData.brandLift?.minSpend || 50000;
-                const convLiftMin = liftData.conversionLift?.minSpend || 100000;
-                const qualifiesBrandLift = budget >= brandLiftMin;
-                const qualifiesConvLift = budget >= convLiftMin;
+            // ── Basic stops here. No lift studies, no success criteria. ──
+            if (!isBasic) {
 
-                if (qualifiesBrandLift || qualifiesConvLift) {
-                    output.push('\nRECOMMENDED LIFT STUDIES');
-                    if (qualifiesBrandLift && liftData.brandLift) {
-                        output.push(`✅ ${liftData.brandLift.name} - ${liftData.brandLift.description}`);
-                        output.push(`   Budget qualifies (min: ${formatBudget(brandLiftMin)})`);
-                    }
-                    if (qualifiesConvLift && liftData.conversionLift) {
-                        output.push(`✅ ${liftData.conversionLift.name} - ${liftData.conversionLift.description}`);
-                        output.push(`   Budget qualifies (min: ${formatBudget(convLiftMin)})`);
-                    }
-                } else {
-                    output.push('\nAVAILABLE LIFT STUDIES');
-                    if (liftData.brandLift) {
-                        output.push(`⬜ ${liftData.brandLift.name} (min: ${formatBudget(brandLiftMin)})`);
-                    }
-                    if (liftData.conversionLift) {
-                        output.push(`⬜ ${liftData.conversionLift.name} (min: ${formatBudget(convLiftMin)})`);
+                // ── 4. Lift Studies (Advanced only) ──
+                if (level === 'Advanced') {
+                    const brandLiftMin = liftData.brandLift?.minSpend || 50000;
+                    const convLiftMin = liftData.conversionLift?.minSpend || 100000;
+                    const qualifiesBrandLift = budget >= brandLiftMin;
+                    const qualifiesConvLift = budget >= convLiftMin;
+
+                    if (qualifiesBrandLift || qualifiesConvLift) {
+                        output.push('\nRECOMMENDED LIFT STUDIES');
+                        if (qualifiesBrandLift && liftData.brandLift) {
+                            output.push(`✅ ${liftData.brandLift.name} - ${liftData.brandLift.description}`);
+                            output.push(`   Budget qualifies (min: ${formatBudget(brandLiftMin)})`);
+                        }
+                        if (qualifiesConvLift && liftData.conversionLift) {
+                            output.push(`✅ ${liftData.conversionLift.name} - ${liftData.conversionLift.description}`);
+                            output.push(`   Budget qualifies (min: ${formatBudget(convLiftMin)})`);
+                        }
+                    } else {
+                        output.push('\nAVAILABLE LIFT STUDIES');
+                        if (liftData.brandLift) {
+                            output.push(`⬜ ${liftData.brandLift.name} (min: ${formatBudget(brandLiftMin)})`);
+                        }
+                        if (liftData.conversionLift) {
+                            output.push(`⬜ ${liftData.conversionLift.name} (min: ${formatBudget(convLiftMin)})`);
+                        }
                     }
                 }
+
+                // ── 5. Success Criteria (Intermediate + Advanced) ──
+                output.push('\nSUCCESS CRITERIA');
+                const primaryCriteria = goals.map(g => {
+                    if (g === 'Awareness') return 'Brand Lift +10pts, Reach 70%+ of target';
+                    if (g === 'Conversions') return 'ROAS 3x+, CPA within target';
+                    if (g === 'App Installs') return 'CPI within target, quality installs';
+                    if (g === 'Lead Gen') return 'CPL within target, quality leads';
+                    return 'Hit ' + g + ' targets';
+                }).join('; ');
+                output.push(`• Primary: ${primaryCriteria}`);
+                output.push('• Secondary: Strong engagement, positive sentiment');
+                output.push('• Learning: Clear creative and audience insights');
             }
-
-            // Success Criteria (no lift language for Basic)
-            output.push('\nSUCCESS CRITERIA');
-            const primaryCriteria = goals.map(g => {
-                if (g === 'Awareness') {
-                    return level === 'Basic'
-                        ? 'Reach 70%+ of target, strong VTR'
-                        : 'Brand Lift +10pts, Reach 70%+ of target';
-                }
-                if (g === 'Conversions') return 'ROAS 3x+, CPA within target';
-                if (g === 'App Installs') return 'CPI within target, quality installs';
-                if (g === 'Lead Gen') return 'CPL within target, quality leads';
-                return 'Hit ' + g + ' targets';
-            }).join('; ');
-            output.push(`• Primary: ${primaryCriteria}`);
-            output.push('• Secondary: Strong engagement, positive sentiment');
-            output.push('• Learning: Clear creative and audience insights');
 
             $('#measurement-content').textContent = output.join('\n');
         }
