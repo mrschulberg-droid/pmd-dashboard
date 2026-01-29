@@ -1085,6 +1085,21 @@
             setDefaultDates();
         });
 
+        // Map a market name to a region pack key (NA, EUI, LATAM, APAC, Global)
+        function mapMarketToRegionPack(market) {
+            const map = {
+                'US': 'NA',
+                'UK': 'EUI',
+                'Germany': 'EUI',
+                'France': 'EUI',
+                'Spain': 'EUI',
+                'Italy': 'EUI',
+                'LATAM': 'LATAM',
+                'APAC': 'APAC'
+            };
+            return map[market] || 'Global';
+        }
+
         /**
          * Normalizes TikTok data with optional region-based content packs.
          * If contentPacks exists, merges: base + Global + region-specific pack.
@@ -1096,20 +1111,8 @@
                 return raw;
             }
 
-            // Map market regions to content pack keys
-            const packKeyMap = {
-                'US': 'NA',
-                'UK': 'EUI',
-                'Germany': 'EUI',
-                'France': 'EUI',
-                'Spain': 'EUI',
-                'Italy': 'EUI',
-                'LATAM': 'LATAM',
-                'APAC': 'APAC'
-            };
-
             // Determine pack key, fallback to Global
-            const packKey = packKeyMap[marketRegion] || 'Global';
+            const packKey = mapMarketToRegionPack(marketRegion);
 
             // Deep merge helper (nested objects merge, arrays/primitives override)
             const deepMerge = (target, source) => {
