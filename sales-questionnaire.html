@@ -553,11 +553,11 @@
                             <input type="password" id="aiApiKey" placeholder="sk-..." style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;font-size:0.9rem">
                         </div>
                         <div class="form-group" style="margin-bottom:10px">
-                            <label>Assistant ID <span style="font-weight:normal;color:#888">(enables doc-grounded answers)</span></label>
-                            <input type="text" id="aiAssistantId" placeholder="asst_..." style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;font-size:0.9rem">
+                            <label>Vector Store ID <span style="font-weight:normal;color:#888">(enables doc-grounded answers)</span></label>
+                            <input type="text" id="aiVectorStoreId" placeholder="vs_..." style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;font-size:0.9rem">
                         </div>
                         <div class="form-group" style="margin-bottom:10px">
-                            <label>Model <span style="font-weight:normal;color:#888">(used when no Assistant ID)</span></label>
+                            <label>Model</label>
                             <select id="aiModel" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;font-size:0.9rem">
                                 <option value="gpt-4.1-nano">gpt-4.1-nano (fastest, cheapest)</option>
                                 <option value="gpt-4.1-mini" selected>gpt-4.1-mini (balanced)</option>
@@ -565,8 +565,8 @@
                             </select>
                         </div>
                         <p style="font-size:0.8rem;color:#888;margin:0">
-                            <strong>With Assistant ID:</strong> Uses Assistants API + File Search — answers grounded in your uploaded TikTok docs.<br>
-                            <strong>Without Assistant ID:</strong> Falls back to standard ChatGPT (general knowledge only).<br>
+                            <strong>With Vector Store ID:</strong> Uses Responses API + File Search — answers grounded in your uploaded TikTok docs.<br>
+                            <strong>Without Vector Store ID:</strong> Uses general AI knowledge only.<br>
                             Without any API key, the tool uses built-in deterministic templates.
                         </p>
                     </div>
@@ -1820,127 +1820,43 @@ Tone: Confident but not pushy. Data-informed, not salesy. Direct and actionable.
 
 Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPractices, creativeStrategy. Every field must be present.`;
 
-        // ── AI call router ──────────────────────────────────────
-        // If Assistant ID is provided → Assistants API (File Search + doc grounding)
-        // Otherwise → basic Chat Completions (general knowledge only)
+        // ── AI call: OpenAI Responses API ──────────────────────
+        // If Vector Store ID is provided → includes file_search tool (doc-grounded)
+        // Otherwise → plain Responses API (general knowledge only)
         async function callAI(aiRequest) {
             const apiKey = $('#aiApiKey')?.value?.trim();
             if (!apiKey) return null; // No key = skip AI
 
-            const assistantId = $('#aiAssistantId')?.value?.trim();
-            if (assistantId) {
-                if (DEBUG) console.log('[AI] Using Assistants API (doc-grounded) with:', assistantId);
-                return callAssistant(apiKey, assistantId, aiRequest);
-            } else {
-                if (DEBUG) console.log('[AI] Using Chat Completions (no docs)');
-                return callChatCompletion(apiKey, aiRequest);
-            }
-        }
-
-        // ── Assistants API: File Search + doc-grounded answers ──
-        async function callAssistant(apiKey, assistantId, aiRequest) {
-            const headers = {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`,
-                'OpenAI-Beta': 'assistants=v2'
-            };
-
-            // 1. Create a thread with our message
-            const threadResp = await fetch('https://api.openai.com/v1/threads', {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                    messages: [{
-                        role: 'user',
-                        content: JSON.stringify(aiRequest)
-                    }]
-                })
-            });
-            if (!threadResp.ok) {
-                const err = await threadResp.text();
-                throw new Error(`Thread creation failed (${threadResp.status}): ${err}`);
-            }
-            const thread = await threadResp.json();
-            if (DEBUG) console.log('[AI] Thread created:', thread.id);
-
-            // 2. Create a run on this thread
-            const runResp = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs`, {
-                method: 'POST',
-                headers,
-                body: JSON.stringify({
-                    assistant_id: assistantId,
-                    response_format: { type: 'json_object' },
-                    additional_instructions: 'Return valid JSON only. First character must be {. No markdown, no backticks, no preamble.'
-                })
-            });
-            if (!runResp.ok) {
-                const err = await runResp.text();
-                throw new Error(`Run creation failed (${runResp.status}): ${err}`);
-            }
-            const run = await runResp.json();
-            if (DEBUG) console.log('[AI] Run started:', run.id, 'status:', run.status);
-
-            // 3. Poll until the run completes (max 90 seconds)
-            const maxWait = 90000;
-            const pollInterval = 1500;
-            let elapsed = 0;
-            let status = run.status;
-
-            while (['queued', 'in_progress'].includes(status) && elapsed < maxWait) {
-                await new Promise(resolve => setTimeout(resolve, pollInterval));
-                elapsed += pollInterval;
-
-                const pollResp = await fetch(`https://api.openai.com/v1/threads/${thread.id}/runs/${run.id}`, {
-                    headers: { 'Authorization': `Bearer ${apiKey}`, 'OpenAI-Beta': 'assistants=v2' }
-                });
-                if (!pollResp.ok) throw new Error(`Poll failed: ${pollResp.status}`);
-                const pollData = await pollResp.json();
-                status = pollData.status;
-
-                if (DEBUG && elapsed % 4500 === 0) console.log('[AI] Polling... status:', status, `(${Math.round(elapsed/1000)}s)`);
-
-                if (status === 'failed') throw new Error(`Run failed: ${pollData.last_error?.message || 'unknown error'}`);
-                if (status === 'cancelled' || status === 'expired') throw new Error(`Run ${status}`);
-            }
-
-            if (status !== 'completed') throw new Error(`Run timed out after ${Math.round(maxWait/1000)}s (status: ${status})`);
-
-            // 4. Retrieve the assistant's response message
-            const msgsResp = await fetch(`https://api.openai.com/v1/threads/${thread.id}/messages?order=desc&limit=1`, {
-                headers: { 'Authorization': `Bearer ${apiKey}`, 'OpenAI-Beta': 'assistants=v2' }
-            });
-            if (!msgsResp.ok) throw new Error(`Messages fetch failed: ${msgsResp.status}`);
-            const msgs = await msgsResp.json();
-
-            const assistantMsg = msgs.data?.[0];
-            if (!assistantMsg || assistantMsg.role !== 'assistant') throw new Error('No assistant response found');
-
-            const text = assistantMsg.content?.[0]?.text?.value;
-            if (!text) throw new Error('Empty assistant response');
-
-            if (DEBUG) console.log('[AI] Raw assistant text (first 200 chars):', text.substring(0, 200));
-            return JSON.parse(text);
-        }
-
-        // ── Basic Chat Completions fallback (no docs) ──
-        async function callChatCompletion(apiKey, aiRequest) {
+            const vectorStoreId = $('#aiVectorStoreId')?.value?.trim();
             const model = $('#aiModel')?.value || 'gpt-4.1-mini';
 
-            const resp = await fetch('https://api.openai.com/v1/chat/completions', {
+            // Build the request body
+            const body = {
+                model,
+                instructions: AI_SYSTEM_INSTRUCTION,
+                input: JSON.stringify(aiRequest),
+                text: { format: { type: 'json_object' } },
+                temperature: 0.7
+            };
+
+            // If vector store ID is set, add file_search tool for doc grounding
+            if (vectorStoreId) {
+                body.tools = [{
+                    type: 'file_search',
+                    vector_store_ids: [vectorStoreId]
+                }];
+                if (DEBUG) console.log('[AI] Responses API + File Search, vector store:', vectorStoreId);
+            } else {
+                if (DEBUG) console.log('[AI] Responses API (no docs), model:', model);
+            }
+
+            const resp = await fetch('https://api.openai.com/v1/responses', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${apiKey}`
                 },
-                body: JSON.stringify({
-                    model,
-                    messages: [
-                        { role: 'system', content: AI_SYSTEM_INSTRUCTION },
-                        { role: 'user',   content: JSON.stringify(aiRequest) }
-                    ],
-                    response_format: { type: 'json_object' },
-                    temperature: 0.7
-                })
+                body: JSON.stringify(body)
             });
 
             if (!resp.ok) {
@@ -1949,9 +1865,12 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
             }
 
             const data = await resp.json();
-            const text = data.choices?.[0]?.message?.content;
-            if (!text) throw new Error('Empty GPT response');
 
+            // Responses API returns output_text at the top level
+            const text = data.output_text;
+            if (!text) throw new Error('Empty AI response');
+
+            if (DEBUG) console.log('[AI] Raw response (first 300 chars):', text.substring(0, 300));
             return JSON.parse(text);
         }
 
@@ -2169,10 +2088,10 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
                         const indicator = document.createElement('div');
                         indicator.className = 'ai-loading';
                         indicator.style.cssText = 'margin-top:12px;padding:10px 14px;background:rgba(16,163,127,0.08);border-radius:8px;font-size:0.85rem;color:#10a37f';
-                        const hasAssistant = !!$('#aiAssistantId')?.value?.trim();
-                        indicator.textContent = hasAssistant
+                        const hasDocs = !!$('#aiVectorStoreId')?.value?.trim();
+                        indicator.textContent = hasDocs
                             ? 'Searching docs & generating with AI...'
-                            : 'Enhancing with ChatGPT...';
+                            : 'Generating with AI...';
                         el.parentElement.appendChild(indicator);
                     }
                 });
