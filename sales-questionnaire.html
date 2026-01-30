@@ -1834,7 +1834,7 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
             const body = {
                 model,
                 instructions: AI_SYSTEM_INSTRUCTION,
-                input: JSON.stringify(aiRequest),
+                input: 'Respond in JSON.\n\n' + JSON.stringify(aiRequest),
                 text: { format: { type: 'json_object' } },
                 temperature: 0.7
             };
