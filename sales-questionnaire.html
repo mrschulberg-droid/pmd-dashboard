@@ -555,9 +555,9 @@
                         <div class="form-group" style="margin-bottom:10px">
                             <label>Model</label>
                             <select id="aiModel" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;font-size:0.9rem">
-                                <option value="gpt-4o-mini">gpt-4o-mini (fast, cheapest)</option>
-                                <option value="gpt-4o">gpt-4o (best quality)</option>
-                                <option value="gpt-4-turbo">gpt-4-turbo</option>
+                                <option value="gpt-4.1-nano">gpt-4.1-nano (fastest, cheapest)</option>
+                                <option value="gpt-4.1-mini" selected>gpt-4.1-mini (balanced)</option>
+                                <option value="gpt-4.1">gpt-4.1 (best quality)</option>
                             </select>
                         </div>
                         <p style="font-size:0.8rem;color:#888;margin:0">Optional. Without an API key the tool uses built-in templates. With a key, Pitch, Funnel, Media Plan, Creative, and Best Practices are AI-generated.</p>
@@ -1815,7 +1815,7 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
         // Call the OpenAI Chat Completions API
         async function callGPT(aiRequest) {
             const apiKey = $('#aiApiKey')?.value?.trim();
-            const model = $('#aiModel')?.value || 'gpt-4o-mini';
+            const model = $('#aiModel')?.value || 'gpt-4.1-mini';
 
             if (!apiKey) return null; // No key = skip AI
 
@@ -1850,25 +1850,43 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
 
         // Render the AI response into AI-owned output tabs
         function renderAIResponse(r) {
+            // GPT may wrap response in { aiResponse: {...} } — unwrap if needed
+            if (r.aiResponse && typeof r.aiResponse === 'object') {
+                if (DEBUG) console.log('[AI RENDER] Unwrapping aiResponse wrapper');
+                r = r.aiResponse;
+            }
+
             // — Pitch (full replace) —
             if (r.pitch) {
                 const p = r.pitch;
                 let out = [];
-                out.push(`${p.headline}\n`);
-                out.push('THE OPPORTUNITY');
-                out.push(p.opportunity + '\n');
-                out.push('THE CHALLENGE');
-                out.push(p.challengeResponse + '\n');
-                out.push('WHY TIKTOK NOW');
-                (p.whyNow || []).forEach(b => out.push(`• ${b}`));
-                out.push('');
-                out.push('THE SOLUTION');
-                out.push(p.solution + '\n');
-                out.push('EXPECTED OUTCOMES');
-                (p.expectedOutcomes || []).forEach(b => out.push(`• ${b}`));
-                out.push('');
-                out.push(p.callToAction);
-                $('#pitch-content').textContent = out.join('\n');
+                if (p.headline) out.push(`${p.headline}\n`);
+                if (p.opportunity) {
+                    out.push('THE OPPORTUNITY');
+                    out.push(p.opportunity + '\n');
+                }
+                if (p.challengeResponse) {
+                    out.push('THE CHALLENGE');
+                    out.push(p.challengeResponse + '\n');
+                }
+                if (p.whyNow?.length) {
+                    out.push('WHY TIKTOK NOW');
+                    p.whyNow.forEach(b => out.push(`• ${b}`));
+                    out.push('');
+                }
+                if (p.solution) {
+                    out.push('THE SOLUTION');
+                    out.push(p.solution + '\n');
+                }
+                if (p.expectedOutcomes?.length) {
+                    out.push('EXPECTED OUTCOMES');
+                    p.expectedOutcomes.forEach(b => out.push(`• ${b}`));
+                    out.push('');
+                }
+                if (p.callToAction) out.push(p.callToAction);
+
+                const pitchEl = $('#pitch-content');
+                if (pitchEl) pitchEl.textContent = out.join('\n');
             }
 
             // — Funnel (enhance existing — append strategy after the deterministic output) —
@@ -1876,15 +1894,15 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
                 const f = r.funnel;
                 const el = $('#funnel-content');
                 let extra = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nAI STRATEGY INSIGHTS\n';
-                extra += '\nUPPER FUNNEL STRATEGY\n' + f.upperFunnelStrategy;
-                extra += '\n\nMID FUNNEL STRATEGY\n' + f.midFunnelStrategy;
-                extra += '\n\nLOWER FUNNEL STRATEGY\n' + f.lowerFunnelStrategy;
+                if (f.upperFunnelStrategy) extra += '\nUPPER FUNNEL STRATEGY\n' + f.upperFunnelStrategy;
+                if (f.midFunnelStrategy) extra += '\n\nMID FUNNEL STRATEGY\n' + f.midFunnelStrategy;
+                if (f.lowerFunnelStrategy) extra += '\n\nLOWER FUNNEL STRATEGY\n' + f.lowerFunnelStrategy;
                 if (f.audienceInsight) extra += '\n\nAUDIENCE INSIGHT\n' + f.audienceInsight;
                 if (f.testingRecommendations?.length) {
                     extra += '\n\nTESTING RECOMMENDATIONS';
                     f.testingRecommendations.forEach(t => extra += `\n• ${t}`);
                 }
-                el.textContent += extra;
+                if (el) el.textContent += extra;
             }
 
             // — Media Plan (append format rationale + phase guidance) —
@@ -2055,8 +2073,10 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
 
                         if (response) {
                             window._lastAIResponse = response;
-                            if (DEBUG) console.log('[AI RESPONSE]', response);
+                            if (DEBUG) console.log('[AI RESPONSE] keys:', Object.keys(response), response);
                             renderAIResponse(response);
+                        } else {
+                            if (DEBUG) console.log('[AI RESPONSE] null — no API key or empty response');
                         }
                     })
                     .catch(err => {
