@@ -543,8 +543,8 @@
 
         <!-- Questionnaire Section -->
         <div id="questionnaire-section">
-            <!-- AI Config (collapsible) -->
-            <div class="card" style="margin-bottom:16px;padding:12px 20px">
+            <!-- AI Config (debug only — hidden in production) -->
+            <div id="ai-config-card" class="card" style="margin-bottom:16px;padding:12px 20px;display:none">
                 <details id="ai-config">
                     <summary style="cursor:pointer;font-weight:600;font-size:0.95rem">AI Enhancement (OpenAI)</summary>
                     <div style="margin-top:12px">
@@ -1100,6 +1100,11 @@
         const DEBUG = true; // Set to false to hide debug UI
         let tiktokData = null; // Will be loaded from JSON
 
+        // ── AI configuration (hardcoded for deployment) ──
+        // These are used by default. The config panel (visible in DEBUG mode) can override them.
+        const AI_API_KEY = '';          // Paste your sk-... key here
+        const AI_VECTOR_STORE_ID = 'vs_697d254bcb5c819189a54d927af8f4d';
+
         // DOM helpers
         const $ = (sel) => document.querySelector(sel);
         const $$ = (sel) => document.querySelectorAll(sel);
@@ -1112,6 +1117,8 @@
             if (DEBUG) {
                 const btn = $('#debug-volatile-btn');
                 if (btn) btn.style.display = 'inline-block';
+                const aiCard = $('#ai-config-card');
+                if (aiCard) aiCard.style.display = 'block';
             }
 
             updateProgress();
@@ -1824,10 +1831,11 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
         // If Vector Store ID is provided → includes file_search tool (doc-grounded)
         // Otherwise → plain Responses API (general knowledge only)
         async function callAI(aiRequest) {
-            const apiKey = $('#aiApiKey')?.value?.trim();
+            // Use hardcoded defaults; UI fields override if filled
+            const apiKey = $('#aiApiKey')?.value?.trim() || AI_API_KEY;
             if (!apiKey) return null; // No key = skip AI
 
-            const vectorStoreId = $('#aiVectorStoreId')?.value?.trim();
+            const vectorStoreId = $('#aiVectorStoreId')?.value?.trim() || AI_VECTOR_STORE_ID;
             const model = $('#aiModel')?.value || 'gpt-4.1-mini';
 
             // Build the request body
