@@ -1,0 +1,157 @@
+{
+  "_doc": "Schema contract between the HTML app and the Gemini Gem. The app sends geminiRequest, the Gem returns geminiResponse.",
+
+  "geminiRequest": {
+    "_note": "The app builds this object from formData + deterministic results, then sends it as the user message to the Gem.",
+    "client": {
+      "name": "string",
+      "vertical": "string — E-commerce | Gaming | App | Finance | Beauty | Fashion",
+      "market": "string — US | UK | Germany | France | Spain | Italy | LATAM | APAC",
+      "regionPack": "string — NA | EUI | LATAM | APAC | Global (derived from market)"
+    },
+    "campaign": {
+      "goals": ["string — Awareness | Consideration | Conversions | App Installs | Lead Gen | Engagement"],
+      "scenarios": ["string — New Product Launch | Geo Expansion | Rebrand | Full Funnel | Seasonal Campaign | Always On"],
+      "budget": "number (USD)",
+      "startDate": "string (YYYY-MM-DD)",
+      "endDate": "string (YYYY-MM-DD)",
+      "channels": ["string — existing channels the client uses"]
+    },
+    "challenge": {
+      "primary": "string — the selected challenge",
+      "context": "string — free-text elaboration from the user"
+    },
+    "audience": {
+      "ages": ["string — e.g. '18-24', '25-34'"],
+      "description": "string — free-text audience description"
+    },
+    "product": {
+      "name": "string",
+      "sellingPoints": "string — free-text USPs",
+      "pricePoint": "string — free-text price info"
+    },
+    "creative": {
+      "status": ["string — Has assets | Needs support | No assets | Has creator content"],
+      "unlockedSupport": ["string — names of creative support tiers unlocked by budget"]
+    },
+    "measurement": {
+      "mode": "string — standard | lift",
+      "liftStudyType": "string | null — bls | cls_multicell",
+      "eligibility": {
+        "_note": "Output of getLiftStudyStatus() — passed verbatim so the Gem can reference it without guessing thresholds.",
+        "status": "string — eligible | potentially_eligible | not_eligible | unknown | consult_ms | standard",
+        "liftType": "string | null",
+        "region": "string",
+        "thresholds": { "minSpend": "number|null", "minUniqueReach": "number|null" },
+        "reason": "string | undefined",
+        "disclaimer": "string | undefined"
+      }
+    },
+    "deterministic": {
+      "_note": "Pre-computed by the app. The Gem should reference these numbers, NOT invent its own.",
+      "budgetSplit": { "upper": "number (%)", "mid": "number (%)", "lower": "number (%)" },
+      "adFormats": ["string — recommended formats for selected goals"],
+      "qualifiedIncentives": [{ "name": "string", "value": "string" }],
+      "qualifiedCreativeSupport": [{ "name": "string", "description": "string" }]
+    }
+  },
+
+  "geminiResponse": {
+    "_note": "The Gem returns this JSON object. Each key maps to one output tab in the app. The app renders them directly.",
+
+    "pitch": {
+      "_owner": "GEM",
+      "_why": "Narrative persuasion benefits most from AI customization. Current version is template-based.",
+      "headline": "string — one-line hook, e.g. 'Unlock Gen Z for [ClientName] on TikTok'",
+      "opportunity": "string — 2-3 sentences on why this client + TikTok is a fit, referencing vertical + market",
+      "challengeResponse": "string — 2-3 sentences addressing the specific challenge, citing TikTok data/capabilities",
+      "whyNow": ["string — 3-5 bullet points, each referencing a real stat or platform capability"],
+      "solution": "string — 2-3 sentences describing the recommended approach, referencing budget + formats + timeline",
+      "expectedOutcomes": ["string — 3-5 bullet points tied to their specific goals"],
+      "callToAction": "string — one sentence closing line"
+    },
+
+    "funnel": {
+      "_owner": "HYBRID — app computes splits/budgets, Gem adds strategy narrative",
+      "_appComputes": "budgetSplit percentages, dollar amounts per tier, audience strategy structure",
+      "upperFunnelStrategy": "string — 2-3 sentences on awareness approach tailored to vertical + goals",
+      "midFunnelStrategy": "string — 2-3 sentences on consideration tactics for this audience",
+      "lowerFunnelStrategy": "string — 2-3 sentences on conversion approach for this vertical",
+      "audienceInsight": "string — 1-2 sentences of audience-specific insight beyond the standard retargeting list",
+      "testingRecommendations": ["string — 3-4 bullet points on what to test, specific to vertical + creative status"]
+    },
+
+    "mediaPlan": {
+      "_owner": "HYBRID — app computes flight schedule/budgets, Gem adds format rationale",
+      "_appComputes": "flight schedule, weekly budgets, format list, placement strategy, bidding strategy",
+      "formatRationale": {
+        "_note": "One entry per recommended ad format. Key = format name.",
+        "<FormatName>": {
+          "whyThisClient": "string — 1-2 sentences on why this format specifically suits this client",
+          "creativeTip": "string — 1 sentence practical tip for this format + vertical"
+        }
+      },
+      "phaseGuidance": {
+        "launch": "string — 1-2 sentences on what to prioritize in weeks 1-2 for this vertical",
+        "optimize": "string — 1-2 sentences on optimization focus",
+        "scale": "string — 1-2 sentences on scaling approach"
+      }
+    },
+
+    "bestPractices": {
+      "_owner": "GEM",
+      "_why": "Currently uses static lists. Gem can cross-reference playbooks to give tailored advice.",
+      "verticalTips": {
+        "title": "string — e.g. 'E-commerce on TikTok'",
+        "tips": ["string — 5-7 actionable tips from the vertical playbook, customized to this client's product/audience"]
+      },
+      "goalTips": {
+        "_note": "One entry per selected goal.",
+        "<GoalName>": ["string — 4-6 actionable tips specific to this goal + vertical combination"]
+      },
+      "universalTips": ["string — 3-5 platform-wide tips most relevant to this client's situation"],
+      "avoidList": ["string — 2-3 common mistakes for this vertical/goal to watch out for"]
+    },
+
+    "creativeStrategy": {
+      "_owner": "GEM",
+      "_why": "Current version just lists unlocked tiers. Gem can recommend actual creative approaches.",
+      "creativeDirection": "string — 2-3 sentences on overall creative approach for this brand/vertical",
+      "contentPillars": [
+        {
+          "pillar": "string — e.g. 'Product Demo'",
+          "description": "string — 1 sentence on what this pillar looks like",
+          "exampleHook": "string — example opening line/concept"
+        }
+      ],
+      "formatRecommendations": [
+        {
+          "format": "string — e.g. 'Spark Ads'",
+          "usage": "string — 1 sentence on how to use this format for their creative status"
+        }
+      ],
+      "creatorGuidance": "string — 1-2 sentences on creator strategy based on creative status + vertical"
+    }
+  },
+
+  "tabOwnership": {
+    "_note": "Summary of which output tabs are owned by whom.",
+    "pitch":           "GEM — full narrative",
+    "funnel":          "HYBRID — app: numbers, Gem: strategy text",
+    "measurement":     "APP — deterministic (thresholds, eligibility, KPIs, cadence)",
+    "mediaPlan":       "HYBRID — app: schedule/budget, Gem: format rationale + phase guidance",
+    "incentives":      "APP — deterministic (tier matching, next-unlock nudge)",
+    "creativeSupport": "HYBRID — app: tier unlocks, Gem: creative strategy (new section)",
+    "bestPractices":   "GEM — full replacement of static lists"
+  },
+
+  "gemRules": [
+    "NEVER invent threshold numbers (minSpend, minUniqueReach, budget splits). Use ONLY values from deterministic.",
+    "NEVER reference incentive tiers the client hasn't unlocked.",
+    "ALWAYS use the client's actual product name, not generic placeholders.",
+    "ALWAYS reference the specific vertical — do not give generic advice.",
+    "If measurement.eligibility.status is 'not_eligible', do NOT promise lift study results in the pitch.",
+    "Keep each string field under 280 characters unless marked otherwise.",
+    "Return valid JSON only. No markdown, no backticks, no preamble."
+  ]
+}
