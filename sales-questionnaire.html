@@ -1673,6 +1673,100 @@
             return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
+        // Build the structured request object for the Gemini Gem
+        function buildGeminiRequest() {
+            const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
+            const budget = formData.budget;
+
+            // — Budget split (same logic as generateFunnel) —
+            const budgetSplits = tiktokData.budgetSplits || {};
+            const splits = goals.map(g => budgetSplits[g] || budgetSplits['Conversions']);
+            const budgetSplit = {
+                upper: Math.round(splits.reduce((s, v) => s + v.upper, 0) / splits.length),
+                mid:   Math.round(splits.reduce((s, v) => s + v.mid, 0) / splits.length),
+                lower: Math.round(splits.reduce((s, v) => s + v.lower, 0) / splits.length)
+            };
+
+            // — Ad formats (same logic as generateMediaPlan) —
+            const adFmts = tiktokData.adFormats || {};
+            const adFormats = [...new Set(goals.flatMap(g => adFmts[g] || adFmts['Conversions'] || []))];
+
+            // — Qualified incentives —
+            const qualifiedIncentives = (tiktokData.mediaIncentives || [])
+                .filter(i => budget >= i.threshold)
+                .map(i => ({ name: i.name, value: i.value }));
+
+            // — Qualified creative support —
+            const qualifiedCreativeSupport = (tiktokData.creativeSupport || [])
+                .filter(i => budget >= i.threshold)
+                .map(i => ({ name: i.name, description: i.description }));
+
+            // — Measurement eligibility —
+            const mode = formData.measurementMode || 'standard';
+            const rawType = (formData.liftStudyType || '').toLowerCase().trim();
+            const liftTypeMap = {
+                'bls': 'bls', 'brandlift': 'bls', 'brand_lift': 'bls', 'brand lift study': 'bls',
+                'cls': 'cls_multicell', 'conversionlift': 'cls_multicell', 'conversion_lift': 'cls_multicell',
+                'multicell': 'cls_multicell', 'multi-cell': 'cls_multicell', 'cls_multicell': 'cls_multicell'
+            };
+            const liftType = liftTypeMap[rawType] || (mode === 'lift' ? 'bls' : null);
+
+            const eligibility = getLiftStudyStatus({
+                market: formData.market,
+                measurementMode: mode,
+                liftStudyType: liftType,
+                plannedSpendUsd: formData.plannedSpendUsd,
+                plannedUniqueReach: formData.plannedUniqueReach,
+                buyingType: 'auction',
+                tiktokData
+            });
+
+            return {
+                client: {
+                    name: formData.clientName,
+                    vertical: formData.vertical,
+                    market: formData.market,
+                    regionPack: mapMarketToRegionPack(formData.market)
+                },
+                campaign: {
+                    goals,
+                    scenarios: formData.scenarios,
+                    budget,
+                    startDate: formData.startDate,
+                    endDate: formData.endDate,
+                    channels: formData.channels
+                },
+                challenge: {
+                    primary: formData.challenge,
+                    context: formData.challengeContext || ''
+                },
+                audience: {
+                    ages: formData.ages,
+                    description: formData.audienceDesc || ''
+                },
+                product: {
+                    name: formData.productName,
+                    sellingPoints: formData.sellingPoints || '',
+                    pricePoint: formData.pricePoint || ''
+                },
+                creative: {
+                    status: formData.creativeStatus,
+                    unlockedSupport: qualifiedCreativeSupport.map(s => s.name)
+                },
+                measurement: {
+                    mode,
+                    liftStudyType: liftType,
+                    eligibility
+                },
+                deterministic: {
+                    budgetSplit,
+                    adFormats,
+                    qualifiedIncentives,
+                    qualifiedCreativeSupport
+                }
+            };
+        }
+
         function generateOutput() {
             collectFormData();
 
@@ -1686,6 +1780,11 @@
                 volatileKeys: tiktokData.volatile ? Object.keys(tiktokData.volatile) : null,
                 byRegion: tiktokData.volatile?.liftStudies?.brandLift?.byRegion
             });
+
+            // Build Gemini request (before generators, so it's available)
+            const geminiRequest = buildGeminiRequest();
+            window._lastGeminiRequest = geminiRequest; // expose for debug
+            if (DEBUG) console.log('[GEMINI REQUEST]', JSON.stringify(geminiRequest, null, 2));
 
             // Generate all outputs
             generatePitch();
