@@ -1124,6 +1124,19 @@
             // Load TikTok data from JSON file
             await loadTikTokData();
 
+            // Check if AI config is loaded
+            if (typeof AI_CONFIG === 'undefined' || !AI_CONFIG.apiKey) {
+                console.warn('[AI CONFIG] ai-config.js not found or missing apiKey. AI features disabled — using templates only.');
+                const badge = $('#data-verified-badge');
+                if (badge) {
+                    badge.textContent = 'AI: not configured (ai-config.js missing)';
+                    badge.style.color = '#d93025';
+                    badge.style.background = 'rgba(217,48,37,0.08)';
+                }
+            } else {
+                console.log('[AI CONFIG] Loaded. Model:', AI_CONFIG.defaultModel, '| Vector Store:', AI_CONFIG.vectorStoreId ? 'yes' : 'no');
+            }
+
             // Secret shortcut: press Ctrl+Shift+K to toggle all debug UI
             document.addEventListener('keydown', (e) => {
                 if (e.ctrlKey && e.shiftKey && e.key === 'K') {
