@@ -543,6 +543,28 @@
 
         <!-- Questionnaire Section -->
         <div id="questionnaire-section">
+            <!-- Gemini API Config (collapsible) -->
+            <div class="card" style="margin-bottom:16px;padding:12px 20px">
+                <details id="gemini-config">
+                    <summary style="cursor:pointer;font-weight:600;font-size:0.95rem">AI Enhancement (Gemini)</summary>
+                    <div style="margin-top:12px">
+                        <div class="form-group" style="margin-bottom:10px">
+                            <label>Gemini API Key</label>
+                            <input type="password" id="geminiApiKey" placeholder="Paste your Gemini API key" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;font-size:0.9rem">
+                        </div>
+                        <div class="form-group" style="margin-bottom:10px">
+                            <label>Model</label>
+                            <select id="geminiModel" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;font-size:0.9rem">
+                                <option value="gemini-2.0-flash">gemini-2.0-flash (fast)</option>
+                                <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite (fastest)</option>
+                                <option value="gemini-1.5-pro">gemini-1.5-pro (best quality)</option>
+                            </select>
+                        </div>
+                        <p style="font-size:0.8rem;color:#888;margin:0">Optional. Without an API key the tool uses built-in templates. With a key, Pitch, Funnel, Media Plan, Creative, and Best Practices are AI-generated.</p>
+                    </div>
+                </details>
+            </div>
+
             <!-- Question 1: Market -->
             <div class="question-section active" data-step="1">
                 <div class="card">
@@ -1767,6 +1789,217 @@
             };
         }
 
+        // System instruction for the Gemini Gem (embedded from gemini-system-instruction.md)
+        const GEMINI_SYSTEM_INSTRUCTION = `You are a TikTok sales strategist embedded inside a sales enablement tool used by TikTok's client-facing teams.
+
+You receive a structured JSON request containing everything about a prospective advertiser — their vertical, market, goals, audience, product, budget, challenges, creative readiness, and pre-computed deterministic results (budget splits, eligible incentives, measurement eligibility). You return a structured JSON response that the tool renders as customized sales outputs.
+
+Always ground your advice in your knowledge sources. When referencing a stat, capability, or recommendation, it should come from uploaded materials or well-known TikTok data.
+
+You write persuasive, customized narrative text. The app handles all numbers, thresholds, and eligibility logic.
+
+Critical rules:
+1. NEVER invent threshold numbers. Use ONLY values from the deterministic section.
+2. NEVER reference incentive tiers the client has not unlocked.
+3. ALWAYS use the client's actual product name, vertical, and market.
+4. ALWAYS tailor advice to the specific vertical.
+5. When multiple goals are selected, address each explicitly.
+6. When challenge.context is provided, weave it into the challenge response.
+7. Keep individual string fields under 280 characters unless they are multi-sentence narratives.
+8. Return valid JSON only. No markdown, no backticks, no preamble. First character must be {.
+
+Tone: Confident but not pushy. Data-informed, not salesy. Direct and actionable.
+
+Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPractices, creativeStrategy. Every field must be present.`;
+
+        // Call the Gemini API with the structured request
+        async function callGeminiGem(geminiRequest) {
+            const apiKey = $('#geminiApiKey')?.value?.trim();
+            const model = $('#geminiModel')?.value || 'gemini-2.0-flash';
+
+            if (!apiKey) return null; // No key = skip AI
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+            const body = {
+                contents: [{
+                    parts: [{ text: JSON.stringify(geminiRequest) }]
+                }],
+                systemInstruction: {
+                    parts: [{ text: GEMINI_SYSTEM_INSTRUCTION }]
+                },
+                generationConfig: {
+                    responseMimeType: 'application/json',
+                    temperature: 0.7
+                }
+            };
+
+            const resp = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body)
+            });
+
+            if (!resp.ok) {
+                const err = await resp.text();
+                throw new Error(`Gemini API ${resp.status}: ${err}`);
+            }
+
+            const data = await resp.json();
+            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!text) throw new Error('Empty Gemini response');
+
+            return JSON.parse(text);
+        }
+
+        // Render the Gemini response into AI-owned output tabs
+        function renderGeminiResponse(r) {
+            // — Pitch (full replace) —
+            if (r.pitch) {
+                const p = r.pitch;
+                let out = [];
+                out.push(`${p.headline}\n`);
+                out.push('THE OPPORTUNITY');
+                out.push(p.opportunity + '\n');
+                out.push('THE CHALLENGE');
+                out.push(p.challengeResponse + '\n');
+                out.push('WHY TIKTOK NOW');
+                (p.whyNow || []).forEach(b => out.push(`• ${b}`));
+                out.push('');
+                out.push('THE SOLUTION');
+                out.push(p.solution + '\n');
+                out.push('EXPECTED OUTCOMES');
+                (p.expectedOutcomes || []).forEach(b => out.push(`• ${b}`));
+                out.push('');
+                out.push(p.callToAction);
+                $('#pitch-content').textContent = out.join('\n');
+            }
+
+            // — Funnel (enhance existing — append strategy after the deterministic output) —
+            if (r.funnel) {
+                const f = r.funnel;
+                const el = $('#funnel-content');
+                let extra = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nAI STRATEGY INSIGHTS\n';
+                extra += '\nUPPER FUNNEL STRATEGY\n' + f.upperFunnelStrategy;
+                extra += '\n\nMID FUNNEL STRATEGY\n' + f.midFunnelStrategy;
+                extra += '\n\nLOWER FUNNEL STRATEGY\n' + f.lowerFunnelStrategy;
+                if (f.audienceInsight) extra += '\n\nAUDIENCE INSIGHT\n' + f.audienceInsight;
+                if (f.testingRecommendations?.length) {
+                    extra += '\n\nTESTING RECOMMENDATIONS';
+                    f.testingRecommendations.forEach(t => extra += `\n• ${t}`);
+                }
+                el.textContent += extra;
+            }
+
+            // — Media Plan (append format rationale + phase guidance) —
+            if (r.mediaPlan) {
+                const m = r.mediaPlan;
+                const el = $('#media-content');
+                let extra = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nAI FORMAT INSIGHTS\n';
+                if (m.formatRationale) {
+                    for (const [fmt, info] of Object.entries(m.formatRationale)) {
+                        extra += `\n${fmt.toUpperCase()}`;
+                        if (info.whyThisClient) extra += `\n  Why: ${info.whyThisClient}`;
+                        if (info.creativeTip) extra += `\n  Tip: ${info.creativeTip}`;
+                    }
+                }
+                if (m.phaseGuidance) {
+                    extra += '\n\nPHASE GUIDANCE';
+                    if (m.phaseGuidance.launch) extra += `\nLaunch: ${m.phaseGuidance.launch}`;
+                    if (m.phaseGuidance.optimize) extra += `\nOptimize: ${m.phaseGuidance.optimize}`;
+                    if (m.phaseGuidance.scale) extra += `\nScale: ${m.phaseGuidance.scale}`;
+                }
+                el.textContent += extra;
+            }
+
+            // — Best Practices (full replace) —
+            if (r.bestPractices) {
+                const bp = r.bestPractices;
+                let html = '<div class="output-content">';
+
+                if (bp.verticalTips) {
+                    html += `<h4 style="margin-bottom:12px">${bp.verticalTips.title || 'Vertical Tips'}</h4>`;
+                    html += '<ul style="list-style:none;padding:0;margin-bottom:20px">';
+                    (bp.verticalTips.tips || []).forEach(t => {
+                        html += `<li style="padding:10px 14px;background:var(--tiktok-light-gray);border-radius:6px;margin-bottom:8px">✓ ${t}</li>`;
+                    });
+                    html += '</ul>';
+                }
+
+                if (bp.goalTips) {
+                    for (const [goal, tips] of Object.entries(bp.goalTips)) {
+                        html += `<h4 style="margin-bottom:12px">${goal} Tips</h4>`;
+                        html += '<ul style="list-style:none;padding:0;margin-bottom:20px">';
+                        (tips || []).forEach(t => {
+                            html += `<li style="padding:10px 14px;background:var(--tiktok-light-gray);border-radius:6px;margin-bottom:8px">✓ ${t}</li>`;
+                        });
+                        html += '</ul>';
+                    }
+                }
+
+                if (bp.universalTips?.length) {
+                    html += '<h4 style="margin-bottom:12px">Universal Tips</h4>';
+                    html += '<ul style="list-style:none;padding:0;margin-bottom:20px">';
+                    bp.universalTips.forEach(t => {
+                        html += `<li style="padding:10px 14px;background:var(--tiktok-light-gray);border-radius:6px;margin-bottom:8px">✓ ${t}</li>`;
+                    });
+                    html += '</ul>';
+                }
+
+                if (bp.avoidList?.length) {
+                    html += '<h4 style="margin-bottom:12px;color:var(--tiktok-red)">Common Mistakes to Avoid</h4>';
+                    html += '<ul style="list-style:none;padding:0">';
+                    bp.avoidList.forEach(t => {
+                        html += `<li style="padding:10px 14px;background:rgba(254,44,85,0.08);border-radius:6px;margin-bottom:8px">✗ ${t}</li>`;
+                    });
+                    html += '</ul>';
+                }
+
+                html += '</div>';
+                $('#bestpractices-content').innerHTML = html;
+            }
+
+            // — Creative Strategy (enhance existing) —
+            if (r.creativeStrategy) {
+                const cs = r.creativeStrategy;
+                const el = $('#creative-content');
+                let html = el.innerHTML;
+
+                html += '<div style="margin-top:20px;border-top:1px solid var(--border-color);padding-top:16px">';
+                html += '<h4 style="margin-bottom:12px">AI Creative Strategy</h4>';
+
+                if (cs.creativeDirection) {
+                    html += `<p style="margin-bottom:12px">${cs.creativeDirection}</p>`;
+                }
+
+                if (cs.contentPillars?.length) {
+                    html += '<h4 style="margin-bottom:8px;font-size:0.95rem">Content Pillars</h4>';
+                    cs.contentPillars.forEach(cp => {
+                        html += `<div style="padding:10px 14px;background:var(--tiktok-light-gray);border-radius:6px;margin-bottom:8px">`;
+                        html += `<strong>${cp.pillar}</strong>: ${cp.description}`;
+                        if (cp.exampleHook) html += `<br><em style="color:#888">Hook: "${cp.exampleHook}"</em>`;
+                        html += '</div>';
+                    });
+                }
+
+                if (cs.formatRecommendations?.length) {
+                    html += '<h4 style="margin-bottom:8px;margin-top:12px;font-size:0.95rem">Format Recommendations</h4>';
+                    cs.formatRecommendations.forEach(fr => {
+                        html += `<div style="padding:10px 14px;background:var(--tiktok-light-gray);border-radius:6px;margin-bottom:8px">`;
+                        html += `<strong>${fr.format}</strong>: ${fr.usage}`;
+                        html += '</div>';
+                    });
+                }
+
+                if (cs.creatorGuidance) {
+                    html += `<p style="margin-top:12px;padding:10px 14px;background:rgba(0,200,83,0.08);border-radius:6px"><strong>Creator Strategy:</strong> ${cs.creatorGuidance}</p>`;
+                }
+
+                html += '</div>';
+                el.innerHTML = html;
+            }
+        }
+
         function generateOutput() {
             collectFormData();
 
@@ -1783,10 +2016,10 @@
 
             // Build Gemini request (before generators, so it's available)
             const geminiRequest = buildGeminiRequest();
-            window._lastGeminiRequest = geminiRequest; // expose for debug
+            window._lastGeminiRequest = geminiRequest;
             if (DEBUG) console.log('[GEMINI REQUEST]', JSON.stringify(geminiRequest, null, 2));
 
-            // Generate all outputs
+            // Generate deterministic outputs first (always available)
             generatePitch();
             generateFunnel();
             generateMeasurement();
@@ -1799,8 +2032,47 @@
             $('#questionnaire-section').style.display = 'none';
             $('#output-section').classList.add('active');
             $('#output-client-name').textContent = formData.clientName;
-
             window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // If Gemini API key is set, enhance with AI
+            const apiKey = $('#geminiApiKey')?.value?.trim();
+            if (apiKey) {
+                // Show loading indicators on AI-enhanced tabs
+                const aiTabs = ['pitch', 'funnel', 'media', 'bestpractices', 'creative'];
+                aiTabs.forEach(tab => {
+                    const el = tab === 'media' ? $('#media-content')
+                             : tab === 'bestpractices' ? $('#bestpractices-content')
+                             : tab === 'creative' ? $('#creative-content')
+                             : $(`#${tab}-content`);
+                    if (el) {
+                        const indicator = document.createElement('div');
+                        indicator.className = 'gemini-loading';
+                        indicator.style.cssText = 'margin-top:12px;padding:10px 14px;background:rgba(66,133,244,0.08);border-radius:8px;font-size:0.85rem;color:#4285f4';
+                        indicator.textContent = 'Enhancing with AI...';
+                        el.parentElement.appendChild(indicator);
+                    }
+                });
+
+                callGeminiGem(geminiRequest)
+                    .then(response => {
+                        // Remove loading indicators
+                        document.querySelectorAll('.gemini-loading').forEach(el => el.remove());
+
+                        if (response) {
+                            window._lastGeminiResponse = response;
+                            if (DEBUG) console.log('[GEMINI RESPONSE]', response);
+                            renderGeminiResponse(response);
+                        }
+                    })
+                    .catch(err => {
+                        document.querySelectorAll('.gemini-loading').forEach(el => {
+                            el.style.color = '#d93025';
+                            el.style.background = 'rgba(217,48,37,0.08)';
+                            el.textContent = 'AI enhancement failed: ' + err.message;
+                        });
+                        console.warn('[GEMINI ERROR]', err);
+                    });
+            }
         }
 
         function generatePitch() {
