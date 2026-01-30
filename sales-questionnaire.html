@@ -1102,12 +1102,45 @@
 
         // ── AI configuration (hardcoded for deployment) ──
         // These are used by default. The config panel (visible in DEBUG mode) can override them.
-        const AI_API_KEY = '';          // Paste your sk-... key here
+        const AI_API_KEY = '';  // Loaded from localStorage (see setup prompt below)
         const AI_VECTOR_STORE_ID = 'vs_697d254bcb5c819189a54d927af8f4d';
 
         // DOM helpers
         const $ = (sel) => document.querySelector(sel);
         const $$ = (sel) => document.querySelectorAll(sel);
+
+        // ── First-time AI credential setup ──
+        function setupAICredentials() {
+            const hasKey = localStorage.getItem('pmd_ai_api_key');
+            const hasStore = localStorage.getItem('pmd_ai_vector_store');
+
+            // If both are already saved, nothing to do
+            if (hasKey && hasStore) {
+                if (DEBUG) console.log('[AI SETUP] Credentials loaded from localStorage');
+                return;
+            }
+
+            // Also skip if hardcoded constants are set
+            if (AI_API_KEY && AI_VECTOR_STORE_ID) {
+                if (DEBUG) console.log('[AI SETUP] Using hardcoded constants');
+                return;
+            }
+
+            // First-time setup: show a one-time prompt
+            if (!hasKey && !AI_API_KEY) {
+                const key = prompt('One-time setup: Paste your OpenAI API key (sk-...).\n\nThis is saved in your browser and never sent anywhere except OpenAI.');
+                if (key && key.trim().startsWith('sk-')) {
+                    localStorage.setItem('pmd_ai_api_key', key.trim());
+                }
+            }
+
+            if (!hasStore && !AI_VECTOR_STORE_ID) {
+                const storeId = prompt('Paste your Vector Store ID (vs-...).\n\nThis tells the AI which uploaded docs to search.');
+                if (storeId && storeId.trim().startsWith('vs')) {
+                    localStorage.setItem('pmd_ai_vector_store', storeId.trim());
+                }
+            }
+        }
 
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
@@ -1120,6 +1153,9 @@
                 const aiCard = $('#ai-config-card');
                 if (aiCard) aiCard.style.display = 'block';
             }
+
+            // ── First-time AI setup: prompt for API key once, save to localStorage ──
+            setupAICredentials();
 
             updateProgress();
             setupRadioCards();
@@ -1831,11 +1867,15 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
         // If Vector Store ID is provided → includes file_search tool (doc-grounded)
         // Otherwise → plain Responses API (general knowledge only)
         async function callAI(aiRequest) {
-            // Use hardcoded defaults; UI fields override if filled
-            const apiKey = $('#aiApiKey')?.value?.trim() || AI_API_KEY;
+            // Priority: UI field → localStorage → hardcoded constant
+            const apiKey = $('#aiApiKey')?.value?.trim()
+                        || localStorage.getItem('pmd_ai_api_key')
+                        || AI_API_KEY;
             if (!apiKey) return null; // No key = skip AI
 
-            const vectorStoreId = $('#aiVectorStoreId')?.value?.trim() || AI_VECTOR_STORE_ID;
+            const vectorStoreId = $('#aiVectorStoreId')?.value?.trim()
+                               || localStorage.getItem('pmd_ai_vector_store')
+                               || AI_VECTOR_STORE_ID;
             const model = $('#aiModel')?.value || 'gpt-4.1-mini';
 
             // Build the request body
