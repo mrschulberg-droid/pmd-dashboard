@@ -543,21 +543,21 @@
 
         <!-- Questionnaire Section -->
         <div id="questionnaire-section">
-            <!-- Gemini API Config (collapsible) -->
+            <!-- AI Config (collapsible) -->
             <div class="card" style="margin-bottom:16px;padding:12px 20px">
-                <details id="gemini-config">
-                    <summary style="cursor:pointer;font-weight:600;font-size:0.95rem">AI Enhancement (Gemini)</summary>
+                <details id="ai-config">
+                    <summary style="cursor:pointer;font-weight:600;font-size:0.95rem">AI Enhancement (ChatGPT)</summary>
                     <div style="margin-top:12px">
                         <div class="form-group" style="margin-bottom:10px">
-                            <label>Gemini API Key</label>
-                            <input type="password" id="geminiApiKey" placeholder="Paste your Gemini API key" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;font-size:0.9rem">
+                            <label>OpenAI API Key</label>
+                            <input type="password" id="aiApiKey" placeholder="sk-..." style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;font-size:0.9rem">
                         </div>
                         <div class="form-group" style="margin-bottom:10px">
                             <label>Model</label>
-                            <select id="geminiModel" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;font-size:0.9rem">
-                                <option value="gemini-2.0-flash">gemini-2.0-flash (fast)</option>
-                                <option value="gemini-2.0-flash-lite">gemini-2.0-flash-lite (fastest)</option>
-                                <option value="gemini-1.5-pro">gemini-1.5-pro (best quality)</option>
+                            <select id="aiModel" style="width:100%;padding:8px 12px;border:1px solid var(--border-color);border-radius:8px;font-size:0.9rem">
+                                <option value="gpt-4o-mini">gpt-4o-mini (fast, cheapest)</option>
+                                <option value="gpt-4o">gpt-4o (best quality)</option>
+                                <option value="gpt-4-turbo">gpt-4-turbo</option>
                             </select>
                         </div>
                         <p style="font-size:0.8rem;color:#888;margin:0">Optional. Without an API key the tool uses built-in templates. With a key, Pitch, Funnel, Media Plan, Creative, and Best Practices are AI-generated.</p>
@@ -1695,8 +1695,8 @@
             return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
-        // Build the structured request object for the Gemini Gem
-        function buildGeminiRequest() {
+        // Build the structured request object for the AI (schema from gemini-schema.json)
+        function buildAIRequest() {
             const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
             const budget = formData.budget;
 
@@ -1789,12 +1789,12 @@
             };
         }
 
-        // System instruction for the Gemini Gem (embedded from gemini-system-instruction.md)
-        const GEMINI_SYSTEM_INSTRUCTION = `You are a TikTok sales strategist embedded inside a sales enablement tool used by TikTok's client-facing teams.
+        // System instruction (shared across AI providers)
+        const AI_SYSTEM_INSTRUCTION = `You are a TikTok sales strategist embedded inside a sales enablement tool used by TikTok's client-facing teams.
 
 You receive a structured JSON request containing everything about a prospective advertiser — their vertical, market, goals, audience, product, budget, challenges, creative readiness, and pre-computed deterministic results (budget splits, eligible incentives, measurement eligibility). You return a structured JSON response that the tool renders as customized sales outputs.
 
-Always ground your advice in your knowledge sources. When referencing a stat, capability, or recommendation, it should come from uploaded materials or well-known TikTok data.
+Always ground your advice in well-known TikTok platform data and advertising best practices.
 
 You write persuasive, customized narrative text. The app handles all numbers, thresholds, and eligibility logic.
 
@@ -1812,48 +1812,44 @@ Tone: Confident but not pushy. Data-informed, not salesy. Direct and actionable.
 
 Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPractices, creativeStrategy. Every field must be present.`;
 
-        // Call the Gemini API with the structured request
-        async function callGeminiGem(geminiRequest) {
-            const apiKey = $('#geminiApiKey')?.value?.trim();
-            const model = $('#geminiModel')?.value || 'gemini-2.0-flash';
+        // Call the OpenAI Chat Completions API
+        async function callGPT(aiRequest) {
+            const apiKey = $('#aiApiKey')?.value?.trim();
+            const model = $('#aiModel')?.value || 'gpt-4o-mini';
 
             if (!apiKey) return null; // No key = skip AI
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
-            const body = {
-                contents: [{
-                    parts: [{ text: JSON.stringify(geminiRequest) }]
-                }],
-                systemInstruction: {
-                    parts: [{ text: GEMINI_SYSTEM_INSTRUCTION }]
-                },
-                generationConfig: {
-                    responseMimeType: 'application/json',
-                    temperature: 0.7
-                }
-            };
-
-            const resp = await fetch(url, {
+            const resp = await fetch('https://api.openai.com/v1/chat/completions', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(body)
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${apiKey}`
+                },
+                body: JSON.stringify({
+                    model,
+                    messages: [
+                        { role: 'system', content: AI_SYSTEM_INSTRUCTION },
+                        { role: 'user',   content: JSON.stringify(aiRequest) }
+                    ],
+                    response_format: { type: 'json_object' },
+                    temperature: 0.7
+                })
             });
 
             if (!resp.ok) {
                 const err = await resp.text();
-                throw new Error(`Gemini API ${resp.status}: ${err}`);
+                throw new Error(`OpenAI API ${resp.status}: ${err}`);
             }
 
             const data = await resp.json();
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (!text) throw new Error('Empty Gemini response');
+            const text = data.choices?.[0]?.message?.content;
+            if (!text) throw new Error('Empty GPT response');
 
             return JSON.parse(text);
         }
 
-        // Render the Gemini response into AI-owned output tabs
-        function renderGeminiResponse(r) {
+        // Render the AI response into AI-owned output tabs
+        function renderAIResponse(r) {
             // — Pitch (full replace) —
             if (r.pitch) {
                 const p = r.pitch;
@@ -2014,10 +2010,10 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
                 byRegion: tiktokData.volatile?.liftStudies?.brandLift?.byRegion
             });
 
-            // Build Gemini request (before generators, so it's available)
-            const geminiRequest = buildGeminiRequest();
-            window._lastGeminiRequest = geminiRequest;
-            if (DEBUG) console.log('[GEMINI REQUEST]', JSON.stringify(geminiRequest, null, 2));
+            // Build AI request (before generators, so it's available)
+            const aiRequest = buildAIRequest();
+            window._lastAIRequest = aiRequest;
+            if (DEBUG) console.log('[AI REQUEST]', JSON.stringify(aiRequest, null, 2));
 
             // Generate deterministic outputs first (always available)
             generatePitch();
@@ -2034,8 +2030,8 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
             $('#output-client-name').textContent = formData.clientName;
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            // If Gemini API key is set, enhance with AI
-            const apiKey = $('#geminiApiKey')?.value?.trim();
+            // If OpenAI API key is set, enhance with AI
+            const apiKey = $('#aiApiKey')?.value?.trim();
             if (apiKey) {
                 // Show loading indicators on AI-enhanced tabs
                 const aiTabs = ['pitch', 'funnel', 'media', 'bestpractices', 'creative'];
@@ -2046,31 +2042,30 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
                              : $(`#${tab}-content`);
                     if (el) {
                         const indicator = document.createElement('div');
-                        indicator.className = 'gemini-loading';
-                        indicator.style.cssText = 'margin-top:12px;padding:10px 14px;background:rgba(66,133,244,0.08);border-radius:8px;font-size:0.85rem;color:#4285f4';
-                        indicator.textContent = 'Enhancing with AI...';
+                        indicator.className = 'ai-loading';
+                        indicator.style.cssText = 'margin-top:12px;padding:10px 14px;background:rgba(16,163,127,0.08);border-radius:8px;font-size:0.85rem;color:#10a37f';
+                        indicator.textContent = 'Enhancing with ChatGPT...';
                         el.parentElement.appendChild(indicator);
                     }
                 });
 
-                callGeminiGem(geminiRequest)
+                callGPT(aiRequest)
                     .then(response => {
-                        // Remove loading indicators
-                        document.querySelectorAll('.gemini-loading').forEach(el => el.remove());
+                        document.querySelectorAll('.ai-loading').forEach(el => el.remove());
 
                         if (response) {
-                            window._lastGeminiResponse = response;
-                            if (DEBUG) console.log('[GEMINI RESPONSE]', response);
-                            renderGeminiResponse(response);
+                            window._lastAIResponse = response;
+                            if (DEBUG) console.log('[AI RESPONSE]', response);
+                            renderAIResponse(response);
                         }
                     })
                     .catch(err => {
-                        document.querySelectorAll('.gemini-loading').forEach(el => {
+                        document.querySelectorAll('.ai-loading').forEach(el => {
                             el.style.color = '#d93025';
                             el.style.background = 'rgba(217,48,37,0.08)';
                             el.textContent = 'AI enhancement failed: ' + err.message;
                         });
-                        console.warn('[GEMINI ERROR]', err);
+                        console.warn('[AI ERROR]', err);
                     });
             }
         }
