@@ -1,157 +1,82 @@
 {
-  "_doc": "Schema contract between the HTML app and the AI backend (GPT / Gemini). The app sends aiRequest, the AI returns aiResponse.",
+  "_doc": "Schema contract v2. Simplified free-form output with client research.",
 
   "aiRequest": {
-    "_note": "The app builds this object from formData + deterministic results, then sends it as the user message to the AI.",
+    "_note": "The app builds this object from formData + deterministic results.",
     "client": {
       "name": "string",
-      "vertical": "string — E-commerce | Gaming | App | Finance | Beauty | Fashion",
-      "market": "string — US | UK | Germany | France | Spain | Italy | LATAM | APAC",
-      "regionPack": "string — NA | EUI | LATAM | APAC | Global (derived from market)"
+      "vertical": "string",
+      "market": "string",
+      "regionPack": "string — NA | EUI | LATAM | APAC | Global"
     },
     "campaign": {
-      "goals": ["string — Awareness | Consideration | Conversions | App Installs | Lead Gen | Engagement"],
-      "scenarios": ["string — New Product Launch | Geo Expansion | Rebrand | Full Funnel | Seasonal Campaign | Always On"],
+      "goals": ["string"],
+      "scenarios": ["string"],
       "budget": "number (USD)",
       "startDate": "string (YYYY-MM-DD)",
       "endDate": "string (YYYY-MM-DD)",
-      "channels": ["string — existing channels the client uses"]
+      "channels": ["string"]
     },
     "challenge": {
-      "primary": "string — the selected challenge",
-      "context": "string — free-text elaboration from the user"
+      "primary": "string",
+      "context": "string"
     },
     "audience": {
-      "ages": ["string — e.g. '18-24', '25-34'"],
-      "description": "string — free-text audience description"
+      "ages": ["string"],
+      "description": "string"
     },
     "product": {
       "name": "string",
-      "sellingPoints": "string — free-text USPs",
-      "pricePoint": "string — free-text price info"
+      "sellingPoints": "string",
+      "pricePoint": "string"
     },
     "creative": {
-      "status": ["string — Has assets | Needs support | No assets | Has creator content"],
-      "unlockedSupport": ["string — names of creative support tiers unlocked by budget"]
+      "status": ["string"],
+      "unlockedSupport": ["string"]
     },
     "measurement": {
       "mode": "string — standard | lift",
-      "liftStudyType": "string | null — bls | cls_multicell",
-      "eligibility": {
-        "_note": "Output of getLiftStudyStatus() — passed verbatim so the AI can reference it without guessing thresholds.",
-        "status": "string — eligible | potentially_eligible | not_eligible | unknown | consult_ms | standard",
-        "liftType": "string | null",
-        "region": "string",
-        "thresholds": { "minSpend": "number|null", "minUniqueReach": "number|null" },
-        "reason": "string | undefined",
-        "disclaimer": "string | undefined"
-      }
+      "liftStudyType": "string | null",
+      "eligibility": "object — output of getLiftStudyStatus()"
     },
     "deterministic": {
-      "_note": "Pre-computed by the app. The AI should reference these numbers, NOT invent its own.",
       "budgetSplit": { "upper": "number (%)", "mid": "number (%)", "lower": "number (%)" },
-      "adFormats": ["string — recommended formats for selected goals"],
+      "adFormats": ["string"],
       "qualifiedIncentives": [{ "name": "string", "value": "string" }],
       "qualifiedCreativeSupport": [{ "name": "string", "description": "string" }]
     }
   },
 
-  "aiResponse": {
-    "_note": "The AI returns this JSON object. Each key maps to one output tab in the app. The app renders them directly.",
-
-    "pitch": {
-      "_owner": "AI",
-      "_why": "Narrative persuasion benefits most from AI customization. Current version is template-based.",
-      "headline": "string — one-line hook, e.g. 'Unlock Gen Z for [ClientName] on TikTok'",
-      "opportunity": "string — 2-3 sentences on why this client + TikTok is a fit, referencing vertical + market",
-      "challengeResponse": "string — 2-3 sentences addressing the specific challenge, citing TikTok data/capabilities",
-      "whyNow": ["string — 3-5 bullet points, each referencing a real stat or platform capability"],
-      "solution": "string — 2-3 sentences describing the recommended approach, referencing budget + formats + timeline",
-      "expectedOutcomes": ["string — 3-5 bullet points tied to their specific goals"],
-      "callToAction": "string — one sentence closing line"
+  "pipeline": {
+    "_note": "Two-phase AI pipeline",
+    "phase1_research": {
+      "tool": "web_search",
+      "purpose": "Gather real-time info about the client/brand",
+      "output": "Free text summary of brand, products, audience, competitors, recent activity"
     },
-
-    "funnel": {
-      "_owner": "HYBRID — app computes splits/budgets, AI adds strategy narrative",
-      "_appComputes": "budgetSplit percentages, dollar amounts per tier, audience strategy structure",
-      "upperFunnelStrategy": "string — 2-3 sentences on awareness approach tailored to vertical + goals",
-      "midFunnelStrategy": "string — 2-3 sentences on consideration tactics for this audience",
-      "lowerFunnelStrategy": "string — 2-3 sentences on conversion approach for this vertical",
-      "audienceInsight": "string — 1-2 sentences of audience-specific insight beyond the standard retargeting list",
-      "testingRecommendations": ["string — 3-4 bullet points on what to test, specific to vertical + creative status"]
-    },
-
-    "mediaPlan": {
-      "_owner": "HYBRID — app computes flight schedule/budgets, AI adds format rationale",
-      "_appComputes": "flight schedule, weekly budgets, format list, placement strategy, bidding strategy",
-      "formatRationale": {
-        "_note": "One entry per recommended ad format. Key = format name.",
-        "<FormatName>": {
-          "whyThisClient": "string — 1-2 sentences on why this format specifically suits this client",
-          "creativeTip": "string — 1 sentence practical tip for this format + vertical"
-        }
-      },
-      "phaseGuidance": {
-        "launch": "string — 1-2 sentences on what to prioritize in weeks 1-2 for this vertical",
-        "optimize": "string — 1-2 sentences on optimization focus",
-        "scale": "string — 1-2 sentences on scaling approach"
-      }
-    },
-
-    "bestPractices": {
-      "_owner": "AI",
-      "_why": "Currently uses static lists. AI can cross-reference knowledge to give tailored advice.",
-      "verticalTips": {
-        "title": "string — e.g. 'E-commerce on TikTok'",
-        "tips": ["string — 5-7 actionable tips from the vertical playbook, customized to this client's product/audience"]
-      },
-      "goalTips": {
-        "_note": "One entry per selected goal.",
-        "<GoalName>": ["string — 4-6 actionable tips specific to this goal + vertical combination"]
-      },
-      "universalTips": ["string — 3-5 platform-wide tips most relevant to this client's situation"],
-      "avoidList": ["string — 2-3 common mistakes for this vertical/goal to watch out for"]
-    },
-
-    "creativeStrategy": {
-      "_owner": "AI",
-      "_why": "Current version just lists unlocked tiers. AI can recommend actual creative approaches.",
-      "creativeDirection": "string — 2-3 sentences on overall creative approach for this brand/vertical",
-      "contentPillars": [
-        {
-          "pillar": "string — e.g. 'Product Demo'",
-          "description": "string — 1 sentence on what this pillar looks like",
-          "exampleHook": "string — example opening line/concept"
-        }
-      ],
-      "formatRecommendations": [
-        {
-          "format": "string — e.g. 'Spark Ads'",
-          "usage": "string — 1 sentence on how to use this format for their creative status"
-        }
-      ],
-      "creatorGuidance": "string — 1-2 sentences on creator strategy based on creative status + vertical"
+    "phase2_generate": {
+      "tools": ["file_search (TikTok docs)"],
+      "input": "Client research + campaign brief",
+      "output": "JSON with 5 free-form markdown sections"
     }
   },
 
-  "tabOwnership": {
-    "_note": "Summary of which output tabs are owned by whom.",
-    "pitch":           "AI — full narrative",
-    "funnel":          "HYBRID — app: numbers, AI: strategy text",
-    "measurement":     "APP — deterministic (thresholds, eligibility, KPIs, cadence)",
-    "mediaPlan":       "HYBRID — app: schedule/budget, AI: format rationale + phase guidance",
-    "incentives":      "APP — deterministic (tier matching, next-unlock nudge)",
-    "creativeSupport": "HYBRID — app: tier unlocks, AI: creative strategy (new section)",
-    "bestPractices":   "AI — full replacement of static lists"
+  "aiResponse": {
+    "_note": "Each value is a markdown-formatted string. The app renders it as HTML.",
+    "pitch": "string — Full sales pitch narrative with markdown formatting",
+    "funnel": "string — Full-funnel strategy narrative with budget allocation rationale",
+    "mediaPlan": "string — Ad format recommendations and campaign phasing",
+    "bestPractices": "string — Tailored tips, vertical advice, mistakes to avoid",
+    "creative": "string — Creative strategy, content pillars, format recommendations"
   },
 
-  "aiRules": [
-    "NEVER invent threshold numbers (minSpend, minUniqueReach, budget splits). Use ONLY values from deterministic.",
-    "NEVER reference incentive tiers the client hasn't unlocked.",
-    "ALWAYS use the client's actual product name, not generic placeholders.",
-    "ALWAYS reference the specific vertical — do not give generic advice.",
-    "If measurement.eligibility.status is 'not_eligible', do NOT promise lift study results in the pitch.",
-    "Keep each string field under 280 characters unless marked otherwise.",
-    "Return valid JSON only. No markdown, no backticks, no preamble."
-  ]
+  "tabOwnership": {
+    "pitch": "AI — full narrative, grounded in client research",
+    "funnel": "AI — strategy with deterministic budget splits referenced",
+    "measurement": "APP — fully deterministic (thresholds, eligibility)",
+    "mediaPlan": "AI — format rationale with deterministic formats referenced",
+    "incentives": "APP — fully deterministic (tier matching)",
+    "creative": "AI — creative strategy and content pillars",
+    "bestPractices": "AI — tailored recommendations"
+  }
 }

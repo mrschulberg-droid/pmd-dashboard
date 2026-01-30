@@ -1805,51 +1805,104 @@
             };
         }
 
-        // System instruction (shared across AI providers)
-        const AI_SYSTEM_INSTRUCTION = `You are a TikTok sales strategist embedded inside a sales enablement tool used by TikTok's client-facing teams.
+        // System instruction — free-form, research-aware
+        const AI_SYSTEM_INSTRUCTION = `You are a senior TikTok sales strategist. You help TikTok's sales team build customized, compelling proposals for prospective advertisers.
 
-You receive a structured JSON request containing everything about a prospective advertiser — their vertical, market, goals, audience, product, budget, challenges, creative readiness, and pre-computed deterministic results (budget splits, eligible incentives, measurement eligibility). You return a structured JSON response that the tool renders as customized sales outputs.
+You receive:
+1. CLIENT RESEARCH — real-time web research about the brand (their business, audience, competitors, recent activity)
+2. CAMPAIGN BRIEF — structured data about goals, budget, audience, challenges, creative readiness
+3. DETERMINISTIC DATA — pre-computed numbers (budget splits, eligible incentives, measurement eligibility) that you MUST reference accurately
+4. TIKTOK REFERENCE DOCS — searchable internal docs about TikTok ad products, formats, and best practices
 
-Always ground your advice in well-known TikTok platform data and advertising best practices.
+Your job: Write a persuasive, highly customized proposal that makes the client feel understood. Use the research to reference their specific business, products, competitors, and situation — not generic vertical advice.
 
-You write persuasive, customized narrative text. The app handles all numbers, thresholds, and eligibility logic.
+Return a JSON object with exactly 5 keys. Each value is a single string containing your full narrative for that section. Use markdown formatting within each string (## for headers, **bold**, - for bullets, > for callouts).
 
-Critical rules:
-1. NEVER invent threshold numbers. Use ONLY values from the deterministic section.
-2. NEVER reference incentive tiers the client has not unlocked.
-3. ALWAYS use the client's actual product name, vertical, and market.
-4. ALWAYS tailor advice to the specific vertical.
-5. When multiple goals are selected, address each explicitly.
-6. When challenge.context is provided, weave it into the challenge response.
-7. Keep individual string fields under 280 characters unless they are multi-sentence narratives.
-8. Return valid JSON only. No markdown, no backticks, no preamble. First character must be {.
+{
+  "pitch": "Full sales pitch narrative. Open with a hook referencing their specific business. Cover: why TikTok is right for them NOW, how it addresses their specific challenge, the recommended approach, expected outcomes. Make it feel like it was written specifically for this brand, not a template.",
 
-Tone: Confident but not pushy. Data-informed, not salesy. Direct and actionable.
+  "funnel": "Full-funnel strategy. Reference the deterministic budget splits (upper/mid/lower %) but add strategic narrative around each tier. Include audience strategy, testing recommendations, and how the funnel connects to their specific goals.",
 
-Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPractices, creativeStrategy. Every field must be present.`;
+  "mediaPlan": "Ad format recommendations and campaign phasing. Explain WHY each format suits this specific client (not generic reasons). Include launch/optimize/scale phases with concrete guidance tied to their timeline and budget.",
 
-        // ── AI call: OpenAI Responses API ──────────────────────
-        // If Vector Store ID is provided → includes file_search tool (doc-grounded)
-        // Otherwise → plain Responses API (general knowledge only)
-        async function callAI(aiRequest) {
-            // Priority: UI override (debug) → ai-config.js
+  "bestPractices": "Tailored tips and recommendations. Mix vertical-specific advice with goal-specific tactics. Include common mistakes to avoid for their situation. Reference TikTok platform capabilities from the docs.",
+
+  "creative": "Creative strategy including content direction, 3-4 content pillars with example hooks, format recommendations matched to their creative readiness, and creator/UGC strategy if relevant."
+}
+
+Rules:
+- NEVER invent budget numbers or thresholds. Use ONLY the deterministic values provided.
+- NEVER reference incentive tiers the client hasn't unlocked.
+- ALWAYS weave in specifics from the client research — their products, competitors, audience, recent campaigns.
+- Each section should feel like a standalone, polished piece of writing.
+- Tone: Confident, data-informed, direct. Not salesy or generic.
+- Return valid JSON only. No wrapping, no backticks. First character must be {.`;
+
+        // ── Client research via web search ──────────────────────
+        async function callClientResearch(clientName, vertical, market) {
             const cfg = (typeof AI_CONFIG !== 'undefined') ? AI_CONFIG : {};
             const apiKey = $('#aiApiKey')?.value?.trim() || cfg.apiKey || '';
-            if (!apiKey) return null; // No key = skip AI
+            if (!apiKey || !clientName) return '';
+
+            const query = `Research "${clientName}" as a brand/company. What do they sell? Who is their target audience? What is their market position in ${vertical || 'their industry'}? Any recent marketing campaigns, product launches, or news? Key competitors? Any existing social media or TikTok presence? Focus on information useful for building an advertising proposal for the ${market || ''} market.`;
+
+            if (DEBUG) console.log('[AI RESEARCH] Starting client research for:', clientName);
+
+            try {
+                const resp = await fetch('https://api.openai.com/v1/responses', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: 'gpt-4.1-mini',
+                        input: query,
+                        tools: [{ type: 'web_search' }]
+                    })
+                });
+
+                if (!resp.ok) {
+                    const err = await resp.text();
+                    console.warn('[AI RESEARCH] Failed:', resp.status, err);
+                    return '';
+                }
+
+                const data = await resp.json();
+                const result = data.output_text || '';
+                if (DEBUG) console.log('[AI RESEARCH] Done, length:', result.length);
+                return result;
+            } catch (e) {
+                console.warn('[AI RESEARCH] Error:', e.message);
+                return '';
+            }
+        }
+
+        // ── Main AI call: OpenAI Responses API ──────────────────
+        async function callAI(aiRequest, clientResearch) {
+            const cfg = (typeof AI_CONFIG !== 'undefined') ? AI_CONFIG : {};
+            const apiKey = $('#aiApiKey')?.value?.trim() || cfg.apiKey || '';
+            if (!apiKey) return null;
 
             const vectorStoreId = $('#aiVectorStoreId')?.value?.trim() || cfg.vectorStoreId || '';
             const model = $('#aiModel')?.value || cfg.defaultModel || 'gpt-4.1-mini';
 
-            // Build the request body
+            // Compose the full input with research context
+            let input = 'Respond in JSON.\n\n';
+            if (clientResearch) {
+                input += '## CLIENT RESEARCH\n' + clientResearch + '\n\n';
+            }
+            input += '## CAMPAIGN BRIEF\n' + JSON.stringify(aiRequest);
+
             const body = {
                 model,
                 instructions: AI_SYSTEM_INSTRUCTION,
-                input: 'Respond in JSON.\n\n' + JSON.stringify(aiRequest),
+                input,
                 text: { format: { type: 'json_object' } },
                 temperature: 0.7
             };
 
-            // If vector store ID is set, add file_search tool for doc grounding
+            // Add file_search if vector store is configured
             if (vectorStoreId) {
                 body.tools = [{
                     type: 'file_search',
@@ -1875,8 +1928,6 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
             }
 
             const data = await resp.json();
-
-            // Responses API returns output_text at the top level
             const text = data.output_text;
             if (!text) throw new Error('Empty AI response');
 
@@ -1884,169 +1935,39 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
             return JSON.parse(text);
         }
 
-        // Render the AI response into AI-owned output tabs
+        // ── Simple markdown → HTML renderer ─────────────────────
+        function renderMarkdown(md) {
+            if (!md) return '';
+            return md
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')  // escape HTML
+                .replace(/^## (.+)$/gm, '<h3 style="margin:18px 0 8px;font-size:1.1rem;color:var(--tiktok-dark)">$1</h3>')
+                .replace(/^### (.+)$/gm, '<h4 style="margin:14px 0 6px;font-size:1rem">$1</h4>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/^- (.+)$/gm, '<li style="padding:4px 0;margin-left:20px">$1</li>')
+                .replace(/^&gt; (.+)$/gm, '<blockquote style="margin:10px 0;padding:10px 16px;background:rgba(0,200,83,0.06);border-left:3px solid #00c853;border-radius:4px;font-style:italic">$1</blockquote>')
+                .replace(/(<li[^>]*>.*<\/li>\n?)+/g, '<ul style="list-style:disc;margin:8px 0">$&</ul>')
+                .replace(/\n\n/g, '<br><br>')
+                .replace(/\n/g, '<br>');
+        }
+
+        // ── Render AI response into output tabs ─────────────────
         function renderAIResponse(r) {
-            // GPT may wrap response in { aiResponse: {...} } — unwrap if needed
-            if (r.aiResponse && typeof r.aiResponse === 'object') {
-                if (DEBUG) console.log('[AI RENDER] Unwrapping aiResponse wrapper');
-                r = r.aiResponse;
-            }
+            // Unwrap if GPT wrapped in { aiResponse: {...} }
+            if (r.aiResponse && typeof r.aiResponse === 'object') r = r.aiResponse;
 
-            // — Pitch (full replace) —
-            if (r.pitch) {
-                const p = r.pitch;
-                let out = [];
-                if (p.headline) out.push(`${p.headline}\n`);
-                if (p.opportunity) {
-                    out.push('THE OPPORTUNITY');
-                    out.push(p.opportunity + '\n');
+            const tabs = {
+                pitch: '#pitch-content',
+                funnel: '#funnel-content',
+                mediaPlan: '#media-content',
+                bestPractices: '#bestpractices-content',
+                creative: '#creative-content'
+            };
+
+            for (const [key, selector] of Object.entries(tabs)) {
+                if (r[key]) {
+                    const el = $(selector);
+                    if (el) el.innerHTML = renderMarkdown(r[key]);
                 }
-                if (p.challengeResponse) {
-                    out.push('THE CHALLENGE');
-                    out.push(p.challengeResponse + '\n');
-                }
-                if (p.whyNow?.length) {
-                    out.push('WHY TIKTOK NOW');
-                    p.whyNow.forEach(b => out.push(`• ${b}`));
-                    out.push('');
-                }
-                if (p.solution) {
-                    out.push('THE SOLUTION');
-                    out.push(p.solution + '\n');
-                }
-                if (p.expectedOutcomes?.length) {
-                    out.push('EXPECTED OUTCOMES');
-                    p.expectedOutcomes.forEach(b => out.push(`• ${b}`));
-                    out.push('');
-                }
-                if (p.callToAction) out.push(p.callToAction);
-
-                const pitchEl = $('#pitch-content');
-                if (pitchEl) pitchEl.textContent = out.join('\n');
-            }
-
-            // — Funnel (enhance existing — append strategy after the deterministic output) —
-            if (r.funnel) {
-                const f = r.funnel;
-                const el = $('#funnel-content');
-                let extra = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nAI STRATEGY INSIGHTS\n';
-                if (f.upperFunnelStrategy) extra += '\nUPPER FUNNEL STRATEGY\n' + f.upperFunnelStrategy;
-                if (f.midFunnelStrategy) extra += '\n\nMID FUNNEL STRATEGY\n' + f.midFunnelStrategy;
-                if (f.lowerFunnelStrategy) extra += '\n\nLOWER FUNNEL STRATEGY\n' + f.lowerFunnelStrategy;
-                if (f.audienceInsight) extra += '\n\nAUDIENCE INSIGHT\n' + f.audienceInsight;
-                if (f.testingRecommendations?.length) {
-                    extra += '\n\nTESTING RECOMMENDATIONS';
-                    f.testingRecommendations.forEach(t => extra += `\n• ${t}`);
-                }
-                if (el) el.textContent += extra;
-            }
-
-            // — Media Plan (append format rationale + phase guidance) —
-            if (r.mediaPlan) {
-                const m = r.mediaPlan;
-                const el = $('#media-content');
-                let extra = '\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\nAI FORMAT INSIGHTS\n';
-                if (m.formatRationale) {
-                    for (const [fmt, info] of Object.entries(m.formatRationale)) {
-                        extra += `\n${fmt.toUpperCase()}`;
-                        if (info.whyThisClient) extra += `\n  Why: ${info.whyThisClient}`;
-                        if (info.creativeTip) extra += `\n  Tip: ${info.creativeTip}`;
-                    }
-                }
-                if (m.phaseGuidance) {
-                    extra += '\n\nPHASE GUIDANCE';
-                    if (m.phaseGuidance.launch) extra += `\nLaunch: ${m.phaseGuidance.launch}`;
-                    if (m.phaseGuidance.optimize) extra += `\nOptimize: ${m.phaseGuidance.optimize}`;
-                    if (m.phaseGuidance.scale) extra += `\nScale: ${m.phaseGuidance.scale}`;
-                }
-                el.textContent += extra;
-            }
-
-            // — Best Practices (full replace) —
-            if (r.bestPractices) {
-                const bp = r.bestPractices;
-                let html = '<div class="output-content">';
-
-                if (bp.verticalTips) {
-                    html += `<h4 style="margin-bottom:12px">${bp.verticalTips.title || 'Vertical Tips'}</h4>`;
-                    html += '<ul style="list-style:none;padding:0;margin-bottom:20px">';
-                    (bp.verticalTips.tips || []).forEach(t => {
-                        html += `<li style="padding:10px 14px;background:var(--tiktok-light-gray);border-radius:6px;margin-bottom:8px">✓ ${t}</li>`;
-                    });
-                    html += '</ul>';
-                }
-
-                if (bp.goalTips) {
-                    for (const [goal, tips] of Object.entries(bp.goalTips)) {
-                        html += `<h4 style="margin-bottom:12px">${goal} Tips</h4>`;
-                        html += '<ul style="list-style:none;padding:0;margin-bottom:20px">';
-                        (tips || []).forEach(t => {
-                            html += `<li style="padding:10px 14px;background:var(--tiktok-light-gray);border-radius:6px;margin-bottom:8px">✓ ${t}</li>`;
-                        });
-                        html += '</ul>';
-                    }
-                }
-
-                if (bp.universalTips?.length) {
-                    html += '<h4 style="margin-bottom:12px">Universal Tips</h4>';
-                    html += '<ul style="list-style:none;padding:0;margin-bottom:20px">';
-                    bp.universalTips.forEach(t => {
-                        html += `<li style="padding:10px 14px;background:var(--tiktok-light-gray);border-radius:6px;margin-bottom:8px">✓ ${t}</li>`;
-                    });
-                    html += '</ul>';
-                }
-
-                if (bp.avoidList?.length) {
-                    html += '<h4 style="margin-bottom:12px;color:var(--tiktok-red)">Common Mistakes to Avoid</h4>';
-                    html += '<ul style="list-style:none;padding:0">';
-                    bp.avoidList.forEach(t => {
-                        html += `<li style="padding:10px 14px;background:rgba(254,44,85,0.08);border-radius:6px;margin-bottom:8px">✗ ${t}</li>`;
-                    });
-                    html += '</ul>';
-                }
-
-                html += '</div>';
-                $('#bestpractices-content').innerHTML = html;
-            }
-
-            // — Creative Strategy (enhance existing) —
-            if (r.creativeStrategy) {
-                const cs = r.creativeStrategy;
-                const el = $('#creative-content');
-                let html = el.innerHTML;
-
-                html += '<div style="margin-top:20px;border-top:1px solid var(--border-color);padding-top:16px">';
-                html += '<h4 style="margin-bottom:12px">AI Creative Strategy</h4>';
-
-                if (cs.creativeDirection) {
-                    html += `<p style="margin-bottom:12px">${cs.creativeDirection}</p>`;
-                }
-
-                if (cs.contentPillars?.length) {
-                    html += '<h4 style="margin-bottom:8px;font-size:0.95rem">Content Pillars</h4>';
-                    cs.contentPillars.forEach(cp => {
-                        html += `<div style="padding:10px 14px;background:var(--tiktok-light-gray);border-radius:6px;margin-bottom:8px">`;
-                        html += `<strong>${cp.pillar}</strong>: ${cp.description}`;
-                        if (cp.exampleHook) html += `<br><em style="color:#888">Hook: "${cp.exampleHook}"</em>`;
-                        html += '</div>';
-                    });
-                }
-
-                if (cs.formatRecommendations?.length) {
-                    html += '<h4 style="margin-bottom:8px;margin-top:12px;font-size:0.95rem">Format Recommendations</h4>';
-                    cs.formatRecommendations.forEach(fr => {
-                        html += `<div style="padding:10px 14px;background:var(--tiktok-light-gray);border-radius:6px;margin-bottom:8px">`;
-                        html += `<strong>${fr.format}</strong>: ${fr.usage}`;
-                        html += '</div>';
-                    });
-                }
-
-                if (cs.creatorGuidance) {
-                    html += `<p style="margin-top:12px;padding:10px 14px;background:rgba(0,200,83,0.08);border-radius:6px"><strong>Creator Strategy:</strong> ${cs.creatorGuidance}</p>`;
-                }
-
-                html += '</div>';
-                el.innerHTML = html;
             }
         }
 
@@ -2057,26 +1978,44 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
             const marketRegion = formData.market || 'US';
             tiktokData = normalizeTikTokData(window.rawTikTokData, marketRegion);
 
-            // DEBUG — trace volatile after normalization
-            console.log("[POST-NORMALIZE DEBUG]", {
-                hasVolatile: !!tiktokData.volatile,
-                volatileKeys: tiktokData.volatile ? Object.keys(tiktokData.volatile) : null,
-                byRegion: tiktokData.volatile?.liftStudies?.brandLift?.byRegion
-            });
-
-            // Build AI request (before generators, so it's available)
+            // Build AI request
             const aiRequest = buildAIRequest();
             window._lastAIRequest = aiRequest;
             if (DEBUG) console.log('[AI REQUEST]', JSON.stringify(aiRequest, null, 2));
 
-            // Generate deterministic outputs first (always available)
-            generatePitch();
-            generateFunnel();
+            // Check if AI is available
+            const cfg = (typeof AI_CONFIG !== 'undefined') ? AI_CONFIG : {};
+            const hasAI = !!($('#aiApiKey')?.value?.trim() || cfg.apiKey);
+
+            // Always generate deterministic-only tabs
             generateMeasurement();
-            generateMediaPlan();
             generateIncentives();
-            generateCreativeSupport();
-            generateBestPractices();
+
+            if (hasAI) {
+                // AI available: show loading state on AI tabs, skip deterministic for them
+                const aiTabEls = {
+                    pitch: $('#pitch-content'),
+                    funnel: $('#funnel-content'),
+                    media: $('#media-content'),
+                    bestpractices: $('#bestpractices-content'),
+                    creative: $('#creative-content')
+                };
+
+                for (const [tab, el] of Object.entries(aiTabEls)) {
+                    if (el) {
+                        el.innerHTML = '<div class="ai-loading" style="padding:20px;text-align:center;color:#10a37f;font-size:0.95rem">' +
+                            '<div style="margin-bottom:8px">Researching ' + (formData.clientName || 'client') + '...</div>' +
+                            '<div style="font-size:0.8rem;color:#888">Web search → Doc search → AI generation</div></div>';
+                    }
+                }
+            } else {
+                // No AI: fall back to deterministic templates for all tabs
+                generatePitch();
+                generateFunnel();
+                generateMediaPlan();
+                generateCreativeSupport();
+                generateBestPractices();
+            }
 
             // Show output section
             $('#questionnaire-section').style.display = 'none';
@@ -2084,48 +2023,49 @@ Return a single JSON object with these keys: pitch, funnel, mediaPlan, bestPract
             $('#output-client-name').textContent = formData.clientName;
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            // If OpenAI API key is set, enhance with AI
-            const apiKey = $('#aiApiKey')?.value?.trim();
-            if (apiKey) {
-                // Show loading indicators on AI-enhanced tabs
-                const aiTabs = ['pitch', 'funnel', 'media', 'bestpractices', 'creative'];
-                aiTabs.forEach(tab => {
-                    const el = tab === 'media' ? $('#media-content')
-                             : tab === 'bestpractices' ? $('#bestpractices-content')
-                             : tab === 'creative' ? $('#creative-content')
-                             : $(`#${tab}-content`);
-                    if (el) {
-                        const indicator = document.createElement('div');
-                        indicator.className = 'ai-loading';
-                        indicator.style.cssText = 'margin-top:12px;padding:10px 14px;background:rgba(16,163,127,0.08);border-radius:8px;font-size:0.85rem;color:#10a37f';
-                        const hasDocs = !!$('#aiVectorStoreId')?.value?.trim();
-                        indicator.textContent = hasDocs
-                            ? 'Searching docs & generating with AI...'
-                            : 'Generating with AI...';
-                        el.parentElement.appendChild(indicator);
-                    }
-                });
+            // If AI is available, run two-phase pipeline: research → generate
+            if (hasAI) {
+                (async () => {
+                    try {
+                        // Phase 1: Research the client via web search
+                        const research = await callClientResearch(
+                            formData.clientName,
+                            formData.vertical,
+                            formData.market
+                        );
+                        window._lastClientResearch = research;
 
-                callAI(aiRequest)
-                    .then(response => {
+                        // Update loading indicators
+                        document.querySelectorAll('.ai-loading').forEach(el => {
+                            el.innerHTML = '<div style="padding:20px;text-align:center;color:#10a37f;font-size:0.95rem">' +
+                                'Generating customized outputs...</div>';
+                        });
+
+                        // Phase 2: Generate outputs with research context
+                        const response = await callAI(aiRequest, research);
+
                         document.querySelectorAll('.ai-loading').forEach(el => el.remove());
 
                         if (response) {
                             window._lastAIResponse = response;
                             if (DEBUG) console.log('[AI RESPONSE] keys:', Object.keys(response), response);
                             renderAIResponse(response);
-                        } else {
-                            if (DEBUG) console.log('[AI RESPONSE] null — no API key or empty response');
                         }
-                    })
-                    .catch(err => {
+                    } catch (err) {
                         document.querySelectorAll('.ai-loading').forEach(el => {
-                            el.style.color = '#d93025';
-                            el.style.background = 'rgba(217,48,37,0.08)';
-                            el.textContent = 'AI enhancement failed: ' + err.message;
+                            el.innerHTML = '<div style="padding:14px;color:#d93025;background:rgba(217,48,37,0.08);border-radius:8px">' +
+                                'AI generation failed: ' + err.message + '</div>';
                         });
                         console.warn('[AI ERROR]', err);
-                    });
+
+                        // Fall back to deterministic templates
+                        generatePitch();
+                        generateFunnel();
+                        generateMediaPlan();
+                        generateCreativeSupport();
+                        generateBestPractices();
+                    }
+                })();
             }
         }
 
