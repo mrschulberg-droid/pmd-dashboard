@@ -1,8 +1,8 @@
 {
-  "_doc": "Schema contract between the HTML app and the Gemini Gem. The app sends geminiRequest, the Gem returns geminiResponse.",
+  "_doc": "Schema contract between the HTML app and the AI backend (GPT / Gemini). The app sends aiRequest, the AI returns aiResponse.",
 
-  "geminiRequest": {
-    "_note": "The app builds this object from formData + deterministic results, then sends it as the user message to the Gem.",
+  "aiRequest": {
+    "_note": "The app builds this object from formData + deterministic results, then sends it as the user message to the AI.",
     "client": {
       "name": "string",
       "vertical": "string — E-commerce | Gaming | App | Finance | Beauty | Fashion",
@@ -38,7 +38,7 @@
       "mode": "string — standard | lift",
       "liftStudyType": "string | null — bls | cls_multicell",
       "eligibility": {
-        "_note": "Output of getLiftStudyStatus() — passed verbatim so the Gem can reference it without guessing thresholds.",
+        "_note": "Output of getLiftStudyStatus() — passed verbatim so the AI can reference it without guessing thresholds.",
         "status": "string — eligible | potentially_eligible | not_eligible | unknown | consult_ms | standard",
         "liftType": "string | null",
         "region": "string",
@@ -48,7 +48,7 @@
       }
     },
     "deterministic": {
-      "_note": "Pre-computed by the app. The Gem should reference these numbers, NOT invent its own.",
+      "_note": "Pre-computed by the app. The AI should reference these numbers, NOT invent its own.",
       "budgetSplit": { "upper": "number (%)", "mid": "number (%)", "lower": "number (%)" },
       "adFormats": ["string — recommended formats for selected goals"],
       "qualifiedIncentives": [{ "name": "string", "value": "string" }],
@@ -56,11 +56,11 @@
     }
   },
 
-  "geminiResponse": {
-    "_note": "The Gem returns this JSON object. Each key maps to one output tab in the app. The app renders them directly.",
+  "aiResponse": {
+    "_note": "The AI returns this JSON object. Each key maps to one output tab in the app. The app renders them directly.",
 
     "pitch": {
-      "_owner": "GEM",
+      "_owner": "AI",
       "_why": "Narrative persuasion benefits most from AI customization. Current version is template-based.",
       "headline": "string — one-line hook, e.g. 'Unlock Gen Z for [ClientName] on TikTok'",
       "opportunity": "string — 2-3 sentences on why this client + TikTok is a fit, referencing vertical + market",
@@ -72,7 +72,7 @@
     },
 
     "funnel": {
-      "_owner": "HYBRID — app computes splits/budgets, Gem adds strategy narrative",
+      "_owner": "HYBRID — app computes splits/budgets, AI adds strategy narrative",
       "_appComputes": "budgetSplit percentages, dollar amounts per tier, audience strategy structure",
       "upperFunnelStrategy": "string — 2-3 sentences on awareness approach tailored to vertical + goals",
       "midFunnelStrategy": "string — 2-3 sentences on consideration tactics for this audience",
@@ -82,7 +82,7 @@
     },
 
     "mediaPlan": {
-      "_owner": "HYBRID — app computes flight schedule/budgets, Gem adds format rationale",
+      "_owner": "HYBRID — app computes flight schedule/budgets, AI adds format rationale",
       "_appComputes": "flight schedule, weekly budgets, format list, placement strategy, bidding strategy",
       "formatRationale": {
         "_note": "One entry per recommended ad format. Key = format name.",
@@ -99,8 +99,8 @@
     },
 
     "bestPractices": {
-      "_owner": "GEM",
-      "_why": "Currently uses static lists. Gem can cross-reference playbooks to give tailored advice.",
+      "_owner": "AI",
+      "_why": "Currently uses static lists. AI can cross-reference knowledge to give tailored advice.",
       "verticalTips": {
         "title": "string — e.g. 'E-commerce on TikTok'",
         "tips": ["string — 5-7 actionable tips from the vertical playbook, customized to this client's product/audience"]
@@ -114,8 +114,8 @@
     },
 
     "creativeStrategy": {
-      "_owner": "GEM",
-      "_why": "Current version just lists unlocked tiers. Gem can recommend actual creative approaches.",
+      "_owner": "AI",
+      "_why": "Current version just lists unlocked tiers. AI can recommend actual creative approaches.",
       "creativeDirection": "string — 2-3 sentences on overall creative approach for this brand/vertical",
       "contentPillars": [
         {
@@ -136,16 +136,16 @@
 
   "tabOwnership": {
     "_note": "Summary of which output tabs are owned by whom.",
-    "pitch":           "GEM — full narrative",
-    "funnel":          "HYBRID — app: numbers, Gem: strategy text",
+    "pitch":           "AI — full narrative",
+    "funnel":          "HYBRID — app: numbers, AI: strategy text",
     "measurement":     "APP — deterministic (thresholds, eligibility, KPIs, cadence)",
-    "mediaPlan":       "HYBRID — app: schedule/budget, Gem: format rationale + phase guidance",
+    "mediaPlan":       "HYBRID — app: schedule/budget, AI: format rationale + phase guidance",
     "incentives":      "APP — deterministic (tier matching, next-unlock nudge)",
-    "creativeSupport": "HYBRID — app: tier unlocks, Gem: creative strategy (new section)",
-    "bestPractices":   "GEM — full replacement of static lists"
+    "creativeSupport": "HYBRID — app: tier unlocks, AI: creative strategy (new section)",
+    "bestPractices":   "AI — full replacement of static lists"
   },
 
-  "gemRules": [
+  "aiRules": [
     "NEVER invent threshold numbers (minSpend, minUniqueReach, budget splits). Use ONLY values from deterministic.",
     "NEVER reference incentive tiers the client hasn't unlocked.",
     "ALWAYS use the client's actual product name, not generic placeholders.",

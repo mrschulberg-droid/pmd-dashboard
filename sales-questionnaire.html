@@ -1695,7 +1695,7 @@
             return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
-        // Build the structured request object for the AI (schema from gemini-schema.json)
+        // Build the structured request object for the AI (schema from ai-schema.json)
         function buildAIRequest() {
             const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
             const budget = formData.budget;
