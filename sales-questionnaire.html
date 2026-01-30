@@ -573,8 +573,24 @@
                 </details>
             </div>
 
-            <!-- Question 1: Market -->
+            <!-- Question 1: Client / Brand Name -->
             <div class="question-section active" data-step="1">
+                <div class="card">
+                    <h2><span class="icon">🏢</span> Client / Brand</h2>
+                    <p class="description">Who are we building this proposal for?</p>
+                    <div class="form-group">
+                        <label>Client or Brand Name <span class="required">*</span></label>
+                        <input type="text" name="client_name" id="client_name" placeholder="e.g., Nike, Glossier, Duolingo" style="font-size:1.1rem;padding:14px 16px">
+                    </div>
+                    <p style="font-size:0.85rem;color:#888;margin-top:8px">The AI will research this brand to customize every output.</p>
+                    <div class="button-group">
+                        <button class="btn" onclick="nextStep()">Next →</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Question 2: Market -->
+            <div class="question-section" data-step="2">
                 <div class="card">
                     <h2><span class="icon">🌍</span> Market Region</h2>
                     <p class="description">Which market is the client operating in?</p>
@@ -631,8 +647,8 @@
                 </div>
             </div>
 
-            <!-- Question 2: Vertical -->
-            <div class="question-section" data-step="2">
+            <!-- Question 3: Vertical -->
+            <div class="question-section" data-step="3">
                 <div class="card">
                     <h2><span class="icon">🏢</span> Industry Vertical</h2>
                     <p class="description">What industry is the client in?</p>
@@ -663,8 +679,8 @@
                 </div>
             </div>
 
-            <!-- Question 3: Main Goal -->
-            <div class="question-section" data-step="3">
+            <!-- Question 4: Main Goal -->
+            <div class="question-section" data-step="4">
                 <div class="card">
                     <h2><span class="icon">🎯</span> Campaign Objectives</h2>
                     <p class="description">What are the client's objectives? (Select all that apply)</p>
@@ -739,8 +755,8 @@
                 </div>
             </div>
 
-            <!-- Question 4: Current Challenge -->
-            <div class="question-section" data-step="4">
+            <!-- Question 5: Current Challenge -->
+            <div class="question-section" data-step="5">
                 <div class="card">
                     <h2><span class="icon">⚡</span> Current Challenge</h2>
                     <p class="description">What's the main challenge the client is facing?</p>
@@ -770,8 +786,8 @@
                 </div>
             </div>
 
-            <!-- Question 5: Target Audience -->
-            <div class="question-section" data-step="5">
+            <!-- Question 6: Target Audience -->
+            <div class="question-section" data-step="6">
                 <div class="card">
                     <h2><span class="icon">👥</span> Target Audience</h2>
                     <p class="description">Who is the client trying to reach?</p>
@@ -811,8 +827,8 @@
                 </div>
             </div>
 
-            <!-- Question 6: Product/Offer -->
-            <div class="question-section" data-step="6">
+            <!-- Question 7: Product/Offer -->
+            <div class="question-section" data-step="7">
                 <div class="card">
                     <h2><span class="icon">🛍️</span> Product / Offer Angle</h2>
                     <p class="description">What product or offer will be promoted?</p>
@@ -835,8 +851,8 @@
                 </div>
             </div>
 
-            <!-- Question 7: Current Channels -->
-            <div class="question-section" data-step="7">
+            <!-- Question 8: Current Channels -->
+            <div class="question-section" data-step="8">
                 <div class="card">
                     <h2><span class="icon">📣</span> Current Paid Channels</h2>
                     <p class="description">Which platforms is the client currently advertising on?</p>
@@ -885,8 +901,8 @@
                 </div>
             </div>
 
-            <!-- Question 8: Creative Situation -->
-            <div class="question-section" data-step="8">
+            <!-- Question 9: Creative Situation -->
+            <div class="question-section" data-step="9">
                 <div class="card">
                     <h2><span class="icon">🎬</span> Creative Situation</h2>
                     <p class="description">What's the client's creative readiness for TikTok? (Select all that apply)</p>
@@ -919,8 +935,8 @@
                 </div>
             </div>
 
-            <!-- Question 9: Measurement Mode -->
-            <div class="question-section" data-step="9">
+            <!-- Question 10: Measurement Mode -->
+            <div class="question-section" data-step="10">
                 <div class="card">
                     <h2><span class="icon">📊</span> Measurement</h2>
                     <p class="description">Tracking (Pixel + standard events) is included by default. Choose your measurement approach.</p>
@@ -961,8 +977,8 @@
                 </div>
             </div>
 
-            <!-- Question 10: Budget & Timeline -->
-            <div class="question-section" data-step="10">
+            <!-- Question 11: Budget & Timeline -->
+            <div class="question-section" data-step="11">
                 <div class="card">
                     <h2><span class="icon">💵</span> Budget & Timeline</h2>
                     <p class="description">What's the investment level and campaign timeline?</p>
@@ -994,10 +1010,6 @@
                     <div class="form-group">
                         <label>Campaign End Date</label>
                         <input type="date" name="end_date" id="end_date">
-                    </div>
-                    <div class="form-group">
-                        <label>Client Company Name</label>
-                        <input type="text" name="client_name" placeholder="e.g., Acme Corp">
                     </div>
                     <div class="button-group">
                         <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
@@ -1098,7 +1110,7 @@
     <script>
         // State
         let currentStep = 1;
-        const totalSteps = 10;
+        const totalSteps = 11;
         let formData = {};
         const DEBUG = true; // Set to false to hide debug UI
         let tiktokData = null; // Will be loaded from JSON
