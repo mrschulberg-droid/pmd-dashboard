@@ -1115,9 +1115,15 @@
             if (DEBUG) {
                 const btn = $('#debug-volatile-btn');
                 if (btn) btn.style.display = 'inline-block';
-                const aiCard = $('#ai-config-card');
-                if (aiCard) aiCard.style.display = 'block';
             }
+
+            // Secret shortcut: press Ctrl+Shift+K to show AI config panel
+            document.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.shiftKey && e.key === 'K') {
+                    const aiCard = $('#ai-config-card');
+                    if (aiCard) aiCard.style.display = aiCard.style.display === 'none' ? 'block' : 'none';
+                }
+            });
 
             updateProgress();
             setupRadioCards();
