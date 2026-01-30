@@ -1112,16 +1112,13 @@
             // Load TikTok data from JSON file
             await loadTikTokData();
 
-            if (DEBUG) {
-                const btn = $('#debug-volatile-btn');
-                if (btn) btn.style.display = 'inline-block';
-            }
-
-            // Secret shortcut: press Ctrl+Shift+K to show AI config panel
+            // Secret shortcut: press Ctrl+Shift+K to toggle all debug UI
             document.addEventListener('keydown', (e) => {
                 if (e.ctrlKey && e.shiftKey && e.key === 'K') {
                     const aiCard = $('#ai-config-card');
                     if (aiCard) aiCard.style.display = aiCard.style.display === 'none' ? 'block' : 'none';
+                    const btn = $('#debug-volatile-btn');
+                    if (btn) btn.style.display = btn.style.display === 'none' ? 'inline-block' : 'none';
                 }
             });
 
