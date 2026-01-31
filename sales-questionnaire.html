@@ -935,64 +935,15 @@
                 </div>
             </div>
 
-            <!-- Question 10: Measurement Mode -->
+            <!-- Question 10: Budget & Timeline -->
             <div class="question-section" data-step="10">
-                <div class="card">
-                    <h2><span class="icon">📊</span> Measurement</h2>
-                    <p class="description">Tracking (Pixel + standard events) is included by default. Choose your measurement approach.</p>
-                    <div class="form-group">
-                        <label>Measurement Mode</label>
-                        <div class="radio-cards">
-                            <label class="radio-card">
-                                <input type="radio" name="measurementMode" value="standard" checked>
-                                <div class="radio-icon">📈</div>
-                                <div class="radio-label">Standard reporting (default)</div>
-                            </label>
-                            <label class="radio-card">
-                                <input type="radio" name="measurementMode" value="lift">
-                                <div class="radio-icon">🔬</div>
-                                <div class="radio-label">Lift study (prove impact)</div>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="form-group" id="liftStudyTypeGroup" style="display:none">
-                        <label>Lift Study Type</label>
-                        <div class="radio-cards">
-                            <label class="radio-card">
-                                <input type="radio" name="liftStudyType" value="bls">
-                                <div class="radio-icon">📊</div>
-                                <div class="radio-label">Brand Lift Study (BLS)</div>
-                            </label>
-                            <label class="radio-card">
-                                <input type="radio" name="liftStudyType" value="cls_multicell">
-                                <div class="radio-icon">🧪</div>
-                                <div class="radio-label">Multi-cell Conversion Lift (CLS)</div>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="button-group">
-                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Question 11: Budget & Timeline -->
-            <div class="question-section" data-step="11">
                 <div class="card">
                     <h2><span class="icon">💵</span> Budget & Timeline</h2>
                     <p class="description">What's the investment level and campaign timeline?</p>
                     <div class="form-group">
                         <label>Campaign Budget (USD) <span class="required">*</span></label>
                         <input type="text" name="budget" id="budget" placeholder="e.g., 300000 or 300K" style="font-size:1rem;padding:10px 14px">
-                    </div>
-                    <div class="form-group">
-                        <label>Planned Spend (USD) <span style="color:#888;font-weight:normal">(optional)</span></label>
-                        <input type="text" id="plannedSpendUsd" placeholder="e.g., 200000">
-                    </div>
-                    <div class="form-group">
-                        <label>Estimated Unique Reach <span style="color:#888;font-weight:normal">(optional)</span></label>
-                        <input type="text" id="plannedUniqueReach" placeholder="e.g., 6000000 or 6M">
+                        <p style="font-size:0.8rem;color:#888;margin-top:4px">The tool will auto-recommend measurement studies based on your budget and objectives.</p>
                     </div>
                     <div class="form-group">
                         <label>Campaign Start Date</label>
@@ -1128,7 +1079,7 @@
     <script>
         // State
         let currentStep = 1;
-        const totalSteps = 11;
+        const totalSteps = 10;
         let formData = {};
         const DEBUG = true; // Set to false to hide debug UI
         let tiktokData = null; // Will be loaded from JSON
@@ -1230,7 +1181,6 @@
             setupCheckboxItems();
             setupOutputTabs();
             setDefaultDates();
-            setupMeasurementToggle();
         });
 
         // Map a market name to a region pack key (NA, EUI, LATAM, APAC, Global)
@@ -1272,109 +1222,6 @@
 
             out.textContent = JSON.stringify(info, null, 2);
             out.style.display = out.style.display === 'none' ? 'block' : 'none';
-        }
-
-        /**
-         * Determine lift study eligibility status.
-         * Returns { status, liftType, region, thresholds, disclaimer, safeZoneHint?, plan?, sourceOfTruth? }
-         */
-        function getLiftStudyStatus({ market, measurementMode, liftStudyType, plannedSpendUsd, plannedUniqueReach, buyingType, tiktokData }) {
-            // A) Not in lift mode
-            if (measurementMode !== 'lift') {
-                return { status: 'standard' };
-            }
-
-            const regionPack = mapMarketToRegionPack(market);
-
-            // B) Brand Lift Study
-            if (liftStudyType === 'bls') {
-                const byRegion = tiktokData.volatile?.liftStudies?.brandLift?.byRegion;
-                if (!byRegion) {
-                    return { status: 'unknown', liftType: 'bls', region: regionPack,
-                             sourceOfTruth: 'volatile.liftStudies.brandLift.byRegion is missing from JSON.' };
-                }
-
-                // Merge Global defaults + region overrides
-                const global = byRegion.Global || {};
-                const regional = byRegion[regionPack] || {};
-                const merged = { ...global, ...regional };
-
-                // Resolve buying-type-specific minSpend if available
-                const bt = buyingType || 'auction';
-                const globalBt = global.buyingTypes?.[bt] || {};
-                const regionalBt = regional.buyingTypes?.[bt] || {};
-                const mergedBt = { ...globalBt, ...regionalBt };
-                const minSpend = mergedBt.minSpend ?? merged.minSpend ?? null;
-                const minReach = merged.minUniqueReach ?? null;
-
-                const disclaimer = 'Meeting minimum spend does NOT guarantee hitting minimum unique reach/sample. Best practice is to invest more to be in the safe zone.';
-
-                const result = {
-                    liftType: 'bls',
-                    region: regionPack,
-                    buyingType: bt,
-                    thresholds: { minSpend, minUniqueReach: minReach },
-                    disclaimer
-                };
-
-                // Unknown thresholds
-                if (minSpend === null) {
-                    result.status = 'unknown';
-                    result.sourceOfTruth = mergedBt.sourceOfTruth || regional.sourceOfTruth || 'Check BLS All-in-One sheet for thresholds.';
-                    return result;
-                }
-
-                // Spend check
-                if (plannedSpendUsd == null || plannedSpendUsd < minSpend) {
-                    result.status = 'not_eligible';
-                    result.reason = plannedSpendUsd == null
-                        ? 'Planned spend not provided.'
-                        : `Planned spend ($${plannedSpendUsd.toLocaleString()}) is below minimum ($${minSpend.toLocaleString()}).`;
-                    return result;
-                }
-
-                // Reach check
-                if (plannedUniqueReach == null) {
-                    result.status = 'potentially_eligible';
-                    result.reason = 'Spend meets minimum. Unique reach not provided — confirm reach estimate to verify full eligibility.';
-                } else if (minReach !== null && plannedUniqueReach < minReach) {
-                    result.status = 'not_eligible';
-                    result.reason = `Estimated reach (${plannedUniqueReach.toLocaleString()}) is below minimum (${minReach.toLocaleString()}).`;
-                } else {
-                    result.status = 'eligible';
-                }
-
-                // Safe-zone hint: spend within 0–20% above minSpend
-                if (plannedSpendUsd <= minSpend * 1.2) {
-                    result.safeZoneHint = 'You\'re close to the minimum. Consider increasing spend to improve reach reliability.';
-                }
-
-                return result;
-            }
-
-            // C) Multi-cell Conversion Lift Study
-            if (liftStudyType === 'cls_multicell') {
-                return {
-                    status: 'consult_ms',
-                    liftType: 'cls_multicell',
-                    region: regionPack,
-                    plan: {
-                        holdout: '15%',
-                        cells: [
-                            { id: 'B', mix: '100% Brand Auction' },
-                            { id: 'C', mix: '70% Brand Auction + 30% Consideration Ads' }
-                        ],
-                        duration: '~4 weeks',
-                        primaryKPI: 'Incremental CVR',
-                        secondaryKPIs: ['iCPA', 'iROAS']
-                    },
-                    disclaimer: 'Minimum spend/feasibility confirmed with Marketing Science.'
-                };
-            }
-
-            // Fallback: unknown lift type
-            return { status: 'unknown', liftType: liftStudyType, region: regionPack,
-                     sourceOfTruth: 'Unrecognized lift study type.' };
         }
 
         /**
@@ -1692,18 +1539,113 @@
             $('#end_date').value = endDate.toISOString().split('T')[0];
         }
 
-        function setupMeasurementToggle() {
-            const radios = $$('input[name="measurementMode"]');
-            const liftGroup = $('#liftStudyTypeGroup');
-            radios.forEach(r => {
-                r.addEventListener('change', () => {
-                    liftGroup.style.display = r.value === 'lift' && r.checked ? '' : 'none';
-                    // Clear lift type selection when switching back to standard
-                    if (r.value === 'standard') {
-                        $$('input[name="liftStudyType"]').forEach(lt => lt.checked = false);
+        // ── Auto-recommend measurement based on goals + budget + market ──
+        // Returns an array of recommended tests, each with type, rationale, eligibility
+        function recommendMeasurement(goals, budget, market) {
+            const regionPack = mapMarketToRegionPack(market);
+            const recommendations = [];
+
+            // Determine which tests to recommend based on objectives
+            const hasAwareness = goals.some(g => /awareness/i.test(g));
+            const hasConsideration = goals.some(g => /consideration|traffic|engagement|video views/i.test(g));
+            const hasConversion = goals.some(g => /conversion|app install|catalog|lead gen/i.test(g));
+            const isFullFunnel = (hasAwareness || hasConsideration) && hasConversion;
+
+            // Get BLS thresholds from data
+            const blsByRegion = tiktokData.volatile?.liftStudies?.brandLift?.byRegion || {};
+            const blsGlobal = blsByRegion.Global || {};
+            const blsRegional = blsByRegion[regionPack] || {};
+            const blsMerged = { ...blsGlobal, ...blsRegional };
+            const blsMinSpend = blsMerged.minSpend ?? 150000;
+            const blsMinReach = blsMerged.minUniqueReach ?? 5500000;
+
+            // Get CLS thresholds from data
+            const clsByRegion = tiktokData.volatile?.liftStudies?.conversionLift?.byRegion || {};
+            const clsGlobal = clsByRegion.Global || {};
+            const clsRegional = clsByRegion[regionPack] || {};
+            const clsMerged = { ...clsGlobal, ...clsRegional };
+            const clsMinSpend = clsMerged.minSpend ?? 100000;
+
+            // 1. BLS — recommended when awareness or consideration is a goal
+            if (hasAwareness || hasConsideration) {
+                const eligible = budget >= blsMinSpend;
+                recommendations.push({
+                    type: 'bls',
+                    name: 'Brand Lift Study (BLS)',
+                    goal: 'Prove brand impact — measure lifts in Ad Recall, Awareness, and Consideration',
+                    rationale: hasAwareness
+                        ? 'Your campaign has Awareness objectives — a BLS quantifies the brand impact of your TikTok investment.'
+                        : 'Your campaign includes Consideration objectives — a BLS proves TikTok drives perception shifts.',
+                    eligible,
+                    thresholds: { minSpend: blsMinSpend, minUniqueReach: blsMinReach },
+                    eligibilityNote: eligible
+                        ? `Budget of ${formatBudget(budget)} meets the ${formatBudget(blsMinSpend)} minimum.`
+                        : `Requires minimum ${formatBudget(blsMinSpend)} spend. Current budget: ${formatBudget(budget)}.`,
+                    region: regionPack,
+                    operational: {
+                        mandatoryQuestion: blsMerged.mandatoryQuestion || 'Ad Recall',
+                        maxQuestions: blsMerged.maxQuestions || 4,
+                        leadTimeDays: blsMerged.leadTimeDays || 5
                     }
                 });
+            }
+
+            // 2. Multi-cell CLS — recommended for full-funnel (brand + performance together)
+            if (isFullFunnel) {
+                const eligible = budget >= clsMinSpend;
+                recommendations.push({
+                    type: 'cls_multicell',
+                    name: 'Multi-cell Conversion Lift Study',
+                    goal: 'Prove upper-funnel ads contribute to conversions',
+                    rationale: 'Your campaign combines brand and performance objectives — a multi-cell CLS isolates whether brand/consideration ads drive incremental conversions beyond performance ads alone.',
+                    eligible,
+                    thresholds: { minSpend: clsMinSpend },
+                    eligibilityNote: eligible
+                        ? `Budget of ${formatBudget(budget)} supports a multi-cell test.`
+                        : `Multi-cell CLS typically requires ${formatBudget(clsMinSpend)}+ spend.`,
+                    region: regionPack,
+                    testDesign: {
+                        holdout: '15% control (no ads)',
+                        cells: [
+                            'Cell A: Performance ads only',
+                            'Cell B: Brand + Performance ads'
+                        ],
+                        duration: '~4 weeks',
+                        primaryKPI: 'Incremental CVR',
+                        secondaryKPIs: ['iCPA', 'iROAS']
+                    }
+                });
+            }
+
+            // 3. Standard CLS — recommended when conversion/performance is a primary goal
+            if (hasConversion && !isFullFunnel) {
+                const eligible = budget >= clsMinSpend;
+                recommendations.push({
+                    type: 'cls_standard',
+                    name: 'Conversion Lift Study (CLS)',
+                    goal: 'Prove TikTok drives incremental conversions',
+                    rationale: 'Your campaign is performance-focused — a CLS measures the true incremental impact of your TikTok ads on conversions.',
+                    eligible,
+                    thresholds: { minSpend: clsMinSpend },
+                    eligibilityNote: eligible
+                        ? `Budget of ${formatBudget(budget)} supports a conversion lift test.`
+                        : `CLS typically requires ${formatBudget(clsMinSpend)}+ spend.`,
+                    region: regionPack
+                });
+            }
+
+            // 4. Always include standard tracking as baseline
+            recommendations.push({
+                type: 'standard',
+                name: 'Standard Performance Tracking',
+                goal: 'Measure campaign performance via pixel + attribution',
+                rationale: 'Included by default for all campaigns regardless of budget.',
+                eligible: true,
+                eligibilityNote: 'Always available — no minimum spend.',
+                isBaseline: true
             });
+
+            return recommendations;
         }
 
         function setupRadioCards() {
@@ -1783,11 +1725,7 @@
                 pricePoint: $('input[name="price_point"]').value,
                 channels: Array.from($$('input[name="channels"]:checked')).map(i => i.value),
                 creativeStatus: Array.from($$('input[name="creative"]:checked')).map(i => i.value),
-                measurementMode: $('input[name="measurementMode"]:checked')?.value || 'standard',
-                liftStudyType: $('input[name="liftStudyType"]:checked')?.value || "",
                 budget: parseReachOrSpend($('#budget').value) || 50000,
-                plannedSpendUsd: parseReachOrSpend($('#plannedSpendUsd').value),
-                plannedUniqueReach: parseReachOrSpend($('#plannedUniqueReach').value),
                 startDate: $('#start_date').value,
                 endDate: $('#end_date').value,
                 clientName: $('input[name="client_name"]').value || 'Client'
@@ -1842,25 +1780,8 @@
                 .filter(i => budget >= i.threshold)
                 .map(i => ({ name: i.name, description: i.description }));
 
-            // — Measurement eligibility —
-            const mode = formData.measurementMode || 'standard';
-            const rawType = (formData.liftStudyType || '').toLowerCase().trim();
-            const liftTypeMap = {
-                'bls': 'bls', 'brandlift': 'bls', 'brand_lift': 'bls', 'brand lift study': 'bls',
-                'cls': 'cls_multicell', 'conversionlift': 'cls_multicell', 'conversion_lift': 'cls_multicell',
-                'multicell': 'cls_multicell', 'multi-cell': 'cls_multicell', 'cls_multicell': 'cls_multicell'
-            };
-            const liftType = liftTypeMap[rawType] || (mode === 'lift' ? 'bls' : null);
-
-            const eligibility = getLiftStudyStatus({
-                market: formData.market,
-                measurementMode: mode,
-                liftStudyType: liftType,
-                plannedSpendUsd: formData.plannedSpendUsd || formData.budget,
-                plannedUniqueReach: formData.plannedUniqueReach,
-                buyingType: 'auction',
-                tiktokData
-            });
+            // — Measurement recommendations (auto-determined) —
+            const measurementRecs = recommendMeasurement(goals, budget, formData.market);
 
             return {
                 client: {
@@ -1895,9 +1816,9 @@
                     unlockedSupport: qualifiedCreativeSupport.map(s => s.name)
                 },
                 measurement: {
-                    mode,
-                    liftStudyType: liftType,
-                    eligibility
+                    autoRecommended: measurementRecs.filter(r => !r.isBaseline).map(r => ({
+                        type: r.type, name: r.name, eligible: r.eligible, rationale: r.rationale
+                    }))
                 },
                 deterministic: {
                     budgetSplit,
@@ -2385,47 +2306,32 @@ Ongoing: Scale
         }
 
         function generateMeasurement() {
-            console.log("[MEAS DEBUG]", {
-                measurementMode: formData.measurementMode,
-                liftStudyType: formData.liftStudyType,
-                market: formData.market,
-                plannedSpendUsd: formData.plannedSpendUsd,
-                plannedUniqueReach: formData.plannedUniqueReach
-            });
-            const mode = formData.measurementMode || 'standard';
+            const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
+            const budget = formData.budget;
+            const recs = recommendMeasurement(goals, budget, formData.market);
 
-            // Normalize liftStudyType synonyms
-            const rawType = (formData.liftStudyType || '').toLowerCase().trim();
-            const liftTypeMap = {
-                'bls': 'bls', 'brandlift': 'bls', 'brand_lift': 'bls', 'brand lift study': 'bls',
-                'cls': 'cls_multicell', 'conversionlift': 'cls_multicell', 'conversion_lift': 'cls_multicell',
-                'multicell': 'cls_multicell', 'multi-cell': 'cls_multicell', 'cls_multicell': 'cls_multicell'
-            };
-            const liftType = liftTypeMap[rawType] || (mode === 'lift' ? 'bls' : null);
+            if (DEBUG) console.log('[MEAS DEBUG]', { goals, budget, market: formData.market, recommendations: recs });
+
             const kpisData = tiktokData.kpis || {};
             const cadenceData = tiktokData.reportingCadence || [];
-
             let output = [];
 
             // ── Header ──
             output.push(`MEASUREMENT PLAN FOR ${formData.clientName.toUpperCase()}`);
-            const modeLabel = mode === 'lift'
-                ? `LIFT STUDY — ${liftType === 'bls' ? 'Brand Lift Study (BLS)' : liftType === 'cls_multicell' ? 'Multi-cell Conversion Lift (CLS)' : 'Type TBD'}`
-                : 'STANDARD REPORTING';
-            output.push(`MEASUREMENT MODE: ${modeLabel}`);
+            output.push(`Campaign Budget: ${formatBudget(budget)} | Objectives: ${goals.join(' + ')}`);
             output.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-            // ── 1. Tracking Setup (always — Pixel assumed) ──
+            // ── 1. Tracking Setup (always) ──
             output.push('\nTRACKING SETUP');
             output.push('✅ TikTok Pixel implementation');
             output.push('✅ Standard events (ViewContent, AddToCart, Purchase)');
-            if (mode === 'lift') {
+            const hasLiftRec = recs.some(r => r.type !== 'standard' && r.eligible);
+            if (hasLiftRec) {
                 output.push('✅ Conversion API (CAPI) recommended for lift accuracy');
             }
 
-            // ── 2. Core KPIs (always) ──
+            // ── 2. Core KPIs ──
             output.push('\nKEY PERFORMANCE INDICATORS');
-            output.push('\nCore Metrics');
             const coreKpis = [
                 ...(kpisData.upperFunnel || []).slice(0, 2),
                 ...(kpisData.lowerFunnel || []).slice(0, 2)
@@ -2441,7 +2347,7 @@ Ongoing: Scale
                 output.push('└── ROAS');
             }
 
-            // ── 3. Reporting Cadence (always) ──
+            // ── 3. Reporting Cadence ──
             output.push('\nREPORTING CADENCE');
             if (cadenceData.length) {
                 cadenceData.forEach(item => output.push(`• ${item.frequency}: ${item.focus}`));
@@ -2451,76 +2357,61 @@ Ongoing: Scale
                 output.push('• Post-campaign: Wrap report');
             }
 
-            // ── Standard stops here ──
-            if (mode === 'lift') {
-                // Get eligibility from helper
-                const eligibility = getLiftStudyStatus({
-                    market: formData.market,
-                    measurementMode: mode,
-                    liftStudyType: liftType,
-                    plannedSpendUsd: formData.plannedSpendUsd || formData.budget,
-                    plannedUniqueReach: formData.plannedUniqueReach,
-                    buyingType: 'auction',
-                    tiktokData
+            // ── 4. Recommended Studies ──
+            const liftRecs = recs.filter(r => !r.isBaseline);
+            if (liftRecs.length > 0) {
+                output.push('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                output.push('RECOMMENDED MEASUREMENT STUDIES');
+                output.push('Based on your objectives and budget, we recommend:\n');
+
+                liftRecs.forEach((rec, idx) => {
+                    const icon = rec.eligible ? '✅' : '⚠️';
+                    output.push(`${icon} ${rec.name}`);
+                    output.push(`   Goal: ${rec.goal}`);
+                    output.push(`   Why: ${rec.rationale}`);
+                    output.push(`   Eligibility: ${rec.eligibilityNote}`);
+
+                    // BLS operational details
+                    if (rec.type === 'bls' && rec.operational) {
+                        output.push(`   Thresholds: Min spend ${formatBudget(rec.thresholds.minSpend)} | Min reach ${rec.thresholds.minUniqueReach?.toLocaleString() || 'TBD'}`);
+                        output.push(`   Setup: ${rec.operational.mandatoryQuestion} is mandatory, max ${rec.operational.maxQuestions} questions, ${rec.operational.leadTimeDays} business days lead time`);
+                    }
+
+                    // Multi-cell CLS test design
+                    if (rec.type === 'cls_multicell' && rec.testDesign) {
+                        const td = rec.testDesign;
+                        output.push(`   Test design:`);
+                        output.push(`     • Control: ${td.holdout}`);
+                        td.cells.forEach(c => output.push(`     • ${c}`));
+                        output.push(`     • Duration: ${td.duration}`);
+                        output.push(`     • Primary KPI: ${td.primaryKPI} | Secondary: ${td.secondaryKPIs.join(', ')}`);
+                    }
+
+                    // Standard CLS
+                    if (rec.type === 'cls_standard') {
+                        output.push(`   Thresholds: Min spend ${formatBudget(rec.thresholds.minSpend)}`);
+                    }
+
+                    if (idx < liftRecs.length - 1) output.push('');
                 });
 
-                // ── 4. Eligibility ──
-                const statusLabels = {
-                    eligible: '✅ ELIGIBLE',
-                    potentially_eligible: '⚠️ POTENTIALLY ELIGIBLE',
-                    not_eligible: '❌ NOT ELIGIBLE',
-                    unknown: '❓ UNKNOWN — check source of truth',
-                    consult_ms: '🔬 CONSULT MARKETING SCIENCE'
-                };
-                output.push(`\nELIGIBILITY: ${statusLabels[eligibility.status] || eligibility.status}`);
-                if (eligibility.reason) {
-                    output.push(`  ${eligibility.reason}`);
-                }
-                if (eligibility.sourceOfTruth) {
-                    output.push(`  Source of truth: ${eligibility.sourceOfTruth}`);
-                }
-
-                // ── 5. BLS details ──
-                if (liftType === 'bls') {
-                    output.push('\nBLS THRESHOLDS');
-                    const t = eligibility.thresholds || {};
-                    output.push(`• Min spend: ${t.minSpend != null ? formatBudget(t.minSpend) : 'Unknown'}`);
-                    output.push(`• Min unique reach: ${t.minUniqueReach != null ? t.minUniqueReach.toLocaleString() : 'Unknown'}`);
-                    output.push(`• Region: ${eligibility.region || 'Global'}`);
-
-                    // Operational notes from volatile
-                    const byRegion = tiktokData.volatile?.liftStudies?.brandLift?.byRegion;
-                    const globalBls = byRegion?.Global || {};
-                    if (globalBls.mandatoryQuestion || globalBls.maxQuestions || globalBls.leadTimeDays) {
-                        output.push('\nOPERATIONAL NOTES');
-                        if (globalBls.mandatoryQuestion) {
-                            output.push(`• ${globalBls.mandatoryQuestion} is mandatory`);
+                // Budget guidance if some tests aren't eligible
+                const ineligible = liftRecs.filter(r => !r.eligible);
+                if (ineligible.length > 0) {
+                    output.push('\n💡 BUDGET GUIDANCE');
+                    ineligible.forEach(r => {
+                        const needed = r.thresholds?.minSpend ? r.thresholds.minSpend - budget : 0;
+                        if (needed > 0) {
+                            output.push(`• Add ${formatBudget(needed)} to unlock ${r.name} (min ${formatBudget(r.thresholds.minSpend)})`);
                         }
-                        if (globalBls.maxQuestions) {
-                            output.push(`• Max ${globalBls.maxQuestions} questions total`);
-                        }
-                        if (globalBls.leadTimeDays) {
-                            output.push(`• Provide campaign IDs + approved questions ${globalBls.leadTimeDays} business days before launch`);
-                        }
-                    }
-
-                    if (eligibility.disclaimer) output.push(`\n⚠️ ${eligibility.disclaimer}`);
-                    if (eligibility.safeZoneHint) {
-                        output.push(`💡 ${eligibility.safeZoneHint}`);
-                    }
+                    });
                 }
 
-                // ── 6. CLS multi-cell details ──
-                if (liftType === 'cls_multicell' && eligibility.plan) {
-                    const p = eligibility.plan;
-                    output.push('\nTEST DESIGN');
-                    output.push(`• Holdout: ${p.holdout}`);
-                    p.cells.forEach(c => output.push(`• Cell ${c.id}: ${c.mix}`));
-                    output.push(`• Duration: ${p.duration}`);
-                    output.push(`• Primary KPI: ${p.primaryKPI}`);
-                    output.push(`• Secondary KPIs: ${p.secondaryKPIs.join(', ')}`);
-                    if (eligibility.disclaimer) output.push(`\n🔬 ${eligibility.disclaimer}`);
-                }
+                output.push('\n⚠️ Meeting minimum spend does NOT guarantee hitting minimum unique reach/sample. Best practice is to invest more to be in the safe zone.');
+            } else {
+                output.push('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+                output.push('MEASUREMENT APPROACH: Standard Performance Tracking');
+                output.push('With your current objectives and budget, standard pixel-based tracking and reporting will provide the insights you need.');
             }
 
             $('#measurement-content').textContent = output.join('\n');
