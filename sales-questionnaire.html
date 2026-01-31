@@ -1788,7 +1788,7 @@ Return a JSON object with exactly 6 keys. Each value is a markdown string. Use #
 
   "funnel": "Full-funnel strategy narrative. For each funnel tier (upper/mid/lower), explain the STRATEGIC PURPOSE and which audience segments to target. Reference the deterministic budget split percentages but add strategic context about WHY this allocation makes sense for their goals. Include testing and optimization recommendations.",
 
-  "mediaPlan": "Ad format strategy and campaign phasing. Explain WHY each recommended format suits this specific client (not generic descriptions). Organize into campaign phases (Launch → Optimize → Scale) with specific guidance tied to their timeline. Reference delivery estimates where relevant.",
+  "mediaPlan": "Ad format recommendations and campaign phasing. Use the TikTok reference docs to check minimum spend thresholds and pricing for each ad product (e.g. TopView, Branded Hashtag Challenge, Branded Effect). ONLY recommend formats the client's budget can actually afford — never suggest a product whose minimum spend exceeds their total campaign budget. For each recommended format, explain WHY it suits this specific client. Organize into campaign phases (Launch → Optimize → Scale) with specific guidance tied to their timeline.",
 
   "creative": "Creative strategy including content direction, 3-4 content pillars with example hooks specific to their brand, format recommendations matched to their creative readiness level, and creator/UGC strategy if relevant. Reference their unlocked creative support programs.",
 
@@ -2257,57 +2257,11 @@ Rules:
             const weeks = Math.max(1, Math.ceil((end - start) / (7 * 24 * 60 * 60 * 1000)));
             const weeklyBudget = formData.budget / weeks;
 
-            const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
-            const adFormats = tiktokData.adFormats;
-            const formats = [...new Set(goals.flatMap(g => adFormats[g] || adFormats['Conversions']))];
-
             const el = $('#media-tables');
             if (!el) return;
 
-            // Ad format details with market-aware minimum spend thresholds
-            const formatDetails = {
-                'TopView': { bestFor: 'Maximum awareness & impact', usage: '3-5 days during key moments', minSpend: { US: 375000, UK: 250000, default: 200000 } },
-                'In-Feed Ads': { bestFor: 'All objectives, always-on', usage: 'Throughout campaign', minSpend: { default: 0 } },
-                'Spark Ads': { bestFor: 'Engagement & authenticity', usage: '40-60% of In-Feed budget', minSpend: { default: 0 } },
-                'Collection Ads': { bestFor: 'Product discovery & sales', usage: 'Lower-funnel phases', minSpend: { default: 0 } },
-                'Dynamic Showcase Ads': { bestFor: 'Retargeting, large catalogs', usage: 'Retargeting phases', minSpend: { default: 0 } },
-                'Branded Hashtag Challenge': { bestFor: 'Community engagement', usage: 'Launch phase, 3-6 days', minSpend: { US: 150000, UK: 120000, default: 100000 } },
-                'Branded Effect': { bestFor: 'Brand interaction', usage: 'Alongside hashtag challenge', minSpend: { US: 100000, UK: 80000, default: 70000 } }
-            };
-
-            // Filter out formats whose minimum spend exceeds the budget
-            const market = formData.market || 'US';
-            const budget = formData.budget;
-            const affordableFormats = formats.filter(f => {
-                const d = formatDetails[f];
-                if (!d || !d.minSpend) return true;
-                const threshold = d.minSpend[market] ?? d.minSpend.default ?? 0;
-                return budget >= threshold;
-            });
-
-            // Ad Formats table
-            let html = `<h3 style="margin:0 0 12px;font-size:1rem">Recommended Ad Formats</h3>`;
-            html += `<table class="doc-table"><thead><tr><th>Format</th><th>Best For</th><th>Recommended Usage</th></tr></thead><tbody>`;
-            affordableFormats.forEach(f => {
-                const d = formatDetails[f] || { bestFor: 'Campaign support', usage: 'As needed' };
-                html += `<tr><td><strong>${f}</strong></td><td>${d.bestFor}</td><td>${d.usage}</td></tr>`;
-            });
-            html += `</tbody></table>`;
-
-            // Show formats excluded due to budget
-            const excludedFormats = formats.filter(f => !affordableFormats.includes(f));
-            if (excludedFormats.length > 0) {
-                html += `<div class="doc-callout info" style="margin-top:12px"><strong>Not included in this budget:</strong> `;
-                html += excludedFormats.map(f => {
-                    const d = formatDetails[f];
-                    const threshold = d?.minSpend?.[market] ?? d?.minSpend?.default ?? 0;
-                    return `${f} (min. ${formatBudget(threshold)})`;
-                }).join(', ');
-                html += `</div>`;
-            }
-
-            // Flight Schedule table
-            html += `<h3 style="margin:24px 0 12px;font-size:1rem">Flight Schedule</h3>`;
+            // Flight Schedule table (ad format recommendations come from AI via vector store pricing)
+            let html = `<h3 style="margin:0 0 12px;font-size:1rem">Flight Schedule</h3>`;
             html += `<table class="doc-table"><thead><tr><th>Week</th><th>Dates</th><th>Phase</th><th>Budget</th><th>Focus</th></tr></thead><tbody>`;
 
             for (let i = 0; i < Math.min(weeks, 8); i++) {
