@@ -2015,17 +2015,19 @@ Rules:
             };
 
             // Add file_search if vector store is configured
+            let useFileSearch = false;
             if (vectorStoreId) {
                 body.tools = [{
                     type: 'file_search',
                     vector_store_ids: [vectorStoreId]
                 }];
+                useFileSearch = true;
                 if (DEBUG) console.log('[AI] Responses API + File Search, vector store:', vectorStoreId);
             } else {
                 if (DEBUG) console.log('[AI] Responses API (no docs), model:', model);
             }
 
-            const resp = await fetch('https://api.openai.com/v1/responses', {
+            let resp = await fetch('https://api.openai.com/v1/responses', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -2033,6 +2035,21 @@ Rules:
                 },
                 body: JSON.stringify(body)
             });
+
+            // If file_search failed (bad vector store ID), retry without it
+            if (!resp.ok && useFileSearch) {
+                const errText = await resp.text();
+                console.warn('[AI] File search failed, retrying without docs:', errText);
+                delete body.tools;
+                resp = await fetch('https://api.openai.com/v1/responses', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(body)
+                });
+            }
 
             if (!resp.ok) {
                 const err = await resp.text();
