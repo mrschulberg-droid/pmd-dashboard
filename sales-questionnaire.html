@@ -1709,9 +1709,10 @@
                 lower: Math.round(splits.reduce((s, v) => s + v.lower, 0) / splits.length)
             };
 
-            // — Ad formats (same logic as generateMediaTables) —
-            const adFmts = tiktokData.adFormats || {};
-            const adFormats = [...new Set(goals.flatMap(g => adFmts[g] || adFmts['Conversions'] || []))];
+            // — Ad formats: AI determines these from vector store pricing —
+            // Do NOT send hardcoded format list — it causes AI to recommend
+            // formats the budget can't afford. The AI system prompt instructs
+            // it to check the vector store docs for thresholds.
 
             // — Qualified incentives —
             const qualifiedIncentives = (tiktokData.mediaIncentives || [])
@@ -1765,7 +1766,6 @@
                 },
                 deterministic: {
                     budgetSplit,
-                    adFormats,
                     qualifiedIncentives,
                     qualifiedCreativeSupport
                 }
@@ -1778,8 +1778,8 @@
 You receive:
 1. CLIENT RESEARCH — real-time web research about the brand
 2. CAMPAIGN BRIEF — goals, budget, audience, challenges, creative readiness
-3. DETERMINISTIC DATA — pre-computed numbers (budget splits, ad formats, incentives) that you MUST reference accurately
-4. TIKTOK REFERENCE DOCS — searchable internal docs about TikTok ad products
+3. DETERMINISTIC DATA — pre-computed numbers (budget splits, incentives) that you MUST reference accurately. NOTE: ad formats are NOT included — you must determine which formats to recommend by checking the TikTok reference docs for pricing and minimum spend thresholds.
+4. TIKTOK REFERENCE DOCS — searchable internal docs about TikTok ad products, pricing, and minimum spend thresholds. ALWAYS consult these docs before recommending any ad format.
 
 Return a JSON object with exactly 6 keys. Each value is a markdown string. Use ## for section headers, **bold** for emphasis, - for bullet lists, > for callouts.
 
@@ -1799,6 +1799,7 @@ Return a JSON object with exactly 6 keys. Each value is a markdown string. Use #
 
 Rules:
 - NEVER invent budget numbers. Use ONLY the deterministic values provided.
+- NEVER recommend ad formats without checking the reference docs for minimum spend thresholds. If a format's minimum spend exceeds the campaign budget, do NOT recommend it.
 - NEVER reference incentive tiers the client hasn't unlocked.
 - ALWAYS weave in specifics from the client research — their products, competitors, audience, recent campaigns.
 - Write as if addressing the client directly ("your brand", "your audience") — this is a proposal document.
@@ -2255,26 +2256,33 @@ Rules:
             const start = new Date(formData.startDate);
             const end = new Date(formData.endDate);
             const weeks = Math.max(1, Math.ceil((end - start) / (7 * 24 * 60 * 60 * 1000)));
-            const weeklyBudget = formData.budget / weeks;
 
             const el = $('#media-tables');
             if (!el) return;
+
+            // Build raw multipliers for each week, then normalize so budget sums correctly
+            const displayWeeks = Math.min(weeks, 8);
+            const rawMultipliers = [];
+            for (let i = 0; i < weeks; i++) {
+                rawMultipliers.push(i < 1 ? 0.8 : i < 2 ? 1.0 : i < weeks - 1 ? 1.1 : 1.2);
+            }
+            const multiplierSum = rawMultipliers.reduce((a, b) => a + b, 0);
 
             // Flight Schedule table (ad format recommendations come from AI via vector store pricing)
             let html = `<h3 style="margin:0 0 12px;font-size:1rem">Flight Schedule</h3>`;
             html += `<table class="doc-table"><thead><tr><th>Week</th><th>Dates</th><th>Phase</th><th>Budget</th><th>Focus</th></tr></thead><tbody>`;
 
-            for (let i = 0; i < Math.min(weeks, 8); i++) {
+            for (let i = 0; i < displayWeeks; i++) {
                 const weekStart = new Date(start);
                 weekStart.setDate(start.getDate() + (i * 7));
                 const weekEnd = new Date(weekStart);
                 weekEnd.setDate(weekStart.getDate() + 6);
 
                 const phase = i < 2 ? 'Launch' : i < weeks - 1 ? 'Optimize' : 'Scale';
-                const budgetMultiplier = i < 1 ? 0.8 : i < 2 ? 1.0 : i < weeks - 1 ? 1.1 : 1.2;
+                const weekBudget = formData.budget * rawMultipliers[i] / multiplierSum;
                 const focus = i < 2 ? 'Testing & learning' : i < weeks - 1 ? 'Optimization & scaling' : 'Maximum performance';
 
-                html += `<tr><td>Week ${i + 1}</td><td>${formatDate(weekStart.toISOString())} – ${formatDate(weekEnd.toISOString())}</td><td>${phase}</td><td>${formatBudget(weeklyBudget * budgetMultiplier)}</td><td>${focus}</td></tr>`;
+                html += `<tr><td>Week ${i + 1}</td><td>${formatDate(weekStart.toISOString())} – ${formatDate(weekEnd.toISOString())}</td><td>${phase}</td><td>${formatBudget(weekBudget)}</td><td>${focus}</td></tr>`;
             }
 
             if (weeks > 8) {
