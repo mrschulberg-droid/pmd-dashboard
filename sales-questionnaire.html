@@ -2264,24 +2264,47 @@ Rules:
             const el = $('#media-tables');
             if (!el) return;
 
+            // Ad format details with market-aware minimum spend thresholds
             const formatDetails = {
-                'TopView': { bestFor: 'Maximum awareness & impact', usage: '3-5 days during key moments' },
-                'In-Feed Ads': { bestFor: 'All objectives, always-on', usage: 'Throughout campaign' },
-                'Spark Ads': { bestFor: 'Engagement & authenticity', usage: '40-60% of In-Feed budget' },
-                'Collection Ads': { bestFor: 'Product discovery & sales', usage: 'Lower-funnel phases' },
-                'Dynamic Showcase Ads': { bestFor: 'Retargeting, large catalogs', usage: 'Retargeting phases' },
-                'Branded Hashtag Challenge': { bestFor: 'Community engagement', usage: 'Launch phase, 3-6 days' },
-                'Branded Effect': { bestFor: 'Brand interaction', usage: 'Alongside hashtag challenge' }
+                'TopView': { bestFor: 'Maximum awareness & impact', usage: '3-5 days during key moments', minSpend: { US: 375000, UK: 250000, default: 200000 } },
+                'In-Feed Ads': { bestFor: 'All objectives, always-on', usage: 'Throughout campaign', minSpend: { default: 0 } },
+                'Spark Ads': { bestFor: 'Engagement & authenticity', usage: '40-60% of In-Feed budget', minSpend: { default: 0 } },
+                'Collection Ads': { bestFor: 'Product discovery & sales', usage: 'Lower-funnel phases', minSpend: { default: 0 } },
+                'Dynamic Showcase Ads': { bestFor: 'Retargeting, large catalogs', usage: 'Retargeting phases', minSpend: { default: 0 } },
+                'Branded Hashtag Challenge': { bestFor: 'Community engagement', usage: 'Launch phase, 3-6 days', minSpend: { US: 150000, UK: 120000, default: 100000 } },
+                'Branded Effect': { bestFor: 'Brand interaction', usage: 'Alongside hashtag challenge', minSpend: { US: 100000, UK: 80000, default: 70000 } }
             };
+
+            // Filter out formats whose minimum spend exceeds the budget
+            const market = formData.market || 'US';
+            const budget = formData.budget;
+            const affordableFormats = formats.filter(f => {
+                const d = formatDetails[f];
+                if (!d || !d.minSpend) return true;
+                const threshold = d.minSpend[market] ?? d.minSpend.default ?? 0;
+                return budget >= threshold;
+            });
 
             // Ad Formats table
             let html = `<h3 style="margin:0 0 12px;font-size:1rem">Recommended Ad Formats</h3>`;
             html += `<table class="doc-table"><thead><tr><th>Format</th><th>Best For</th><th>Recommended Usage</th></tr></thead><tbody>`;
-            formats.forEach(f => {
+            affordableFormats.forEach(f => {
                 const d = formatDetails[f] || { bestFor: 'Campaign support', usage: 'As needed' };
                 html += `<tr><td><strong>${f}</strong></td><td>${d.bestFor}</td><td>${d.usage}</td></tr>`;
             });
             html += `</tbody></table>`;
+
+            // Show formats excluded due to budget
+            const excludedFormats = formats.filter(f => !affordableFormats.includes(f));
+            if (excludedFormats.length > 0) {
+                html += `<div class="doc-callout info" style="margin-top:12px"><strong>Not included in this budget:</strong> `;
+                html += excludedFormats.map(f => {
+                    const d = formatDetails[f];
+                    const threshold = d?.minSpend?.[market] ?? d?.minSpend?.default ?? 0;
+                    return `${f} (min. ${formatBudget(threshold)})`;
+                }).join(', ');
+                html += `</div>`;
+            }
 
             // Flight Schedule table
             html += `<h3 style="margin:24px 0 12px;font-size:1rem">Flight Schedule</h3>`;
