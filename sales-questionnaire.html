@@ -1970,7 +1970,7 @@ Rules:
                     body: JSON.stringify({
                         model: 'gpt-4.1-mini',
                         input: query,
-                        tools: [{ type: 'web_search' }]
+                        tools: [{ type: 'web_search_preview' }]
                     })
                 });
 
@@ -1981,6 +1981,7 @@ Rules:
                 }
 
                 const data = await resp.json();
+                if (DEBUG) console.log('[AI RESEARCH] Full response:', JSON.stringify(data).substring(0, 800));
                 const result = data.output_text || '';
                 if (DEBUG) console.log('[AI RESEARCH] Done, length:', result.length);
                 return result;
@@ -2027,40 +2028,43 @@ Rules:
                 if (DEBUG) console.log('[AI] Responses API (no docs), model:', model);
             }
 
-            let resp = await fetch('https://api.openai.com/v1/responses', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${apiKey}`
-                },
-                body: JSON.stringify(body)
-            });
-
-            // If file_search failed (bad vector store ID), retry without it
-            if (!resp.ok && useFileSearch) {
-                const errText = await resp.text();
-                console.warn('[AI] File search failed, retrying without docs:', errText);
-                delete body.tools;
-                resp = await fetch('https://api.openai.com/v1/responses', {
+            async function doFetch(requestBody) {
+                const r = await fetch('https://api.openai.com/v1/responses', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${apiKey}`
                     },
-                    body: JSON.stringify(body)
+                    body: JSON.stringify(requestBody)
                 });
+                if (!r.ok) {
+                    const errText = await r.text();
+                    return { ok: false, error: errText, status: r.status };
+                }
+                const d = await r.json();
+                if (DEBUG) console.log('[AI] Response:', JSON.stringify(d).substring(0, 1000));
+                return { ok: true, data: d };
             }
 
-            if (!resp.ok) {
-                const err = await resp.text();
-                throw new Error(`OpenAI API ${resp.status}: ${err}`);
+            // Attempt 1: with file_search if configured
+            let result = await doFetch(body);
+
+            // If HTTP error or empty output with file_search, retry without it
+            if (useFileSearch && (!result.ok || !result.data?.output_text)) {
+                console.warn('[AI] File search attempt failed or empty. Retrying without docs...',
+                    result.ok ? '(empty output)' : `(HTTP ${result.status})`);
+                delete body.tools;
+                result = await doFetch(body);
             }
 
-            const data = await resp.json();
-            const text = data.output_text;
-            if (!text) throw new Error('Empty AI response');
+            if (!result.ok) {
+                throw new Error(`OpenAI API ${result.status}: ${result.error}`);
+            }
 
-            if (DEBUG) console.log('[AI] Raw response (first 500 chars):', text.substring(0, 500));
+            const text = result.data.output_text;
+            if (!text) throw new Error('Empty AI response — check API key permissions.');
+
+            if (DEBUG) console.log('[AI] Output text (first 500 chars):', text.substring(0, 500));
 
             // Strip markdown code fences if GPT wrapped the JSON
             let cleaned = text.trim();
