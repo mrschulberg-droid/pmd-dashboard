@@ -1981,9 +1981,26 @@ Rules:
                 }
 
                 const data = await resp.json();
-                if (DEBUG) console.log('[AI RESEARCH] Full response:', JSON.stringify(data).substring(0, 800));
-                const result = data.output_text || '';
-                if (DEBUG) console.log('[AI RESEARCH] Done, length:', result.length);
+                // Extract text: try output_text, then dig into output array
+                let result = data.output_text || '';
+                if (!result && data.output) {
+                    for (const item of data.output) {
+                        if (item.type === 'message' && item.content) {
+                            for (const c of item.content) {
+                                if (c.type === 'output_text' && c.text) {
+                                    result = c.text;
+                                }
+                            }
+                        }
+                    }
+                }
+                if (DEBUG) {
+                    console.log('[AI RESEARCH] Status:', data.status,
+                        '| output items:', data.output?.length,
+                        '| output types:', data.output?.map(x => x.type),
+                        '| text length:', result.length);
+                    if (result) console.log('[AI RESEARCH] Preview:', result.substring(0, 200));
+                }
                 return result;
             } catch (e) {
                 console.warn('[AI RESEARCH] Error:', e.message);
@@ -2042,7 +2059,26 @@ Rules:
                     return { ok: false, error: errText, status: r.status };
                 }
                 const d = await r.json();
-                if (DEBUG) console.log('[AI] Response:', JSON.stringify(d).substring(0, 1000));
+                // Extract text: try output_text first, then dig into output array
+                let text = d.output_text || '';
+                if (!text && d.output) {
+                    for (const item of d.output) {
+                        if (item.type === 'message' && item.content) {
+                            for (const c of item.content) {
+                                if (c.type === 'output_text' && c.text) {
+                                    text = c.text;
+                                }
+                            }
+                        }
+                    }
+                    if (text) d.output_text = text; // patch it back
+                }
+                if (DEBUG) {
+                    console.log('[AI] Status:', d.status, '| output items:', d.output?.length,
+                        '| output types:', d.output?.map(x => x.type),
+                        '| output_text length:', (d.output_text || '').length);
+                    if (d.output_text) console.log('[AI] output_text preview:', d.output_text.substring(0, 300));
+                }
                 return { ok: true, data: d };
             }
 
