@@ -1104,6 +1104,33 @@
         </div>
     </div>
 
+    <!-- One-time AI setup modal (only shows if no config found) -->
+    <div id="ai-setup-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center">
+        <div style="background:var(--card-bg);border:1px solid var(--border-color);border-radius:16px;padding:32px;max-width:480px;width:90%;margin:20px">
+            <h2 style="margin-bottom:4px;font-size:1.3rem">Welcome to TikTok Sales Tool</h2>
+            <p style="color:#888;font-size:0.85rem;margin-bottom:20px">One-time setup — your credentials are saved locally on this computer and never leave your browser.</p>
+            <div style="margin-bottom:14px">
+                <label style="display:block;font-weight:600;margin-bottom:4px;font-size:0.9rem">OpenAI API Key <span style="color:var(--tiktok-red)">*</span></label>
+                <input type="password" id="setup-api-key" placeholder="sk-proj-..." style="width:100%;padding:10px 14px;border:1px solid var(--border-color);border-radius:8px;font-size:0.9rem;background:var(--tiktok-gray);color:var(--text-primary)">
+            </div>
+            <div style="margin-bottom:14px">
+                <label style="display:block;font-weight:600;margin-bottom:4px;font-size:0.9rem">Vector Store ID <span style="color:#888;font-weight:normal">(recommended)</span></label>
+                <input type="text" id="setup-vector-store" placeholder="vs_..." style="width:100%;padding:10px 14px;border:1px solid var(--border-color);border-radius:8px;font-size:0.9rem;background:var(--tiktok-gray);color:var(--text-primary)">
+                <p style="font-size:0.75rem;color:#888;margin-top:4px">Enables AI answers grounded in your uploaded TikTok docs.</p>
+            </div>
+            <div style="margin-bottom:20px">
+                <label style="display:block;font-weight:600;margin-bottom:4px;font-size:0.9rem">Model</label>
+                <select id="setup-model" style="width:100%;padding:10px 14px;border:1px solid var(--border-color);border-radius:8px;font-size:0.9rem;background:var(--tiktok-gray);color:var(--text-primary)">
+                    <option value="gpt-4.1-nano">gpt-4.1-nano (fastest)</option>
+                    <option value="gpt-4.1-mini" selected>gpt-4.1-mini (balanced)</option>
+                    <option value="gpt-4.1">gpt-4.1 (best quality)</option>
+                </select>
+            </div>
+            <button onclick="saveAISetup()" style="width:100%;padding:12px;background:var(--tiktok-red);color:#fff;border:none;border-radius:10px;font-size:1rem;font-weight:600;cursor:pointer">Save &amp; Continue</button>
+            <button onclick="skipAISetup()" style="width:100%;padding:10px;background:transparent;color:#888;border:1px solid var(--border-color);border-radius:10px;font-size:0.85rem;cursor:pointer;margin-top:8px">Skip — use templates only</button>
+        </div>
+    </div>
+
     <!-- AI config loaded from external file (not tracked by git) -->
     <script src="ai-config.js"></script>
 
@@ -1119,22 +1146,82 @@
         const $ = (sel) => document.querySelector(sel);
         const $$ = (sel) => document.querySelectorAll(sel);
 
+        // ── AI Config Resolution ─────────────────────────────────
+        // Priority: 1. AI_CONFIG global (from ai-config.js on web server)
+        //           2. localStorage (from one-time setup modal)
+        //           3. null (no AI — templates only)
+        function getAIConfig() {
+            // Source 1: External script (works on web servers, not file://)
+            if (typeof AI_CONFIG !== 'undefined' && AI_CONFIG.apiKey) {
+                return AI_CONFIG;
+            }
+            // Source 2: localStorage (works everywhere including file://)
+            try {
+                const stored = localStorage.getItem('pmd_ai_config');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (parsed && parsed.apiKey) return parsed;
+                }
+            } catch (e) { /* ignore */ }
+            return null;
+        }
+
+        function saveAISetup() {
+            const apiKey = document.getElementById('setup-api-key').value.trim();
+            if (!apiKey) {
+                alert('API Key is required for AI features.');
+                return;
+            }
+            const config = {
+                apiKey: apiKey,
+                vectorStoreId: document.getElementById('setup-vector-store').value.trim(),
+                defaultModel: document.getElementById('setup-model').value
+            };
+            localStorage.setItem('pmd_ai_config', JSON.stringify(config));
+            document.getElementById('ai-setup-modal').style.display = 'none';
+            // Update badge
+            const badge = document.querySelector('#data-verified-badge');
+            if (badge) {
+                badge.textContent = 'AI: configured';
+                badge.style.color = '#00c853';
+                badge.style.background = 'rgba(0,200,83,0.08)';
+            }
+            console.log('[AI CONFIG] Saved to localStorage. Model:', config.defaultModel);
+        }
+
+        function skipAISetup() {
+            localStorage.setItem('pmd_ai_setup_skipped', 'true');
+            document.getElementById('ai-setup-modal').style.display = 'none';
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', async () => {
             // Load TikTok data from JSON file
             await loadTikTokData();
 
-            // Check if AI config is loaded
-            if (typeof AI_CONFIG === 'undefined' || !AI_CONFIG.apiKey) {
-                console.warn('[AI CONFIG] ai-config.js not found or missing apiKey. AI features disabled — using templates only.');
+            // Check if AI config is available from any source
+            const aiCfg = getAIConfig();
+            if (!aiCfg) {
+                console.warn('[AI CONFIG] No config found (ai-config.js not loaded + no localStorage). AI features disabled — using templates only.');
                 const badge = $('#data-verified-badge');
                 if (badge) {
-                    badge.textContent = 'AI: not configured (ai-config.js missing)';
+                    badge.textContent = 'AI: not configured';
                     badge.style.color = '#d93025';
                     badge.style.background = 'rgba(217,48,37,0.08)';
                 }
+                // Show one-time setup modal (unless previously skipped)
+                const skipped = localStorage.getItem('pmd_ai_setup_skipped');
+                if (!skipped) {
+                    document.getElementById('ai-setup-modal').style.display = 'flex';
+                }
             } else {
-                console.log('[AI CONFIG] Loaded. Model:', AI_CONFIG.defaultModel, '| Vector Store:', AI_CONFIG.vectorStoreId ? 'yes' : 'no');
+                console.log('[AI CONFIG] Loaded. Model:', aiCfg.defaultModel, '| Vector Store:', aiCfg.vectorStoreId ? 'yes' : 'no');
+                const badge = $('#data-verified-badge');
+                if (badge) {
+                    badge.textContent = 'AI: configured';
+                    badge.style.color = '#00c853';
+                    badge.style.background = 'rgba(0,200,83,0.08)';
+                }
             }
 
             // Secret shortcut: press Ctrl+Shift+K to toggle all debug UI
@@ -1865,7 +1952,7 @@ Rules:
 
         // ── Client research via web search ──────────────────────
         async function callClientResearch(clientName, vertical, market) {
-            const cfg = (typeof AI_CONFIG !== 'undefined') ? AI_CONFIG : {};
+            const cfg = getAIConfig() || {};
             const apiKey = $('#aiApiKey')?.value?.trim() || cfg.apiKey || '';
             if (!apiKey || !clientName) return '';
 
@@ -1905,7 +1992,7 @@ Rules:
 
         // ── Main AI call: OpenAI Responses API ──────────────────
         async function callAI(aiRequest, clientResearch) {
-            const cfg = (typeof AI_CONFIG !== 'undefined') ? AI_CONFIG : {};
+            const cfg = getAIConfig() || {};
             const apiKey = $('#aiApiKey')?.value?.trim() || cfg.apiKey || '';
             if (!apiKey) return null;
 
@@ -2009,7 +2096,7 @@ Rules:
             if (DEBUG) console.log('[AI REQUEST]', JSON.stringify(aiRequest, null, 2));
 
             // Check if AI is available
-            const cfg = (typeof AI_CONFIG !== 'undefined') ? AI_CONFIG : {};
+            const cfg = getAIConfig() || {};
             const hasAI = !!($('#aiApiKey')?.value?.trim() || cfg.apiKey);
 
             // Always generate deterministic-only tabs
