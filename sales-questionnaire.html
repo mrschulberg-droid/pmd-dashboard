@@ -2312,106 +2312,102 @@ Ongoing: Scale
 
             if (DEBUG) console.log('[MEAS DEBUG]', { goals, budget, market: formData.market, recommendations: recs });
 
-            const kpisData = tiktokData.kpis || {};
-            const cadenceData = tiktokData.reportingCadence || [];
             let output = [];
 
             // ── Header ──
-            output.push(`MEASUREMENT PLAN FOR ${formData.clientName.toUpperCase()}`);
-            output.push(`Campaign Budget: ${formatBudget(budget)} | Objectives: ${goals.join(' + ')}`);
+            output.push(`MEASUREMENT FRAMEWORK — ${formData.clientName.toUpperCase()}`);
+            output.push(`${formatBudget(budget)} | ${goals.join(' + ')} | ${formData.market}`);
             output.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
 
-            // ── 1. Tracking Setup (always) ──
-            output.push('\nTRACKING SETUP');
-            output.push('✅ TikTok Pixel implementation');
-            output.push('✅ Standard events (ViewContent, AddToCart, Purchase)');
-            const hasLiftRec = recs.some(r => r.type !== 'standard' && r.eligible);
-            if (hasLiftRec) {
-                output.push('✅ Conversion API (CAPI) recommended for lift accuracy');
-            }
-
-            // ── 2. Core KPIs ──
-            output.push('\nKEY PERFORMANCE INDICATORS');
-            const coreKpis = [
-                ...(kpisData.upperFunnel || []).slice(0, 2),
-                ...(kpisData.lowerFunnel || []).slice(0, 2)
-            ].filter(k => !/lift/i.test(k));
-            if (coreKpis.length) {
-                coreKpis.forEach((kpi, i) => {
-                    output.push(`${i === coreKpis.length - 1 ? '└──' : '├──'} ${kpi}`);
-                });
-            } else {
-                output.push('├── Reach & Frequency');
-                output.push('├── Video Views');
-                output.push('├── Conversions');
-                output.push('└── ROAS');
-            }
-
-            // ── 3. Reporting Cadence ──
-            output.push('\nREPORTING CADENCE');
-            if (cadenceData.length) {
-                cadenceData.forEach(item => output.push(`• ${item.frequency}: ${item.focus}`));
-            } else {
-                output.push('• Weekly: Performance review');
-                output.push('• Monthly: Full report');
-                output.push('• Post-campaign: Wrap report');
-            }
-
-            // ── 4. Recommended Studies ──
+            // ── Recommended Studies ──
             const liftRecs = recs.filter(r => !r.isBaseline);
             if (liftRecs.length > 0) {
-                output.push('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-                output.push('RECOMMENDED MEASUREMENT STUDIES');
-                output.push('Based on your objectives and budget, we recommend:\n');
+                output.push('\nRECOMMENDED STUDIES\n');
 
                 liftRecs.forEach((rec, idx) => {
-                    const icon = rec.eligible ? '✅' : '⚠️';
-                    output.push(`${icon} ${rec.name}`);
-                    output.push(`   Goal: ${rec.goal}`);
+                    const icon = rec.eligible ? '✅' : '🔒';
+                    output.push(`${icon} ${rec.name.toUpperCase()}`);
+                    output.push(`   ${rec.goal}`);
                     output.push(`   Why: ${rec.rationale}`);
-                    output.push(`   Eligibility: ${rec.eligibilityNote}`);
 
-                    // BLS operational details
-                    if (rec.type === 'bls' && rec.operational) {
-                        output.push(`   Thresholds: Min spend ${formatBudget(rec.thresholds.minSpend)} | Min reach ${rec.thresholds.minUniqueReach?.toLocaleString() || 'TBD'}`);
-                        output.push(`   Setup: ${rec.operational.mandatoryQuestion} is mandatory, max ${rec.operational.maxQuestions} questions, ${rec.operational.leadTimeDays} business days lead time`);
+                    // Eligibility
+                    if (rec.eligible) {
+                        output.push(`   Status: ELIGIBLE — ${rec.eligibilityNote}`);
+                    } else {
+                        output.push(`   Status: NOT YET ELIGIBLE — ${rec.eligibilityNote}`);
                     }
 
-                    // Multi-cell CLS test design
+                    // BLS specifics
+                    if (rec.type === 'bls' && rec.operational) {
+                        output.push('');
+                        output.push('   How it works:');
+                        output.push('   A control group sees no ads, an exposed group sees your campaign.');
+                        output.push('   After the campaign, both groups are surveyed to measure lifts in:');
+                        output.push('     • Ad Recall — "Do you remember seeing ads for [brand]?"');
+                        output.push('     • Awareness — "Have you heard of [brand]?"');
+                        output.push('     • Consideration — "Would you consider [brand]?"');
+                        output.push('     • Purchase Intent — "How likely are you to buy from [brand]?"');
+                        output.push('');
+                        output.push(`   Requirements:`);
+                        output.push(`     • Min spend: ${formatBudget(rec.thresholds.minSpend)} | Min reach: ${rec.thresholds.minUniqueReach?.toLocaleString() || 'TBD'}`);
+                        output.push(`     • ${rec.operational.mandatoryQuestion} question is mandatory (max ${rec.operational.maxQuestions} total)`);
+                        output.push(`     • Submit campaign IDs + survey questions ${rec.operational.leadTimeDays} business days before launch`);
+                        output.push('');
+                        output.push('   Success metric: Statistically significant lift in at least one survey question');
+                    }
+
+                    // Multi-cell CLS specifics
                     if (rec.type === 'cls_multicell' && rec.testDesign) {
                         const td = rec.testDesign;
-                        output.push(`   Test design:`);
+                        output.push('');
+                        output.push('   How it works:');
+                        output.push('   Split audience into cells to isolate the incremental impact of brand ads on conversions.');
                         output.push(`     • Control: ${td.holdout}`);
                         td.cells.forEach(c => output.push(`     • ${c}`));
                         output.push(`     • Duration: ${td.duration}`);
-                        output.push(`     • Primary KPI: ${td.primaryKPI} | Secondary: ${td.secondaryKPIs.join(', ')}`);
+                        output.push('');
+                        output.push('   Success metrics:');
+                        output.push(`     • Primary: ${td.primaryKPI} (did brand ads drive more conversions?)`);
+                        td.secondaryKPIs.forEach(kpi => output.push(`     • Secondary: ${kpi}`));
+                        output.push('');
+                        output.push('   Requires coordination with Marketing Science team for setup and analysis.');
                     }
 
-                    // Standard CLS
+                    // Standard CLS specifics
                     if (rec.type === 'cls_standard') {
-                        output.push(`   Thresholds: Min spend ${formatBudget(rec.thresholds.minSpend)}`);
+                        output.push('');
+                        output.push('   How it works:');
+                        output.push('   A holdout group sees no TikTok ads. Compare conversion rates between');
+                        output.push('   the exposed group and the holdout to measure incremental conversions.');
+                        output.push(`     • Min spend: ${formatBudget(rec.thresholds.minSpend)}`);
+                        output.push('');
+                        output.push('   Success metrics:');
+                        output.push('     • Incremental Conversions — conversions that would NOT have happened without TikTok');
+                        output.push('     • Incremental ROAS — true return on ad spend, adjusted for organic baseline');
+                        output.push('     • Incremental CPA — real cost per acquisition after removing baseline');
                     }
 
-                    if (idx < liftRecs.length - 1) output.push('');
+                    if (idx < liftRecs.length - 1) {
+                        output.push('\n───────────────────────────────\n');
+                    }
                 });
 
-                // Budget guidance if some tests aren't eligible
+                // Budget guidance
                 const ineligible = liftRecs.filter(r => !r.eligible);
                 if (ineligible.length > 0) {
-                    output.push('\n💡 BUDGET GUIDANCE');
+                    output.push('\n\n💡 UNLOCK MORE STUDIES');
                     ineligible.forEach(r => {
                         const needed = r.thresholds?.minSpend ? r.thresholds.minSpend - budget : 0;
                         if (needed > 0) {
-                            output.push(`• Add ${formatBudget(needed)} to unlock ${r.name} (min ${formatBudget(r.thresholds.minSpend)})`);
+                            output.push(`   Add ${formatBudget(needed)} to budget → unlocks ${r.name}`);
                         }
                     });
                 }
 
-                output.push('\n⚠️ Meeting minimum spend does NOT guarantee hitting minimum unique reach/sample. Best practice is to invest more to be in the safe zone.');
+                output.push('\n\n⚠️ Meeting minimum spend does not guarantee minimum unique reach/sample. Recommend investing above minimum for reliable results.');
             } else {
-                output.push('\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-                output.push('MEASUREMENT APPROACH: Standard Performance Tracking');
-                output.push('With your current objectives and budget, standard pixel-based tracking and reporting will provide the insights you need.');
+                output.push('\nWith current objectives and budget, standard pixel-based attribution is the recommended approach.');
+                output.push('As budget grows, lift studies become available to prove incremental impact.');
             }
 
             $('#measurement-content').textContent = output.join('\n');
