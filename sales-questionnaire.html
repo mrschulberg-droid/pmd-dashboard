@@ -314,120 +314,6 @@
             display: block;
         }
 
-        .output-card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-        }
-
-        .output-card h3 {
-            font-size: 1.2rem;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: var(--tiktok-blue);
-        }
-
-        .output-content {
-            background: var(--tiktok-gray);
-            border-radius: 10px;
-            padding: 20px;
-            white-space: pre-wrap;
-            font-size: 0.95rem;
-            line-height: 1.7;
-        }
-
-        .output-content ul {
-            margin-left: 20px;
-            margin-top: 10px;
-        }
-
-        .output-content li {
-            margin-bottom: 8px;
-        }
-
-        /* Unlocked/Locked badges */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.85rem;
-            font-weight: 600;
-        }
-
-        .status-unlocked {
-            background: rgba(0, 200, 83, 0.2);
-            color: var(--success);
-            border: 1px solid var(--success);
-        }
-
-        .status-locked {
-            background: rgba(255, 193, 7, 0.2);
-            color: var(--warning);
-            border: 1px solid var(--warning);
-        }
-
-        /* Threshold indicator */
-        .threshold-info {
-            background: var(--tiktok-light-gray);
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-top: 12px;
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-        }
-
-        /* Copy button */
-        .copy-btn {
-            position: absolute;
-            top: 12px;
-            right: 12px;
-            padding: 8px 12px;
-            background: var(--tiktok-light-gray);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: var(--text-secondary);
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .copy-btn:hover {
-            background: var(--tiktok-blue);
-            color: var(--tiktok-black);
-        }
-
-        .output-card {
-            position: relative;
-        }
-
-        /* Best practices list */
-        .best-practices-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .best-practices-list li {
-            padding: 12px 16px;
-            background: var(--tiktok-light-gray);
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: flex-start;
-            gap: 12px;
-        }
-
-        .best-practices-list li::before {
-            content: "✓";
-            color: var(--tiktok-blue);
-            font-weight: bold;
-        }
-
         /* Responsive */
         @media (max-width: 600px) {
             header h1 {
@@ -455,9 +341,22 @@
                 color: black;
             }
 
-            .card, .output-card {
+            .card {
                 background: white;
                 border: 1px solid #ddd;
+            }
+
+            .doc-table th {
+                background: #f0f0f0;
+                color: #333;
+            }
+
+            .doc-table td {
+                color: #333;
+            }
+
+            .doc-section h2 {
+                color: #333;
             }
 
             .btn, #questionnaire-section {
@@ -469,47 +368,113 @@
             }
         }
 
-        /* Tab navigation for outputs */
-        .output-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+        /* Unified document output */
+        .doc-output {
+            max-width: 800px;
+            margin: 0 auto;
+            font-size: 0.95rem;
+        }
+        .doc-section {
+            margin-bottom: 32px;
+            padding-bottom: 24px;
             border-bottom: 1px solid var(--border-color);
         }
-
-        .output-tab {
-            padding: 10px 16px;
-            background: var(--tiktok-gray);
-            border: 2px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: all 0.2s;
+        .doc-section:last-child { border-bottom: none; }
+        .doc-section h2 {
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+            color: var(--tiktok-blue);
         }
-
-        .output-tab:hover {
-            border-color: var(--tiktok-blue);
+        .doc-section h3 {
+            font-size: 1.05rem;
+            margin: 16px 0 8px;
+        }
+        .doc-overview-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px 24px;
+            padding: 16px;
+            background: var(--tiktok-gray);
+            border-radius: 10px;
+            border-left: 4px solid var(--tiktok-blue);
+        }
+        .doc-overview-grid .doc-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        .doc-overview-grid .doc-value {
+            font-weight: 500;
+        }
+        .doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 0.9rem;
+        }
+        .doc-table th {
+            text-align: left;
+            padding: 10px 14px;
+            background: var(--tiktok-gray);
+            border: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+        .doc-table td {
+            padding: 10px 14px;
+            border: 1px solid var(--border-color);
+        }
+        .doc-table tr:hover td {
+            background: rgba(37, 244, 238, 0.03);
+        }
+        .doc-callout {
+            padding: 14px 18px;
+            border-radius: 8px;
+            margin: 12px 0;
+            font-size: 0.9rem;
+        }
+        .doc-callout.info {
+            background: rgba(37, 244, 238, 0.06);
+            border-left: 3px solid var(--tiktok-blue);
+        }
+        .doc-callout.success {
+            background: rgba(0, 200, 83, 0.06);
+            border-left: 3px solid var(--success);
+        }
+        .doc-callout.warning {
+            background: rgba(255, 193, 7, 0.06);
+            border-left: 3px solid var(--warning);
+        }
+        .doc-ai-content h3 {
+            font-size: 1.05rem;
+            margin: 18px 0 8px;
             color: var(--text-primary);
         }
-
-        .output-tab.active {
-            background: linear-gradient(135deg, var(--tiktok-red), var(--tiktok-blue));
-            border-color: transparent;
-            color: white;
+        .doc-ai-content h4 {
+            font-size: 0.95rem;
+            margin: 14px 0 6px;
+        }
+        .doc-ai-content ul {
+            list-style: disc;
+            margin: 8px 0 8px 20px;
+        }
+        .doc-ai-content li {
+            padding: 3px 0;
+        }
+        .doc-ai-content strong {
+            color: var(--tiktok-blue);
+        }
+        .doc-ai-content blockquote {
+            margin: 10px 0;
+            padding: 10px 16px;
+            background: rgba(0,200,83,0.06);
+            border-left: 3px solid #00c853;
+            border-radius: 4px;
+            font-style: italic;
         }
 
-        .output-panel {
-            display: none;
-        }
-
-        .output-panel.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
+        /* Tab navigation for outputs */
         /* Action buttons for output */
         .output-actions {
             display: flex;
@@ -961,86 +926,74 @@
             </div>
         </div>
 
-        <!-- Output Section -->
+        <!-- Output Section — Unified Document -->
         <div id="output-section">
-            <div class="card">
-                <h2><span class="icon">🎉</span> Your Sales Enablement Pack is Ready!</h2>
-                <p class="description">Generated for <strong id="output-client-name">Client</strong></p>
-
-                <div class="output-tabs">
-                    <button class="output-tab active" data-tab="pitch">Pitch</button>
-                    <button class="output-tab" data-tab="funnel">Funnel Plan</button>
-                    <button class="output-tab" data-tab="measurement">Measurement</button>
-                    <button class="output-tab" data-tab="media">Media Plan</button>
-                    <button class="output-tab" data-tab="incentives">Incentives</button>
-                    <button class="output-tab" data-tab="creative">Creative Support</button>
-                    <button class="output-tab" data-tab="bestpractices">Best Practices</button>
+            <div class="card" style="padding:0;overflow:hidden">
+                <!-- Doc header -->
+                <div style="background:linear-gradient(135deg,var(--tiktok-red) 0%,#ff6b8a 50%,var(--tiktok-blue) 100%);padding:32px 40px;text-align:center">
+                    <h1 style="font-size:1.6rem;margin-bottom:4px" id="output-client-name">Client</h1>
+                    <p style="opacity:0.9;font-size:1rem" id="output-subtitle">TikTok Campaign Proposal</p>
                 </div>
 
-                <!-- Pitch Panel -->
-                <div class="output-panel active" id="panel-pitch">
-                    <div class="output-card">
-                        <button class="copy-btn" onclick="copyToClipboard('pitch-content')">📋 Copy</button>
-                        <h3>📝 Customized Pitch</h3>
-                        <div class="output-content" id="pitch-content"></div>
+                <div class="doc-output" style="padding:32px 40px">
+                    <!-- 1. Campaign Overview (deterministic) -->
+                    <div class="doc-section" id="doc-overview"></div>
+
+                    <!-- 2. Strategic Pitch (AI) -->
+                    <div class="doc-section" id="doc-pitch">
+                        <h2>Strategic Pitch</h2>
+                        <div class="doc-ai-content" id="pitch-content"></div>
                     </div>
-                </div>
 
-                <!-- Funnel Panel -->
-                <div class="output-panel" id="panel-funnel">
-                    <div class="output-card">
-                        <button class="copy-btn" onclick="copyToClipboard('funnel-content')">📋 Copy</button>
-                        <h3>📊 Funnel Strategy</h3>
-                        <div class="output-content" id="funnel-content"></div>
+                    <!-- 3. Full-Funnel Strategy (AI + deterministic table) -->
+                    <div class="doc-section" id="doc-funnel">
+                        <h2>Full-Funnel Strategy</h2>
+                        <div id="funnel-table"></div>
+                        <div class="doc-ai-content" id="funnel-content"></div>
                     </div>
-                </div>
 
-                <!-- Measurement Panel -->
-                <div class="output-panel" id="panel-measurement">
-                    <div class="output-card">
-                        <button class="copy-btn" onclick="copyToClipboard('measurement-content')">📋 Copy</button>
-                        <h3>📈 Measurement Plan</h3>
-                        <div class="output-content" id="measurement-content"></div>
+                    <!-- 4. Media Plan (AI + deterministic tables) -->
+                    <div class="doc-section" id="doc-media">
+                        <h2>Media Plan</h2>
+                        <div id="media-tables"></div>
+                        <div class="doc-ai-content" id="media-content"></div>
                     </div>
-                </div>
 
-                <!-- Media Plan Panel -->
-                <div class="output-panel" id="panel-media">
-                    <div class="output-card">
-                        <button class="copy-btn" onclick="copyToClipboard('media-content')">📋 Copy</button>
-                        <h3>📅 Media Plan</h3>
-                        <div class="output-content" id="media-content"></div>
+                    <!-- 5. Creative Strategy (AI) -->
+                    <div class="doc-section" id="doc-creative">
+                        <h2>Creative Strategy</h2>
+                        <div class="doc-ai-content" id="creative-content"></div>
                     </div>
-                </div>
 
-                <!-- Incentives Panel -->
-                <div class="output-panel" id="panel-incentives">
-                    <div class="output-card">
-                        <h3>🎁 Media Incentives</h3>
+                    <!-- 6. Measurement Framework (deterministic) -->
+                    <div class="doc-section" id="doc-measurement">
+                        <h2>Measurement Framework</h2>
+                        <div id="measurement-content"></div>
+                    </div>
+
+                    <!-- 7. Media Incentives (deterministic) -->
+                    <div class="doc-section" id="doc-incentives">
+                        <h2>Media Incentives</h2>
                         <div id="incentives-content"></div>
                     </div>
-                </div>
 
-                <!-- Creative Support Panel -->
-                <div class="output-panel" id="panel-creative">
-                    <div class="output-card">
-                        <h3>🎨 Creative Support & Add-ons</h3>
-                        <div id="creative-content"></div>
+                    <!-- 8. Next Steps (AI) -->
+                    <div class="doc-section" id="doc-nextsteps">
+                        <h2>Next Steps</h2>
+                        <div class="doc-ai-content" id="nextsteps-content"></div>
                     </div>
-                </div>
 
-                <!-- Best Practices Panel -->
-                <div class="output-panel" id="panel-bestpractices">
-                    <div class="output-card">
-                        <h3>💡 Best Practices</h3>
-                        <div id="bestpractices-content"></div>
+                    <!-- 9. Best Practices (AI) -->
+                    <div class="doc-section" id="doc-bestpractices">
+                        <h2>Best Practices</h2>
+                        <div class="doc-ai-content" id="bestpractices-content"></div>
                     </div>
-                </div>
 
-                <div class="output-actions">
-                    <button class="btn btn-secondary" onclick="copyAll()">📋 Copy All</button>
-                    <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
-                    <button class="btn btn-primary" onclick="startOver()">🔄 Start New</button>
+                    <div class="output-actions">
+                        <button class="btn btn-secondary" onclick="copyAll()">📋 Copy All</button>
+                        <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+                        <button class="btn btn-primary" onclick="startOver()">🔄 Start New</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1179,7 +1132,6 @@
             updateProgress();
             setupRadioCards();
             setupCheckboxItems();
-            setupOutputTabs();
             setDefaultDates();
         });
 
@@ -1673,17 +1625,6 @@
             });
         }
 
-        function setupOutputTabs() {
-            $$('.output-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    $$('.output-tab').forEach(t => t.classList.remove('active'));
-                    $$('.output-panel').forEach(p => p.classList.remove('active'));
-                    tab.classList.add('active');
-                    $(`#panel-${tab.dataset.tab}`).classList.add('active');
-                });
-            });
-        }
-
         function updateProgress() {
             const progress = (currentStep / totalSteps) * 100;
             $('#progress-bar').style.width = `${progress}%`;
@@ -1733,12 +1674,14 @@
             return formData;
         }
 
-        // Parse "6M", "5.5M", "6000000", or "" → number | null
+        // Parse "300K", "6M", "5.5M", "$300,000", "6000000", or "" → number | null
         function parseReachOrSpend(val) {
             if (!val) return null;
-            const s = val.trim().toUpperCase();
-            const m = s.match(/^([\d.]+)\s*M$/);
-            if (m) return Math.round(parseFloat(m[1]) * 1000000);
+            const s = val.trim().toUpperCase().replace(/^\$/, '');
+            const mK = s.match(/^([\d.]+)\s*K$/);
+            if (mK) return Math.round(parseFloat(mK[1]) * 1000);
+            const mM = s.match(/^([\d.]+)\s*M$/);
+            if (mM) return Math.round(parseFloat(mM[1]) * 1000000);
             const n = parseFloat(s.replace(/,/g, ''));
             return isNaN(n) ? null : Math.round(n);
         }
@@ -1757,7 +1700,7 @@
             const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
             const budget = formData.budget;
 
-            // — Budget split (same logic as generateFunnel) —
+            // — Budget split (same logic as generateFunnelTable) —
             const budgetSplits = tiktokData.budgetSplits || {};
             const splits = goals.map(g => budgetSplits[g] || budgetSplits['Conversions']);
             const budgetSplit = {
@@ -1766,7 +1709,7 @@
                 lower: Math.round(splits.reduce((s, v) => s + v.lower, 0) / splits.length)
             };
 
-            // — Ad formats (same logic as generateMediaPlan) —
+            // — Ad formats (same logic as generateMediaTables) —
             const adFmts = tiktokData.adFormats || {};
             const adFormats = [...new Set(goals.flatMap(g => adFmts[g] || adFmts['Conversions'] || []))];
 
@@ -1829,37 +1772,37 @@
             };
         }
 
-        // System instruction — free-form, research-aware
-        const AI_SYSTEM_INSTRUCTION = `You are a senior TikTok sales strategist. You help TikTok's sales team build customized, compelling proposals for prospective advertisers.
+        // System instruction — unified proposal document
+        const AI_SYSTEM_INSTRUCTION = `You are a senior TikTok sales strategist writing a customized campaign proposal. The output will be rendered as a professional document the sales rep can present to the client.
 
 You receive:
-1. CLIENT RESEARCH — real-time web research about the brand (their business, audience, competitors, recent activity)
-2. CAMPAIGN BRIEF — structured data about goals, budget, audience, challenges, creative readiness
-3. DETERMINISTIC DATA — pre-computed numbers (budget splits, eligible incentives, measurement eligibility) that you MUST reference accurately
-4. TIKTOK REFERENCE DOCS — searchable internal docs about TikTok ad products, formats, and best practices
+1. CLIENT RESEARCH — real-time web research about the brand
+2. CAMPAIGN BRIEF — goals, budget, audience, challenges, creative readiness
+3. DETERMINISTIC DATA — pre-computed numbers (budget splits, ad formats, incentives) that you MUST reference accurately
+4. TIKTOK REFERENCE DOCS — searchable internal docs about TikTok ad products
 
-Your job: Write a persuasive, highly customized proposal that makes the client feel understood. Use the research to reference their specific business, products, competitors, and situation — not generic vertical advice.
-
-Return a JSON object with exactly 5 keys. Each value is a single string containing your full narrative for that section. Use markdown formatting within each string (## for headers, **bold**, - for bullets, > for callouts).
+Return a JSON object with exactly 6 keys. Each value is a markdown string. Use ## for section headers, **bold** for emphasis, - for bullet lists, > for callouts.
 
 {
-  "pitch": "Full sales pitch narrative. Open with a hook referencing their specific business. Cover: why TikTok is right for them NOW, how it addresses their specific challenge, the recommended approach, expected outcomes. Make it feel like it was written specifically for this brand, not a template.",
+  "pitch": "The strategic pitch. Open with a specific hook about the client's business (reference their products, market position, recent news). Explain why TikTok is the right platform for their specific challenge and goals RIGHT NOW. End with a confident summary of the recommended approach and expected outcomes. This should feel personally written for this brand — never generic.",
 
-  "funnel": "Full-funnel strategy. Reference the deterministic budget splits (upper/mid/lower %) but add strategic narrative around each tier. Include audience strategy, testing recommendations, and how the funnel connects to their specific goals.",
+  "funnel": "Full-funnel strategy narrative. For each funnel tier (upper/mid/lower), explain the STRATEGIC PURPOSE and which audience segments to target. Reference the deterministic budget split percentages but add strategic context about WHY this allocation makes sense for their goals. Include testing and optimization recommendations.",
 
-  "mediaPlan": "Ad format recommendations and campaign phasing. Explain WHY each format suits this specific client (not generic reasons). Include launch/optimize/scale phases with concrete guidance tied to their timeline and budget.",
+  "mediaPlan": "Ad format strategy and campaign phasing. Explain WHY each recommended format suits this specific client (not generic descriptions). Organize into campaign phases (Launch → Optimize → Scale) with specific guidance tied to their timeline. Reference delivery estimates where relevant.",
 
-  "bestPractices": "Tailored tips and recommendations. Mix vertical-specific advice with goal-specific tactics. Include common mistakes to avoid for their situation. Reference TikTok platform capabilities from the docs.",
+  "creative": "Creative strategy including content direction, 3-4 content pillars with example hooks specific to their brand, format recommendations matched to their creative readiness level, and creator/UGC strategy if relevant. Reference their unlocked creative support programs.",
 
-  "creative": "Creative strategy including content direction, 3-4 content pillars with example hooks, format recommendations matched to their creative readiness, and creator/UGC strategy if relevant."
+  "bestPractices": "Tailored optimization tips. Mix vertical-specific advice with goal-specific tactics. Include common pitfalls to avoid for their specific situation. Reference TikTok platform capabilities from the docs. Keep it actionable — each tip should be something the team can implement.",
+
+  "nextSteps": "5-7 numbered action items to move the proposal forward. Be specific: 'Confirm media plan option', 'Submit BLS survey questions 5 days before launch', 'Share creative assets for review', etc. Tailor to their specific campaign setup, measurement recommendations, and creative readiness."
 }
 
 Rules:
-- NEVER invent budget numbers or thresholds. Use ONLY the deterministic values provided.
+- NEVER invent budget numbers. Use ONLY the deterministic values provided.
 - NEVER reference incentive tiers the client hasn't unlocked.
 - ALWAYS weave in specifics from the client research — their products, competitors, audience, recent campaigns.
-- Each section should feel like a standalone, polished piece of writing.
-- Tone: Confident, data-informed, direct. Not salesy or generic.
+- Write as if addressing the client directly ("your brand", "your audience") — this is a proposal document.
+- Tone: Confident, strategic, data-informed. Professional but not stiff.
 - Return valid JSON only. No wrapping, no backticks. First character must be {.`;
 
         // ── Client research via web search ──────────────────────
@@ -2027,7 +1970,7 @@ Rules:
             if (!md) return '';
             return md
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')  // escape HTML
-                .replace(/^## (.+)$/gm, '<h3 style="margin:18px 0 8px;font-size:1.1rem;color:var(--tiktok-dark)">$1</h3>')
+                .replace(/^## (.+)$/gm, '<h3 style="margin:18px 0 8px;font-size:1.1rem;color:var(--tiktok-blue)">$1</h3>')
                 .replace(/^### (.+)$/gm, '<h4 style="margin:14px 0 6px;font-size:1rem">$1</h4>')
                 .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                 .replace(/^- (.+)$/gm, '<li style="padding:4px 0;margin-left:20px">$1</li>')
@@ -2037,20 +1980,21 @@ Rules:
                 .replace(/\n/g, '<br>');
         }
 
-        // ── Render AI response into output tabs ─────────────────
+        // ── Render AI response into unified document sections ──
         function renderAIResponse(r) {
             // Unwrap if GPT wrapped in { aiResponse: {...} }
             if (r.aiResponse && typeof r.aiResponse === 'object') r = r.aiResponse;
 
-            const tabs = {
+            const sections = {
                 pitch: '#pitch-content',
                 funnel: '#funnel-content',
                 mediaPlan: '#media-content',
+                creative: '#creative-content',
                 bestPractices: '#bestpractices-content',
-                creative: '#creative-content'
+                nextSteps: '#nextsteps-content'
             };
 
-            for (const [key, selector] of Object.entries(tabs)) {
+            for (const [key, selector] of Object.entries(sections)) {
                 if (r[key]) {
                     const el = $(selector);
                     if (el) el.innerHTML = renderMarkdown(r[key]);
@@ -2074,63 +2018,44 @@ Rules:
             const cfg = getAIConfig() || {};
             const hasAI = !!($('#aiApiKey')?.value?.trim() || cfg.apiKey);
 
-            // Always generate deterministic-only tabs
+            // Always generate deterministic sections
+            generateOverview();
+            generateFunnelTable();
+            generateMediaTables();
             generateMeasurement();
             generateIncentives();
-
-            if (hasAI) {
-                // AI available: show loading state on AI tabs, skip deterministic for them
-                const aiTabEls = {
-                    pitch: $('#pitch-content'),
-                    funnel: $('#funnel-content'),
-                    media: $('#media-content'),
-                    bestpractices: $('#bestpractices-content'),
-                    creative: $('#creative-content')
-                };
-
-                for (const [tab, el] of Object.entries(aiTabEls)) {
-                    if (el) {
-                        el.innerHTML = '<div class="ai-loading" style="padding:20px;text-align:center;color:#10a37f;font-size:0.95rem">' +
-                            '<div style="margin-bottom:8px">Researching ' + (formData.clientName || 'client') + '...</div>' +
-                            '<div style="font-size:0.8rem;color:#888">Web search → Doc search → AI generation</div></div>';
-                    }
-                }
-            } else {
-                // No AI: fall back to deterministic templates for all tabs
-                generatePitch();
-                generateFunnel();
-                generateMediaPlan();
-                generateCreativeSupport();
-                generateBestPractices();
-            }
 
             // Show output section
             $('#questionnaire-section').style.display = 'none';
             $('#output-section').classList.add('active');
             $('#output-client-name').textContent = formData.clientName;
+            $('#output-subtitle').textContent = `TikTok Campaign Proposal — ${formData.vertical} | ${formData.market}`;
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
-            // If AI is available, run two-phase pipeline: research → generate
+            // AI content containers
+            const aiContainerIds = ['pitch-content', 'funnel-content', 'media-content', 'creative-content', 'bestpractices-content', 'nextsteps-content'];
+
             if (hasAI) {
+                // Show loading state in AI content areas
+                aiContainerIds.forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) {
+                        el.innerHTML = '<div class="ai-loading" style="padding:20px;text-align:center;color:#10a37f;font-size:0.95rem">' +
+                            '<div style="margin-bottom:8px">Researching ' + (formData.clientName || 'client') + '...</div>' +
+                            '<div style="font-size:0.8rem;color:#888">Web search → Doc search → AI generation</div></div>';
+                    }
+                });
+
                 (async () => {
                     try {
-                        // Phase 1: Research the client via web search
-                        const research = await callClientResearch(
-                            formData.clientName,
-                            formData.vertical,
-                            formData.market
-                        );
+                        const research = await callClientResearch(formData.clientName, formData.vertical, formData.market);
                         window._lastClientResearch = research;
 
-                        // Update loading indicators
                         document.querySelectorAll('.ai-loading').forEach(el => {
-                            el.innerHTML = '<div style="padding:20px;text-align:center;color:#10a37f;font-size:0.95rem">' +
-                                'Generating customized outputs...</div>';
+                            el.innerHTML = '<div style="padding:20px;text-align:center;color:#10a37f;font-size:0.95rem">Generating customized proposal...</div>';
                         });
 
-                        // Phase 2: Generate outputs with research context
                         const response = await callAI(aiRequest, research);
-
                         document.querySelectorAll('.ai-loading').forEach(el => el.remove());
 
                         if (response) {
@@ -2142,104 +2067,61 @@ Rules:
                         }
                     } catch (err) {
                         console.error('[AI ERROR]', err);
+                        const banner = document.createElement('div');
+                        banner.className = 'doc-callout warning';
+                        banner.innerHTML = '<strong>AI generation failed:</strong> ' + err.message + '<br><span style="color:var(--text-secondary);font-size:0.85rem">Showing deterministic data only. Check console (F12) for details.</span>';
+                        const docOutput = document.querySelector('.doc-output');
+                        if (docOutput) docOutput.insertBefore(banner, docOutput.firstChild);
 
-                        // Show error banner at top of output section
-                        const outputSection = $('#output-section');
-                        if (outputSection) {
-                            const banner = document.createElement('div');
-                            banner.style.cssText = 'padding:16px;color:#d93025;background:rgba(217,48,37,0.1);border:1px solid rgba(217,48,37,0.3);border-radius:10px;margin:0 0 20px;font-size:0.9rem';
-                            banner.innerHTML = '<strong>AI generation failed:</strong> ' + err.message + '<br><span style="color:#888;font-size:0.8rem">Showing template output instead. Check browser console (F12) for details.</span>';
-                            outputSection.insertBefore(banner, outputSection.firstChild);
-                        }
-
-                        // Remove loading states
                         document.querySelectorAll('.ai-loading').forEach(el => el.remove());
 
-                        // Fall back to deterministic templates
-                        generatePitch();
-                        generateFunnel();
-                        generateMediaPlan();
-                        generateCreativeSupport();
-                        generateBestPractices();
+                        // Show fallback content in AI sections
+                        generateCreativeFallback();
+                        generateBestPracticesFallback();
+                        ['pitch-content', 'media-content', 'nextsteps-content'].forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el && !el.innerHTML.trim()) {
+                                el.innerHTML = '<p style="color:var(--text-secondary);font-style:italic">AI content unavailable.</p>';
+                            }
+                        });
                     }
                 })();
+            } else {
+                // No AI: show fallback content
+                generateCreativeFallback();
+                generateBestPracticesFallback();
+                ['pitch-content', 'funnel-content', 'media-content', 'nextsteps-content'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.innerHTML = '<p style="color:var(--text-secondary);font-style:italic">Configure AI (Ctrl+Shift+K) for customized strategic insights.</p>';
+                });
             }
         }
 
-        function generatePitch() {
-            // Use data from JSON file
-            const goalActions = tiktokData.goalActions;
-            const challengeSolutions = tiktokData.challengeSolutions;
-            const scenarioMessages = tiktokData.scenarioMessages;
-            const stats = tiktokData.platformStats;
-
-            // Handle multiple goals - default to Conversions if none selected
+        // ── Deterministic: Campaign Overview ──────────────────
+        function generateOverview() {
             const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
-            const primaryGoal = goals[0]; // First selected is primary
+            const el = $('#doc-overview');
+            if (!el) return;
 
-            const scenarioContext = formData.scenarios.length > 0
-                ? `\n\nCAMPAIGN CONTEXT: ${formData.scenarios.join(' + ')}`
-                : '';
-
-            // Build goal actions text from multiple goals
-            const goalActionsText = goals.map(g => goalActions[g]).join(', and ');
-
-            // Build scenario-specific messaging from JSON
-            const scenarioText = formData.scenarios
-                .map(s => scenarioMessages[s] ? ' ' + scenarioMessages[s] : '')
-                .join('');
-
-            // Build expected outcomes based on selected goals
-            const outcomesList = goals.map(g => {
-                if (g === 'Awareness') return 'Significant lift in brand awareness and recall';
-                if (g === 'Conversions') return 'Strong ROAS and conversion performance';
-                if (g === 'App Installs') return 'Efficient app installs with quality users';
-                if (g === 'Lead Gen') return 'High-quality lead generation at scale';
-                if (g === 'Engagement') return 'Increased engagement and community building';
-                if (g === 'Consideration') return 'Improved consideration and brand favorability';
-                return 'Measurable impact on ' + g.toLowerCase();
-            });
-
-            const pitch = `
-🎯 PITCH FOR ${formData.clientName.toUpperCase()}${scenarioContext}
-
-CAMPAIGN OBJECTIVES: ${goals.join(' + ')}
-
-THE OPPORTUNITY
-${formData.clientName} is looking to ${goalActionsText} in the ${formData.market} market.${scenarioText} As a ${formData.vertical} brand, there's a significant opportunity to leverage TikTok's unique ecosystem to achieve these goals.
-
-THE CHALLENGE
-${formData.challenge}: ${challengeSolutions[formData.challenge]}
-
-WHY TIKTOK NOW
-• TikTok has ${stats.monthlyActiveUsers} monthly active users globally with exceptional engagement
-• ${formData.ages.length > 0 ? `Your target audience (${formData.ages.join(', ')}) is highly active on TikTok` : 'Your target audience is highly engaged on TikTok'}
-• ${formData.channels.length > 0 ? `Diversifying from ${formData.channels.join(', ')} with TikTok delivers incremental reach` : 'TikTok offers access to audiences not reachable on other platforms'}
-• TikTok drives action: users are ${stats.purchaseLikelihood}
-
-THE SOLUTION
-With a ${formatBudget(formData.budget)} investment from ${formatDate(formData.startDate)} to ${formatDate(formData.endDate)}, we recommend a ${goals.length > 1 ? 'multi-objective' : 'focused'} TikTok strategy featuring:
-
-• ${formData.productName} promoted through native, authentic content
-${formData.sellingPoints ? `• Highlighting: ${formData.sellingPoints}` : ''}
-${formData.pricePoint ? `• Compelling offer: ${formData.pricePoint}` : ''}
-
-EXPECTED OUTCOMES
-• Incremental reach to ${formData.ages.length > 0 ? formData.ages.join(', ') : '18-34'} audiences
-${outcomesList.map(o => '• ' + o).join('\n')}
-• Authentic connection with the TikTok community
-• Learnings to scale and optimize future campaigns
-            `.trim();
-
-            $('#pitch-content').textContent = pitch;
+            el.innerHTML = `
+                <h2>Campaign Overview</h2>
+                <div class="doc-overview-grid">
+                    <div><span class="doc-label">Client</span><span class="doc-value">${formData.clientName}</span></div>
+                    <div><span class="doc-label">Vertical</span><span class="doc-value">${formData.vertical}</span></div>
+                    <div><span class="doc-label">Market</span><span class="doc-value">${formData.market}</span></div>
+                    <div><span class="doc-label">Objectives</span><span class="doc-value">${goals.join(', ')}</span></div>
+                    <div><span class="doc-label">Total Budget</span><span class="doc-value">${formatBudget(formData.budget)}</span></div>
+                    <div><span class="doc-label">Flight Dates</span><span class="doc-value">${formatDate(formData.startDate)} – ${formatDate(formData.endDate)}</span></div>
+                    <div><span class="doc-label">Target Audience</span><span class="doc-value">${formData.ages.length > 0 ? formData.ages.join(', ') : 'Broad'}${formData.audienceDesc ? ' — ' + formData.audienceDesc : ''}</span></div>
+                    <div><span class="doc-label">Product</span><span class="doc-value">${formData.productName}${formData.pricePoint ? ' (' + formData.pricePoint + ')' : ''}</span></div>
+                </div>
+            `;
         }
 
-        function generateFunnel() {
-            // Use data from JSON file
-            const budgetSplits = tiktokData.budgetSplits;
-
-            // Handle multiple goals - average the splits if multiple selected
+        // ── Deterministic: Funnel Budget Split Table ─────────
+        function generateFunnelTable() {
             const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
+            const budgetSplits = tiktokData.budgetSplits;
             const splits = goals.map(g => budgetSplits[g] || budgetSplits['Conversions']);
             const split = {
                 upper: Math.round(splits.reduce((sum, s) => sum + s.upper, 0) / splits.length),
@@ -2247,64 +2129,48 @@ ${outcomesList.map(o => '• ' + o).join('\n')}
                 lower: Math.round(splits.reduce((sum, s) => sum + s.lower, 0) / splits.length)
             };
 
-            const funnel = `
-📊 FUNNEL STRATEGY FOR ${formData.clientName.toUpperCase()}
+            const el = $('#funnel-table');
+            if (!el) return;
 
-CAMPAIGN OBJECTIVES: ${goals.join(' + ')}
-
-RECOMMENDED BUDGET ALLOCATION
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-UPPER FUNNEL - AWARENESS (${split.upper}% = ${formatBudget(formData.budget * split.upper / 100)})
-┌─────────────────────────────────────────┐
-│ Objective: Reach & Video Views          │
-│ Target: Broad audiences, interests      │
-│ Formats: TopView, In-Feed, Branded      │
-│ KPIs: Reach, VTR, CPM                   │
-└─────────────────────────────────────────┘
-
-MID FUNNEL - CONSIDERATION (${split.mid}% = ${formatBudget(formData.budget * split.mid / 100)})
-┌─────────────────────────────────────────┐
-│ Objective: Traffic & Engagement         │
-│ Target: Custom audiences, lookalikes    │
-│ Formats: In-Feed, Spark Ads, Interactive│
-│ KPIs: CTR, Engagement Rate, CPC         │
-└─────────────────────────────────────────┘
-
-LOWER FUNNEL - CONVERSION (${split.lower}% = ${formatBudget(formData.budget * split.lower / 100)})
-┌─────────────────────────────────────────┐
-│ Objectives: ${goals.join(', ')}         │
-│ Target: Retargeting, high-intent        │
-│ Formats: In-Feed, Collection, Dynamic   │
-│ KPIs: CVR, CPA, ROAS                    │
-└─────────────────────────────────────────┘
-
-AUDIENCE STRATEGY
-• Primary: ${formData.audienceDesc || formData.ages.join(', ') + ' year olds'}
-• Prospecting: Interest & behavior targeting
-• Retargeting: Website visitors, video viewers, engagers
-• Lookalikes: Based on converters and high-value customers
-
-TESTING FRAMEWORK
-Week 1-2: Launch & Learn
-• Test 3-5 creative concepts
-• Test audience segments
-• Establish baseline performance
-
-Week 3-4: Optimize
-• Scale winning combinations
-• Pause underperformers
-• Refine targeting
-
-Ongoing: Scale
-• Expand winning strategies
-• Introduce new creative
-• Test new formats
-            `.trim();
-
-            $('#funnel-content').textContent = funnel;
+            el.innerHTML = `
+                <table class="doc-table">
+                    <thead>
+                        <tr>
+                            <th>Funnel Stage</th>
+                            <th>Objective</th>
+                            <th>Budget %</th>
+                            <th>Budget</th>
+                            <th>Key KPIs</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Upper Funnel</strong><br><span style="color:var(--text-secondary);font-size:0.85rem">Awareness</span></td>
+                            <td>Reach & Video Views</td>
+                            <td>${split.upper}%</td>
+                            <td>${formatBudget(formData.budget * split.upper / 100)}</td>
+                            <td>Reach, VTR, CPM</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Mid Funnel</strong><br><span style="color:var(--text-secondary);font-size:0.85rem">Consideration</span></td>
+                            <td>Traffic & Engagement</td>
+                            <td>${split.mid}%</td>
+                            <td>${formatBudget(formData.budget * split.mid / 100)}</td>
+                            <td>CTR, CPC, Engagement Rate</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Lower Funnel</strong><br><span style="color:var(--text-secondary);font-size:0.85rem">Conversion</span></td>
+                            <td>${goals.join(', ')}</td>
+                            <td>${split.lower}%</td>
+                            <td>${formatBudget(formData.budget * split.lower / 100)}</td>
+                            <td>CVR, CPA, ROAS</td>
+                        </tr>
+                    </tbody>
+                </table>
+            `;
         }
 
+        // ── Deterministic: Measurement Framework (HTML) ──────
         function generateMeasurement() {
             const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
             const budget = formData.budget;
@@ -2312,138 +2178,114 @@ Ongoing: Scale
 
             if (DEBUG) console.log('[MEAS DEBUG]', { goals, budget, market: formData.market, recommendations: recs });
 
-            let output = [];
+            const el = $('#measurement-content');
+            if (!el) return;
 
-            // ── Header ──
-            output.push(`MEASUREMENT FRAMEWORK — ${formData.clientName.toUpperCase()}`);
-            output.push(`${formatBudget(budget)} | ${goals.join(' + ')} | ${formData.market}`);
-            output.push('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-
-            // ── Recommended Studies ──
+            let html = '';
             const liftRecs = recs.filter(r => !r.isBaseline);
+
             if (liftRecs.length > 0) {
-                output.push('\nRECOMMENDED STUDIES\n');
+                // Summary table
+                html += `<table class="doc-table">
+                    <thead><tr><th>Study</th><th>Goal</th><th>Status</th><th>Min Spend</th></tr></thead>
+                    <tbody>`;
 
-                liftRecs.forEach((rec, idx) => {
-                    const icon = rec.eligible ? '✅' : '🔒';
-                    output.push(`${icon} ${rec.name.toUpperCase()}`);
-                    output.push(`   ${rec.goal}`);
-                    output.push(`   Why: ${rec.rationale}`);
+                liftRecs.forEach(rec => {
+                    const statusStyle = rec.eligible ? 'color:var(--success)' : 'color:var(--warning)';
+                    const statusText = rec.eligible ? 'Eligible' : 'Not Yet Eligible';
+                    html += `<tr>
+                        <td><strong>${rec.name}</strong></td>
+                        <td>${rec.goal}</td>
+                        <td><span style="${statusStyle};font-weight:600">${statusText}</span></td>
+                        <td>${rec.thresholds?.minSpend ? formatBudget(rec.thresholds.minSpend) : '—'}</td>
+                    </tr>`;
+                });
+                html += `</tbody></table>`;
 
-                    // Eligibility
-                    if (rec.eligible) {
-                        output.push(`   Status: ELIGIBLE — ${rec.eligibilityNote}`);
-                    } else {
-                        output.push(`   Status: NOT YET ELIGIBLE — ${rec.eligibilityNote}`);
-                    }
+                // Detailed study breakdowns
+                liftRecs.forEach(rec => {
+                    html += `<div class="doc-callout ${rec.eligible ? 'success' : 'info'}" style="margin-top:16px">`;
+                    html += `<strong>${rec.eligible ? '✅' : '🔒'} ${rec.name}</strong>`;
+                    html += `<p style="margin:6px 0;color:var(--text-secondary)">${rec.rationale}</p>`;
 
-                    // BLS specifics
                     if (rec.type === 'bls' && rec.operational) {
-                        output.push('');
-                        output.push('   How it works:');
-                        output.push('   A control group sees no ads, an exposed group sees your campaign.');
-                        output.push('   After the campaign, both groups are surveyed to measure lifts in:');
-                        output.push('     • Ad Recall — "Do you remember seeing ads for [brand]?"');
-                        output.push('     • Awareness — "Have you heard of [brand]?"');
-                        output.push('     • Consideration — "Would you consider [brand]?"');
-                        output.push('     • Purchase Intent — "How likely are you to buy from [brand]?"');
-                        output.push('');
-                        output.push(`   Requirements:`);
-                        output.push(`     • Min spend: ${formatBudget(rec.thresholds.minSpend)} | Min reach: ${rec.thresholds.minUniqueReach?.toLocaleString() || 'TBD'}`);
-                        output.push(`     • ${rec.operational.mandatoryQuestion} question is mandatory (max ${rec.operational.maxQuestions} total)`);
-                        output.push(`     • Submit campaign IDs + survey questions ${rec.operational.leadTimeDays} business days before launch`);
-                        output.push('');
-                        output.push('   Success metric: Statistically significant lift in at least one survey question');
+                        html += `<p style="margin:8px 0 4px"><strong>How it works:</strong> A control group sees no ads; an exposed group sees your campaign. Both are surveyed to measure lifts in:</p>`;
+                        html += `<ul style="margin:4px 0 8px 20px"><li>Ad Recall</li><li>Awareness</li><li>Consideration</li><li>Purchase Intent</li></ul>`;
+                        html += `<p><strong>Requirements:</strong> Min spend ${formatBudget(rec.thresholds.minSpend)} | Min reach ${rec.thresholds.minUniqueReach?.toLocaleString() || 'TBD'} | Submit ${rec.operational.leadTimeDays} business days before launch</p>`;
+                        html += `<p><strong>Success metric:</strong> Statistically significant lift in at least one survey question</p>`;
                     }
 
-                    // Multi-cell CLS specifics
                     if (rec.type === 'cls_multicell' && rec.testDesign) {
                         const td = rec.testDesign;
-                        output.push('');
-                        output.push('   How it works:');
-                        output.push('   Split audience into cells to isolate the incremental impact of brand ads on conversions.');
-                        output.push(`     • Control: ${td.holdout}`);
-                        td.cells.forEach(c => output.push(`     • ${c}`));
-                        output.push(`     • Duration: ${td.duration}`);
-                        output.push('');
-                        output.push('   Success metrics:');
-                        output.push(`     • Primary: ${td.primaryKPI} (did brand ads drive more conversions?)`);
-                        td.secondaryKPIs.forEach(kpi => output.push(`     • Secondary: ${kpi}`));
-                        output.push('');
-                        output.push('   Requires coordination with Marketing Science team for setup and analysis.');
+                        html += `<p style="margin:8px 0 4px"><strong>How it works:</strong> Split audience into cells to isolate incremental impact of brand ads on conversions.</p>`;
+                        html += `<ul style="margin:4px 0 8px 20px"><li>Control: ${td.holdout}</li>`;
+                        td.cells.forEach(c => { html += `<li>${c}</li>`; });
+                        html += `<li>Duration: ${td.duration}</li></ul>`;
+                        html += `<p><strong>Primary KPI:</strong> ${td.primaryKPI}</p>`;
+                        html += `<p><strong>Secondary:</strong> ${td.secondaryKPIs.join(', ')}</p>`;
                     }
 
-                    // Standard CLS specifics
                     if (rec.type === 'cls_standard') {
-                        output.push('');
-                        output.push('   How it works:');
-                        output.push('   A holdout group sees no TikTok ads. Compare conversion rates between');
-                        output.push('   the exposed group and the holdout to measure incremental conversions.');
-                        output.push(`     • Min spend: ${formatBudget(rec.thresholds.minSpend)}`);
-                        output.push('');
-                        output.push('   Success metrics:');
-                        output.push('     • Incremental Conversions — conversions that would NOT have happened without TikTok');
-                        output.push('     • Incremental ROAS — true return on ad spend, adjusted for organic baseline');
-                        output.push('     • Incremental CPA — real cost per acquisition after removing baseline');
+                        html += `<p style="margin:8px 0 4px"><strong>How it works:</strong> A holdout group sees no TikTok ads. Compare conversion rates to measure incremental impact.</p>`;
+                        html += `<p><strong>Success metrics:</strong> Incremental Conversions, Incremental ROAS, Incremental CPA</p>`;
                     }
 
-                    if (idx < liftRecs.length - 1) {
-                        output.push('\n───────────────────────────────\n');
-                    }
+                    html += `</div>`;
                 });
 
-                // Budget guidance
+                // Budget guidance for ineligible studies
                 const ineligible = liftRecs.filter(r => !r.eligible);
                 if (ineligible.length > 0) {
-                    output.push('\n\n💡 UNLOCK MORE STUDIES');
+                    html += `<div class="doc-callout warning" style="margin-top:16px"><strong>Unlock More Studies</strong>`;
                     ineligible.forEach(r => {
                         const needed = r.thresholds?.minSpend ? r.thresholds.minSpend - budget : 0;
-                        if (needed > 0) {
-                            output.push(`   Add ${formatBudget(needed)} to budget → unlocks ${r.name}`);
-                        }
+                        if (needed > 0) html += `<p>Add ${formatBudget(needed)} to budget → unlocks ${r.name}</p>`;
                     });
+                    html += `</div>`;
                 }
-
-                output.push('\n\n⚠️ Meeting minimum spend does not guarantee minimum unique reach/sample. Recommend investing above minimum for reliable results.');
             } else {
-                output.push('\nWith current objectives and budget, standard pixel-based attribution is the recommended approach.');
-                output.push('As budget grows, lift studies become available to prove incremental impact.');
+                html += `<div class="doc-callout info"><p>With current objectives and budget, standard pixel-based attribution is recommended. As budget grows, lift studies become available to prove incremental impact.</p></div>`;
             }
 
-            $('#measurement-content').textContent = output.join('\n');
+            el.innerHTML = html;
         }
 
-        function generateMediaPlan() {
+        // ── Deterministic: Media Plan Tables ──────────────────
+        function generateMediaTables() {
             const start = new Date(formData.startDate);
             const end = new Date(formData.endDate);
             const weeks = Math.max(1, Math.ceil((end - start) / (7 * 24 * 60 * 60 * 1000)));
             const weeklyBudget = formData.budget / weeks;
 
-            // Use data from JSON file
-            const adFormats = tiktokData.adFormats;
-
-            // Handle multiple goals - combine ad formats from all selected goals
             const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
-            const allFormats = [...new Set(goals.flatMap(g => adFormats[g] || adFormats['Conversions']))];
-            const formats = allFormats;
+            const adFormats = tiktokData.adFormats;
+            const formats = [...new Set(goals.flatMap(g => adFormats[g] || adFormats['Conversions']))];
 
-            let flightSchedule = `
-📅 MEDIA PLAN FOR ${formData.clientName.toUpperCase()}
+            const el = $('#media-tables');
+            if (!el) return;
 
-CAMPAIGN OBJECTIVES: ${goals.join(' + ')}
+            const formatDetails = {
+                'TopView': { bestFor: 'Maximum awareness & impact', usage: '3-5 days during key moments' },
+                'In-Feed Ads': { bestFor: 'All objectives, always-on', usage: 'Throughout campaign' },
+                'Spark Ads': { bestFor: 'Engagement & authenticity', usage: '40-60% of In-Feed budget' },
+                'Collection Ads': { bestFor: 'Product discovery & sales', usage: 'Lower-funnel phases' },
+                'Dynamic Showcase Ads': { bestFor: 'Retargeting, large catalogs', usage: 'Retargeting phases' },
+                'Branded Hashtag Challenge': { bestFor: 'Community engagement', usage: 'Launch phase, 3-6 days' },
+                'Branded Effect': { bestFor: 'Brand interaction', usage: 'Alongside hashtag challenge' }
+            };
 
-CAMPAIGN OVERVIEW
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Campaign Period: ${formatDate(formData.startDate)} - ${formatDate(formData.endDate)}
-Total Budget: ${formatBudget(formData.budget)}
-Duration: ${weeks} weeks
-Weekly Budget: ~${formatBudget(weeklyBudget)}
-Market: ${formData.market}
-Vertical: ${formData.vertical}
+            // Ad Formats table
+            let html = `<h3 style="margin:0 0 12px;font-size:1rem">Recommended Ad Formats</h3>`;
+            html += `<table class="doc-table"><thead><tr><th>Format</th><th>Best For</th><th>Recommended Usage</th></tr></thead><tbody>`;
+            formats.forEach(f => {
+                const d = formatDetails[f] || { bestFor: 'Campaign support', usage: 'As needed' };
+                html += `<tr><td><strong>${f}</strong></td><td>${d.bestFor}</td><td>${d.usage}</td></tr>`;
+            });
+            html += `</tbody></table>`;
 
-FLIGHT SCHEDULE
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-`;
+            // Flight Schedule table
+            html += `<h3 style="margin:24px 0 12px;font-size:1rem">Flight Schedule</h3>`;
+            html += `<table class="doc-table"><thead><tr><th>Week</th><th>Dates</th><th>Phase</th><th>Budget</th><th>Focus</th></tr></thead><tbody>`;
 
             for (let i = 0; i < Math.min(weeks, 8); i++) {
                 const weekStart = new Date(start);
@@ -2451,218 +2293,117 @@ FLIGHT SCHEDULE
                 const weekEnd = new Date(weekStart);
                 weekEnd.setDate(weekStart.getDate() + 6);
 
-                const phase = i < 2 ? 'LAUNCH' : i < weeks - 1 ? 'OPTIMIZE' : 'SCALE';
+                const phase = i < 2 ? 'Launch' : i < weeks - 1 ? 'Optimize' : 'Scale';
                 const budgetMultiplier = i < 1 ? 0.8 : i < 2 ? 1.0 : i < weeks - 1 ? 1.1 : 1.2;
+                const focus = i < 2 ? 'Testing & learning' : i < weeks - 1 ? 'Optimization & scaling' : 'Maximum performance';
 
-                flightSchedule += `
-Week ${i + 1}: ${formatDate(weekStart.toISOString())} - ${formatDate(weekEnd.toISOString())}
-├── Phase: ${phase}
-├── Budget: ${formatBudget(weeklyBudget * budgetMultiplier)}
-└── Focus: ${i < 2 ? 'Testing & learning' : i < weeks - 1 ? 'Optimization & scaling' : 'Maximum performance'}
-`;
+                html += `<tr><td>Week ${i + 1}</td><td>${formatDate(weekStart.toISOString())} – ${formatDate(weekEnd.toISOString())}</td><td>${phase}</td><td>${formatBudget(weeklyBudget * budgetMultiplier)}</td><td>${focus}</td></tr>`;
             }
 
             if (weeks > 8) {
-                flightSchedule += `\n... (${weeks - 8} more weeks following similar pattern)\n`;
+                html += `<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);font-style:italic">${weeks - 8} more weeks following similar pattern</td></tr>`;
             }
 
-            flightSchedule += `
-RECOMMENDED AD FORMATS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-${formats.map((f, i) => `${i + 1}. ${f}`).join('\n')}
-
-FORMAT DETAILS
-
-${formats.includes('TopView') ? `TopView (Premium Placement)
-• Full-screen, sound-on video up to 60 seconds
-• First ad users see when opening TikTok
-• Best for: Maximum awareness and impact
-• Recommended: 3-5 days during key moments
-` : ''}
-${formats.includes('In-Feed Ads') ? `In-Feed Ads (Core Format)
-• Native, full-screen video ads in For You feed
-• 9-15 seconds recommended length
-• Best for: All objectives, always-on presence
-• Recommended: Throughout campaign
-` : ''}
-${formats.includes('Spark Ads') ? `Spark Ads (Boosted Native)
-• Boost organic TikToks or creator content
-• Authentic, native feel with ad capabilities
-• Best for: Engagement, authenticity
-• Recommended: 40-60% of In-Feed budget
-` : ''}
-${formats.includes('Collection Ads') ? `Collection Ads (E-commerce)
-• Product cards with instant gallery
-• Swipeable product catalog
-• Best for: Driving product discovery and sales
-` : ''}
-${formats.includes('Dynamic Showcase Ads') ? `Dynamic Showcase Ads (Personalized)
-• Auto-generated from product catalog
-• Personalized to user interests
-• Best for: Retargeting, large catalogs
-` : ''}
-
-PLACEMENT STRATEGY
-• TikTok Feed: Primary placement (100% of budget)
-• Pangle (if enabled): Extended reach in ${formData.market}
-
-BIDDING STRATEGY
-• Launch phase: Lowest Cost (maximize learnings)
-• Optimize phase: Cost Cap (efficiency focus)
-• Scale phase: Bid Cap or Target CPA (performance)
-            `.trim();
-
-            $('#media-content').textContent = flightSchedule;
+            html += `</tbody></table>`;
+            el.innerHTML = html;
         }
 
+        // ── Deterministic: Media Incentives Table ─────────────
         function generateIncentives() {
             const budget = formData.budget;
-
-            // Use data from JSON file - map to add unlocked status
             const incentives = tiktokData.mediaIncentives.map(inc => ({
                 ...inc,
                 unlocked: budget >= inc.threshold
             }));
 
-            let html = `<div class="output-content">`;
-            html += `<p><strong>Budget Level:</strong> ${formatBudget(budget)}</p><br>`;
+            const el = $('#incentives-content');
+            if (!el) return;
+
+            let html = `<table class="doc-table">
+                <thead><tr><th>Incentive</th><th>Min. Spend</th><th>Value</th><th>Status</th></tr></thead>
+                <tbody>`;
 
             incentives.forEach(inc => {
-                html += `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: ${inc.unlocked ? 'rgba(0, 200, 83, 0.1)' : 'rgba(255, 255, 255, 0.05)'}; border-radius: 8px; margin-bottom: 10px; border: 1px solid ${inc.unlocked ? 'var(--success)' : 'var(--border-color)'};">
-                    <div>
-                        <strong style="color: ${inc.unlocked ? 'var(--success)' : 'var(--text-secondary)'};">${inc.name}</strong>
-                        <div style="font-size: 0.85rem; color: var(--text-secondary);">Min. spend: ${formatBudget(inc.threshold)}</div>
-                        <div style="font-size: 0.9rem; margin-top: 4px;">${inc.value}</div>
-                    </div>
-                    <span class="status-badge ${inc.unlocked ? 'status-unlocked' : 'status-locked'}">
-                        ${inc.unlocked ? '✓ Unlocked' : '🔒 Locked'}
-                    </span>
-                </div>`;
+                const status = inc.unlocked
+                    ? '<span style="color:var(--success);font-weight:600">✓ Unlocked</span>'
+                    : '<span style="color:var(--text-secondary)">🔒 Locked</span>';
+                html += `<tr>
+                    <td><strong>${inc.name}</strong></td>
+                    <td>${formatBudget(inc.threshold)}</td>
+                    <td>${inc.value}</td>
+                    <td>${status}</td>
+                </tr>`;
             });
+
+            html += `</tbody></table>`;
 
             const nextUnlock = incentives.find(i => !i.unlocked);
             if (nextUnlock) {
                 const needed = nextUnlock.threshold - budget;
-                html += `
-                <div class="threshold-info">
-                    💡 <strong>Next tier:</strong> Add ${formatBudget(needed)} to unlock "${nextUnlock.name}" (${nextUnlock.value})
-                </div>`;
+                html += `<div class="doc-callout info" style="margin-top:12px"><strong>Next tier:</strong> Add ${formatBudget(needed)} to unlock "${nextUnlock.name}" (${nextUnlock.value})</div>`;
             }
 
-            html += `</div>`;
-            $('#incentives-content').innerHTML = html;
+            el.innerHTML = html;
         }
 
-        function generateCreativeSupport() {
+        // ── Fallback: Creative Support (when AI is unavailable) ──
+        function generateCreativeFallback() {
             const budget = formData.budget;
-            // Handle multiple creative status selections
-            const creativeStatuses = formData.creativeStatus.length > 0 ? formData.creativeStatus : ['Needs support'];
-
-            // Use data from JSON file - map to add unlocked status and desc alias
             const creativeOptions = tiktokData.creativeSupport.map(opt => ({
                 ...opt,
-                desc: opt.description,
                 unlocked: budget >= opt.threshold
             }));
 
-            let html = `<div class="output-content">`;
-            html += `<p><strong>Creative Status:</strong> ${creativeStatuses.join(', ')}</p>`;
-            html += `<p><strong>Budget Level:</strong> ${formatBudget(budget)}</p><br>`;
+            const el = $('#creative-content');
+            if (!el) return;
 
-            if (creativeStatuses.includes('Needs support') || creativeStatuses.includes('No assets')) {
-                html += `
-                <div style="background: rgba(254, 44, 85, 0.1); border: 1px solid var(--tiktok-red); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
-                    <strong style="color: var(--tiktok-red);">⚠️ Creative Support Recommended</strong>
-                    <p style="margin-top: 8px; font-size: 0.9rem;">Based on the client's creative situation, prioritize creative development before campaign launch.</p>
-                </div>`;
-            }
-
-            html += `<h4 style="margin-bottom: 12px;">Available Support:</h4>`;
+            let html = `<h3 style="margin:0 0 12px;font-size:1rem">Available Creative Support</h3>`;
+            html += `<table class="doc-table"><thead><tr><th>Service</th><th>Min. Spend</th><th>Description</th><th>Status</th></tr></thead><tbody>`;
 
             creativeOptions.forEach(opt => {
-                html += `
-                <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: ${opt.unlocked ? 'rgba(0, 200, 83, 0.1)' : 'rgba(255, 255, 255, 0.05)'}; border-radius: 8px; margin-bottom: 10px; border: 1px solid ${opt.unlocked ? 'var(--success)' : 'var(--border-color)'};">
-                    <div>
-                        <strong style="color: ${opt.unlocked ? 'var(--success)' : 'var(--text-secondary)'};">${opt.name}</strong>
-                        ${opt.threshold > 0 ? `<div style="font-size: 0.85rem; color: var(--text-secondary);">Min. spend: ${formatBudget(opt.threshold)}</div>` : ''}
-                        <div style="font-size: 0.9rem; margin-top: 4px;">${opt.desc}</div>
-                    </div>
-                    <span class="status-badge ${opt.unlocked ? 'status-unlocked' : 'status-locked'}">
-                        ${opt.unlocked ? '✓ Available' : '🔒 Locked'}
-                    </span>
-                </div>`;
+                const status = opt.unlocked
+                    ? '<span style="color:var(--success);font-weight:600">✓ Available</span>'
+                    : '<span style="color:var(--text-secondary)">🔒 Locked</span>';
+                html += `<tr><td><strong>${opt.name}</strong></td><td>${opt.threshold > 0 ? formatBudget(opt.threshold) : 'Any'}</td><td>${opt.description}</td><td>${status}</td></tr>`;
             });
 
-            html += `
-            <div class="threshold-info" style="margin-top: 16px;">
-                💡 <strong>Pro tip:</strong> TikTok-first creative performs 2x better than repurposed content. Recommend vertical, sound-on videos under 15 seconds.
-            </div>`;
-
-            html += `</div>`;
-            $('#creative-content').innerHTML = html;
+            html += `</tbody></table>`;
+            el.innerHTML = html;
         }
 
-        function generateBestPractices() {
-            // Use data from JSON file
+        // ── Fallback: Best Practices (when AI is unavailable) ──
+        function generateBestPracticesFallback() {
             const verticalPractices = tiktokData.bestPractices.byVertical;
             const goalPractices = tiktokData.bestPractices.byGoal;
-            const universalPractices = tiktokData.bestPractices.universal;
 
-            let html = `<div class="output-content">`;
+            const el = $('#bestpractices-content');
+            if (!el) return;
 
-            html += `<h4 style="margin-bottom: 12px;">🏆 ${formData.vertical} Best Practices</h4>`;
-            html += `<ul class="best-practices-list" style="list-style: none; padding: 0; margin-bottom: 20px;">`;
+            const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
             const vPractices = verticalPractices[formData.vertical] || verticalPractices['E-commerce'];
-            vPractices.forEach(p => {
-                html += `<li style="padding: 10px 14px; background: var(--tiktok-light-gray); border-radius: 6px; margin-bottom: 8px;">✓ ${p}</li>`;
-            });
+
+            let html = `<h3 style="margin:0 0 12px;font-size:1rem">${formData.vertical} Best Practices</h3><ul>`;
+            vPractices.forEach(p => { html += `<li>${p}</li>`; });
             html += `</ul>`;
 
-            // Handle multiple goals - show best practices for each selected goal
-            const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
             goals.forEach(goal => {
-                html += `<h4 style="margin-bottom: 12px;">🎯 ${goal} Optimization Tips</h4>`;
-                html += `<ul class="best-practices-list" style="list-style: none; padding: 0; margin-bottom: 20px;">`;
                 const gPractices = goalPractices[goal] || goalPractices['Conversions'];
-                gPractices.forEach(p => {
-                    html += `<li style="padding: 10px 14px; background: var(--tiktok-light-gray); border-radius: 6px; margin-bottom: 8px;">✓ ${p}</li>`;
-                });
+                html += `<h3 style="margin:16px 0 12px;font-size:1rem">${goal} Tips</h3><ul>`;
+                gPractices.forEach(p => { html += `<li>${p}</li>`; });
                 html += `</ul>`;
             });
 
-            html += `<h4 style="margin-bottom: 12px;">💡 Universal TikTok Best Practices</h4>`;
-            html += `<ul class="best-practices-list" style="list-style: none; padding: 0;">`;
-            universalPractices.forEach(p => {
-                html += `<li style="padding: 10px 14px; background: var(--tiktok-light-gray); border-radius: 6px; margin-bottom: 8px;">✓ ${p}</li>`;
-            });
-            html += `</ul>`;
-
-            html += `</div>`;
-            $('#bestpractices-content').innerHTML = html;
-        }
-
-        function copyToClipboard(elementId) {
-            const element = document.getElementById(elementId);
-            const text = element.textContent || element.innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = element.parentElement.querySelector('.copy-btn');
-                btn.textContent = '✓ Copied!';
-                setTimeout(() => btn.textContent = '📋 Copy', 2000);
-            });
+            el.innerHTML = html;
         }
 
         function copyAll() {
-            const sections = ['pitch-content', 'funnel-content', 'measurement-content', 'media-content'];
-            let allContent = `TIKTOK SALES ENABLEMENT PACK\nGenerated for: ${formData.clientName}\nDate: ${new Date().toLocaleDateString()}\n\n`;
-
-            sections.forEach(id => {
-                const el = document.getElementById(id);
-                if (el) allContent += el.textContent + '\n\n---\n\n';
-            });
-
-            navigator.clipboard.writeText(allContent).then(() => {
-                alert('All content copied to clipboard!');
+            const docOutput = document.querySelector('.doc-output');
+            if (!docOutput) return;
+            const text = docOutput.innerText;
+            navigator.clipboard.writeText(
+                `TIKTOK CAMPAIGN PROPOSAL — ${formData.clientName}\n${new Date().toLocaleDateString()}\n\n` + text
+            ).then(() => {
+                alert('Full proposal copied to clipboard!');
             });
         }
 
