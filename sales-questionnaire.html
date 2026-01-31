@@ -1856,7 +1856,7 @@
                 market: formData.market,
                 measurementMode: mode,
                 liftStudyType: liftType,
-                plannedSpendUsd: formData.plannedSpendUsd,
+                plannedSpendUsd: formData.plannedSpendUsd || formData.budget,
                 plannedUniqueReach: formData.plannedUniqueReach,
                 buyingType: 'auction',
                 tiktokData
@@ -2458,7 +2458,7 @@ Ongoing: Scale
                     market: formData.market,
                     measurementMode: mode,
                     liftStudyType: liftType,
-                    plannedSpendUsd: formData.plannedSpendUsd,
+                    plannedSpendUsd: formData.plannedSpendUsd || formData.budget,
                     plannedUniqueReach: formData.plannedUniqueReach,
                     buyingType: 'auction',
                     tiktokData
