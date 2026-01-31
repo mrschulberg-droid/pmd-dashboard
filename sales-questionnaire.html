@@ -2043,8 +2043,14 @@ Rules:
             const text = data.output_text;
             if (!text) throw new Error('Empty AI response');
 
-            if (DEBUG) console.log('[AI] Raw response (first 300 chars):', text.substring(0, 300));
-            return JSON.parse(text);
+            if (DEBUG) console.log('[AI] Raw response (first 500 chars):', text.substring(0, 500));
+
+            // Strip markdown code fences if GPT wrapped the JSON
+            let cleaned = text.trim();
+            if (cleaned.startsWith('```')) {
+                cleaned = cleaned.replace(/^```(?:json)?\s*/, '').replace(/\s*```$/, '');
+            }
+            return JSON.parse(cleaned);
         }
 
         // ── Simple markdown → HTML renderer ─────────────────────
@@ -2162,13 +2168,23 @@ Rules:
                             window._lastAIResponse = response;
                             if (DEBUG) console.log('[AI RESPONSE] keys:', Object.keys(response), response);
                             renderAIResponse(response);
+                        } else {
+                            throw new Error('AI returned empty response — check API key and model.');
                         }
                     } catch (err) {
-                        document.querySelectorAll('.ai-loading').forEach(el => {
-                            el.innerHTML = '<div style="padding:14px;color:#d93025;background:rgba(217,48,37,0.08);border-radius:8px">' +
-                                'AI generation failed: ' + err.message + '</div>';
-                        });
-                        console.warn('[AI ERROR]', err);
+                        console.error('[AI ERROR]', err);
+
+                        // Show error banner at top of output section
+                        const outputSection = $('#output-section');
+                        if (outputSection) {
+                            const banner = document.createElement('div');
+                            banner.style.cssText = 'padding:16px;color:#d93025;background:rgba(217,48,37,0.1);border:1px solid rgba(217,48,37,0.3);border-radius:10px;margin:0 0 20px;font-size:0.9rem';
+                            banner.innerHTML = '<strong>AI generation failed:</strong> ' + err.message + '<br><span style="color:#888;font-size:0.8rem">Showing template output instead. Check browser console (F12) for details.</span>';
+                            outputSection.insertBefore(banner, outputSection.firstChild);
+                        }
+
+                        // Remove loading states
+                        document.querySelectorAll('.ai-loading').forEach(el => el.remove());
 
                         // Fall back to deterministic templates
                         generatePitch();
