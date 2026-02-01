@@ -737,6 +737,118 @@
             border-left: 3px solid var(--tiktok-red);
         }
 
+        /* ── Case Study Cards ──────────────────────────────── */
+        .case-study-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+        .case-study-card {
+            background: var(--tiktok-gray);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            transition: border-color 0.2s;
+        }
+        .case-study-card:hover {
+            border-color: var(--tiktok-red);
+        }
+        .case-study-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .case-study-brand {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+        .case-study-headline {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+            line-height: 1.3;
+        }
+        .case-study-body {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .case-study-detail p {
+            margin: 2px 0 0;
+            font-size: 0.88rem;
+            color: var(--text-secondary);
+            line-height: 1.45;
+        }
+        .case-study-detail-label {
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--tiktok-red);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .case-study-results {
+            display: flex;
+            gap: 16px;
+            padding: 12px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .case-study-metric {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            text-align: center;
+        }
+        .case-study-metric-value {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--tiktok-red);
+        }
+        .case-study-metric-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+        .case-study-formats {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .case-study-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .case-study-tag {
+            font-size: 0.75rem;
+            padding: 3px 10px;
+            border-radius: 100px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+        .case-study-tag.goal-tag {
+            background: rgba(254, 44, 85, 0.1);
+            border-color: rgba(254, 44, 85, 0.3);
+            color: var(--tiktok-red);
+        }
+        @media (max-width: 600px) {
+            .case-study-grid {
+                grid-template-columns: 1fr;
+            }
+            .case-study-results {
+                gap: 8px;
+            }
+        }
+
         /* ── AI Content ────────────────────────────────────── */
         .doc-ai-content h3 {
             font-size: 1.05rem;
@@ -1368,7 +1480,10 @@
                         <div class="doc-ai-content" id="pitch-content"></div>
                     </div>
 
-                    <!-- 2b. Budget Advisory (shown when budget not provided or below recommended) -->
+                    <!-- 2b. Relevant Case Studies (deterministic) -->
+                    <div class="doc-section" id="doc-case-studies"></div>
+
+                    <!-- 2c. Budget Advisory (shown when budget not provided or below recommended) -->
                     <div class="doc-section" id="doc-budget-advisory" style="display:none"></div>
 
                     <!-- 3. Funnel Strategy — title is dynamic based on objectives -->
@@ -1483,6 +1598,405 @@
         let formData = {};
         const DEBUG = true; // Set to false to hide debug UI
         let tiktokData = null; // Will be loaded from JSON
+
+        // ── Case Studies Bank ──────────────────────────────────
+        // Curated TikTok advertising case studies by vertical + goals.
+        // Each study is tagged with relevant verticals and objectives for matching.
+        const CASE_STUDIES = [
+            // ── E-commerce / Retail ──
+            {
+                verticals: ["E-commerce"],
+                goals: ["Conversions", "Awareness"],
+                brand: "Leading Fashion Retailer",
+                headline: "3.2x ROAS with full-funnel TikTok strategy",
+                challenge: "Rising CPMs on existing channels and difficulty reaching Gen Z shoppers.",
+                solution: "Combined TopView for mass awareness with Spark Ads driving traffic to shoppable landing pages, leveraging creator content for authenticity.",
+                results: [
+                    { metric: "ROAS", value: "3.2x" },
+                    { metric: "CPA", value: "-45% vs. benchmark" },
+                    { metric: "New Customers", value: "68% first-time buyers" }
+                ],
+                formats: ["TopView", "Spark Ads", "In-Feed Ads"]
+            },
+            {
+                verticals: ["E-commerce"],
+                goals: ["Conversions", "Consideration"],
+                brand: "DTC Beauty Brand",
+                headline: "2.8x ROAS and 52% lower CPA with Spark Ads",
+                challenge: "Needed to scale beyond Meta while maintaining efficient customer acquisition costs.",
+                solution: "Seeded product with 30+ TikTok creators, then amplified top-performing organic content as Spark Ads with conversion optimisation.",
+                results: [
+                    { metric: "ROAS", value: "2.8x" },
+                    { metric: "CPA", value: "-52% vs. Meta" },
+                    { metric: "CTR", value: "1.9% (3x industry avg)" }
+                ],
+                formats: ["Spark Ads", "In-Feed Ads", "Collection Ads"]
+            },
+            // ── Gaming ──
+            {
+                verticals: ["Gaming"],
+                goals: ["App Installs", "Engagement"],
+                brand: "Mobile RPG Studio",
+                headline: "1.2M installs at $1.40 CPI in 6 weeks",
+                challenge: "Saturated UA channels with rising install costs, needed to find engaged players not just installs.",
+                solution: "Playable Ads showcasing core gameplay loop, combined with creator walkthroughs amplified as Spark Ads. Optimised for day-7 retention.",
+                results: [
+                    { metric: "Installs", value: "1.2M" },
+                    { metric: "CPI", value: "$1.40" },
+                    { metric: "Day-7 Retention", value: "32% (2x benchmark)" }
+                ],
+                formats: ["Playable Ads", "Spark Ads", "In-Feed Ads"]
+            },
+            {
+                verticals: ["Gaming"],
+                goals: ["Awareness", "App Installs"],
+                brand: "Casual Game Publisher",
+                headline: "Top 5 App Store ranking within 72 hours of launch",
+                challenge: "Competitive casual gaming market; needed rapid awareness at launch to gain algorithmic visibility in app stores.",
+                solution: "Branded Hashtag Challenge encouraging users to share high scores, paired with In-Feed Ads targeting lookalike audiences of existing players.",
+                results: [
+                    { metric: "App Store Rank", value: "Top 5 in 72hrs" },
+                    { metric: "UGC Videos", value: "45K+" },
+                    { metric: "CPI", value: "$0.90" }
+                ],
+                formats: ["Branded Hashtag Challenge", "In-Feed Ads"]
+            },
+            // ── App / Mobile ──
+            {
+                verticals: ["App"],
+                goals: ["App Installs", "Conversions"],
+                brand: "Fintech Super-App",
+                headline: "800K installs with 40% activation rate",
+                challenge: "Low organic discoverability in a crowded app market, high CPI on traditional channels.",
+                solution: "In-Feed Ads with deep-link to app install, supported by educational creator content explaining key features. Optimised for first-transaction events.",
+                results: [
+                    { metric: "Installs", value: "800K" },
+                    { metric: "Activation Rate", value: "40%" },
+                    { metric: "CPI", value: "$2.10 (-35% vs. target)" }
+                ],
+                formats: ["In-Feed Ads", "Spark Ads", "App Install Ads"]
+            },
+            // ── Finance / Fintech ──
+            {
+                verticals: ["Finance"],
+                goals: ["Lead Gen", "Consideration"],
+                brand: "Digital Banking Platform",
+                headline: "22K qualified leads at $8.50 CPL",
+                challenge: "Struggled to reach younger demographics who were sceptical of traditional financial advertising.",
+                solution: "Creator-led educational content about financial wellness, amplified as Spark Ads with Lead Gen forms. Relatable, non-salesy tone resonated with 18-34 audience.",
+                results: [
+                    { metric: "Leads", value: "22K" },
+                    { metric: "CPL", value: "$8.50" },
+                    { metric: "Lead-to-Account", value: "18% conversion" }
+                ],
+                formats: ["Lead Gen Ads", "Spark Ads", "Instant Form"]
+            },
+            {
+                verticals: ["Finance"],
+                goals: ["Awareness", "Consideration"],
+                brand: "Insurance Provider",
+                headline: "85% lift in ad recall among 25-44 audience",
+                challenge: "Perceived as old-fashioned brand; needed to modernise perception and reach a younger audience considering their first insurance products.",
+                solution: "Humorous creator partnerships making insurance relatable, combined with TopView for mass reach. Brand Lift Study validated awareness gains.",
+                results: [
+                    { metric: "Ad Recall Lift", value: "+85%" },
+                    { metric: "Consideration Lift", value: "+12%" },
+                    { metric: "CPM", value: "-30% vs. TV equivalent" }
+                ],
+                formats: ["TopView", "Spark Ads", "In-Feed Ads"]
+            },
+            // ── CPG / FMCG ──
+            {
+                verticals: ["CPG"],
+                goals: ["Awareness", "Engagement"],
+                brand: "Global Snack Brand",
+                headline: "18M reach with 9.2% engagement rate",
+                challenge: "Declining TV reach among core 18-34 demographic; needed a channel with high attention and shareability.",
+                solution: "Branded Hashtag Challenge encouraging creative recipe hacks, supported by TopView takeover on launch day. Creator seeding drove organic amplification.",
+                results: [
+                    { metric: "Reach", value: "18M unique users" },
+                    { metric: "Engagement Rate", value: "9.2%" },
+                    { metric: "UGC Videos", value: "120K+" }
+                ],
+                formats: ["Branded Hashtag Challenge", "TopView", "Spark Ads"]
+            },
+            {
+                verticals: ["CPG"],
+                goals: ["Conversions", "Awareness"],
+                brand: "Beverage Company",
+                headline: "2.1x ROAS driving in-store sales via TikTok",
+                challenge: "Difficulty connecting digital advertising to offline retail purchase behaviour.",
+                solution: "In-Feed Ads with store locator integration, amplified by creator content showcasing product in everyday moments. Conversion Lift Study proved incremental impact.",
+                results: [
+                    { metric: "ROAS", value: "2.1x (offline attributed)" },
+                    { metric: "Store Visits", value: "+34% in test markets" },
+                    { metric: "Conversion Lift", value: "+15% incremental" }
+                ],
+                formats: ["In-Feed Ads", "Spark Ads"]
+            },
+            // ── Automotive ──
+            {
+                verticals: ["Auto"],
+                goals: ["Awareness", "Lead Gen"],
+                brand: "Electric Vehicle Manufacturer",
+                headline: "12K test drive bookings from TikTok campaign",
+                challenge: "Needed to build awareness for a new EV model among environmentally-conscious younger buyers.",
+                solution: "Creator test-drive content amplified as Spark Ads, paired with Lead Gen forms for test drive scheduling. Showcased vehicle features through authentic, first-person POV content.",
+                results: [
+                    { metric: "Test Drive Bookings", value: "12K" },
+                    { metric: "CPL", value: "$18" },
+                    { metric: "Brand Recall", value: "+62% lift" }
+                ],
+                formats: ["Spark Ads", "Lead Gen Ads", "In-Feed Ads"]
+            },
+            // ── Travel & Tourism ──
+            {
+                verticals: ["Travel"],
+                goals: ["Awareness", "Consideration"],
+                brand: "National Tourism Board",
+                headline: "42M video views and 7.5% engagement rate",
+                challenge: "Post-pandemic recovery required rebuilding destination awareness and inspiring travel intent among younger travellers.",
+                solution: "Partnered with 50+ travel creators for authentic destination content. TopView drove mass awareness while Spark Ads sustained mid-funnel engagement over 8 weeks.",
+                results: [
+                    { metric: "Video Views", value: "42M" },
+                    { metric: "Engagement Rate", value: "7.5%" },
+                    { metric: "Search Lift", value: "+28% destination searches" }
+                ],
+                formats: ["TopView", "Spark Ads", "In-Feed Ads"]
+            },
+            {
+                verticals: ["Travel"],
+                goals: ["Conversions", "Consideration"],
+                brand: "Online Travel Agency",
+                headline: "4.1x ROAS on hotel bookings campaign",
+                challenge: "Needed to diversify beyond search-dependent acquisition and reach travellers during the inspiration phase.",
+                solution: "Dynamic Showcase Ads personalised by user browsing behaviour, combined with creator content highlighting deals. Full-funnel approach from inspiration to booking.",
+                results: [
+                    { metric: "ROAS", value: "4.1x" },
+                    { metric: "Booking Rate", value: "3.2% CTR-to-book" },
+                    { metric: "New Users", value: "73% first-time bookers" }
+                ],
+                formats: ["Dynamic Showcase Ads", "Spark Ads", "In-Feed Ads"]
+            },
+            // ── Entertainment / Media ──
+            {
+                verticals: ["Entertainment"],
+                goals: ["Awareness", "Engagement"],
+                brand: "Streaming Platform",
+                headline: "28M reach for original series launch",
+                challenge: "Crowded streaming market; needed to cut through noise and drive tune-in intent for a new original series.",
+                solution: "Branded Effect filter featuring show characters, combined with TopView on premiere day. Cast members created behind-the-scenes content amplified as Spark Ads.",
+                results: [
+                    { metric: "Reach", value: "28M" },
+                    { metric: "Branded Effect Uses", value: "2.3M" },
+                    { metric: "Tune-in Intent", value: "+45% lift" }
+                ],
+                formats: ["Branded Effect", "TopView", "Spark Ads"]
+            },
+            // ── Technology / SaaS ──
+            {
+                verticals: ["Tech"],
+                goals: ["Lead Gen", "Awareness"],
+                brand: "B2B SaaS Platform",
+                headline: "5,200 demo requests at $32 CPL",
+                challenge: "B2B audiences traditionally hard to reach on social; needed to humanise the brand and generate qualified pipeline.",
+                solution: "Educational creator content demonstrating real-world use cases, with Lead Gen forms for free demo sign-ups. Targeted professionals using interest and behaviour signals.",
+                results: [
+                    { metric: "Demo Requests", value: "5,200" },
+                    { metric: "CPL", value: "$32" },
+                    { metric: "SQL Rate", value: "24% of leads qualified" }
+                ],
+                formats: ["Lead Gen Ads", "Spark Ads", "In-Feed Ads"]
+            },
+            {
+                verticals: ["Tech"],
+                goals: ["Conversions", "Consideration"],
+                brand: "Consumer Electronics Brand",
+                headline: "2.5x ROAS on product launch campaign",
+                challenge: "Needed to drive pre-orders and early sales for a new product in a competitive consumer tech market.",
+                solution: "Unboxing and review content from tech creators, amplified as Spark Ads. Collection Ads enabled seamless browsing-to-purchase flow within the TikTok experience.",
+                results: [
+                    { metric: "ROAS", value: "2.5x" },
+                    { metric: "Pre-orders", value: "15K in first week" },
+                    { metric: "VTR", value: "18% (4x benchmark)" }
+                ],
+                formats: ["Spark Ads", "Collection Ads", "In-Feed Ads"]
+            },
+            // ── Food & Beverage ──
+            {
+                verticals: ["Food"],
+                goals: ["Awareness", "Engagement"],
+                brand: "QSR Chain",
+                headline: "Viral menu item drove 35% sales increase",
+                challenge: "Needed to generate buzz for a limited-time menu item and drive foot traffic among Gen Z.",
+                solution: "Seeded product with food creators before launch, then amplified with Branded Hashtag Challenge encouraging taste-test reactions. Organic virality supplemented paid reach.",
+                results: [
+                    { metric: "Hashtag Views", value: "95M" },
+                    { metric: "Sales Increase", value: "+35% week-over-week" },
+                    { metric: "Earned Media", value: "4x paid spend in organic value" }
+                ],
+                formats: ["Branded Hashtag Challenge", "Spark Ads", "In-Feed Ads"]
+            },
+            {
+                verticals: ["Food"],
+                goals: ["Conversions", "Awareness"],
+                brand: "D2C Meal Kit Service",
+                headline: "3.8x ROAS with creator-led recipe content",
+                challenge: "High CAC on traditional channels; needed authentic content that showcased product value beyond discount-driven acquisition.",
+                solution: "Recipe creators demonstrated meal kits in authentic kitchen settings. Spark Ads drove traffic to subscription landing pages. Retargeted engaged viewers with conversion-optimised In-Feed Ads.",
+                results: [
+                    { metric: "ROAS", value: "3.8x" },
+                    { metric: "Subscriber CAC", value: "-41% vs. Meta" },
+                    { metric: "Trial-to-Sub Rate", value: "52%" }
+                ],
+                formats: ["Spark Ads", "In-Feed Ads"]
+            },
+            // ── Beauty & Personal Care ──
+            {
+                verticals: ["Beauty"],
+                goals: ["Conversions", "Awareness"],
+                brand: "Skincare Brand",
+                headline: "Sold out in 48 hours after TikTok campaign launch",
+                challenge: "New product launch in a saturated skincare market; needed to build credibility and drive trial rapidly.",
+                solution: "Dermatologist and skinfluencer creator partnerships for credible product education. Spark Ads amplified best-performing content. Collection Ads enabled frictionless purchase.",
+                results: [
+                    { metric: "Revenue", value: "Sold out in 48hrs" },
+                    { metric: "ROAS", value: "5.2x" },
+                    { metric: "Earned Media", value: "3.5x paid in organic views" }
+                ],
+                formats: ["Spark Ads", "Collection Ads", "In-Feed Ads"]
+            },
+            {
+                verticals: ["Beauty"],
+                goals: ["Consideration", "Engagement"],
+                brand: "Makeup Brand",
+                headline: "14.2% engagement rate with tutorial-driven strategy",
+                challenge: "Needed to shift brand perception from drugstore to premium while maintaining mass appeal.",
+                solution: "Partnered with makeup artists for transformation tutorials. Branded Effect allowed users to virtually try products. Creator diversity showcased range across skin tones.",
+                results: [
+                    { metric: "Engagement Rate", value: "14.2%" },
+                    { metric: "Branded Effect Uses", value: "1.8M" },
+                    { metric: "Consideration Lift", value: "+22%" }
+                ],
+                formats: ["Branded Effect", "Spark Ads", "In-Feed Ads"]
+            },
+            // ── Fashion & Apparel ──
+            {
+                verticals: ["Fashion"],
+                goals: ["Conversions", "Awareness"],
+                brand: "Fast Fashion Retailer",
+                headline: "4.5x ROAS with haul and styling content",
+                challenge: "Declining organic social reach and rising paid costs on existing platforms; needed a new high-performing channel.",
+                solution: "Scaled creator haul and outfit-of-the-day content as Spark Ads. Dynamic Showcase Ads retargeted viewers with products they engaged with. Full-funnel optimisation over 12 weeks.",
+                results: [
+                    { metric: "ROAS", value: "4.5x" },
+                    { metric: "Revenue", value: "$2.3M attributed" },
+                    { metric: "New Customer Rate", value: "71%" }
+                ],
+                formats: ["Spark Ads", "Dynamic Showcase Ads", "In-Feed Ads"]
+            },
+            {
+                verticals: ["Fashion"],
+                goals: ["Awareness", "Engagement"],
+                brand: "Luxury Fashion House",
+                headline: "58% ad recall lift for new collection launch",
+                challenge: "Reaching younger luxury consumers without diluting brand premium positioning.",
+                solution: "Behind-the-scenes craftsmanship content and fashion week coverage from curated creators. TopView for high-impact collection launch, maintaining editorial quality throughout.",
+                results: [
+                    { metric: "Ad Recall Lift", value: "+58%" },
+                    { metric: "Reach", value: "15M unique users" },
+                    { metric: "Avg Watch Time", value: "12.4s (2.5x benchmark)" }
+                ],
+                formats: ["TopView", "Spark Ads", "In-Feed Ads"]
+            },
+            // ── Health & Wellness ──
+            {
+                verticals: ["Health"],
+                goals: ["Awareness", "Lead Gen"],
+                brand: "Telehealth Platform",
+                headline: "18K consultations booked at $14 CPL",
+                challenge: "Needed to destigmatise online healthcare and drive first consultations among hesitant younger audiences.",
+                solution: "Healthcare creator partnerships providing educational wellness content. Lead Gen forms offered free initial consultations. Empathetic, informative tone built trust.",
+                results: [
+                    { metric: "Consultations", value: "18K booked" },
+                    { metric: "CPL", value: "$14" },
+                    { metric: "Consultation Rate", value: "62% showed up" }
+                ],
+                formats: ["Lead Gen Ads", "Spark Ads", "In-Feed Ads"]
+            },
+            {
+                verticals: ["Health"],
+                goals: ["Conversions", "Consideration"],
+                brand: "Fitness Supplement Brand",
+                headline: "2.9x ROAS with fitness creator partnerships",
+                challenge: "Crowded supplement market with consumer scepticism; needed authentic endorsement over traditional advertising.",
+                solution: "Fitness creators documented real 30-day journeys using the product. Spark Ads amplified genuine transformation stories. Collection Ads enabled direct purchase.",
+                results: [
+                    { metric: "ROAS", value: "2.9x" },
+                    { metric: "CTR", value: "2.1%" },
+                    { metric: "Repeat Purchase", value: "38% within 60 days" }
+                ],
+                formats: ["Spark Ads", "Collection Ads", "In-Feed Ads"]
+            },
+            // ── Education / EdTech ──
+            {
+                verticals: ["Education"],
+                goals: ["App Installs", "Lead Gen"],
+                brand: "Language Learning App",
+                headline: "500K installs at $1.80 CPI with 45% D7 retention",
+                challenge: "Needed to acquire high-quality users who would actually engage with the app, not just install-and-delete.",
+                solution: "Created native TikTok-style educational content — 15-second language tips that felt like organic posts. Optimised for day-7 retention events rather than just installs.",
+                results: [
+                    { metric: "Installs", value: "500K" },
+                    { metric: "CPI", value: "$1.80" },
+                    { metric: "D7 Retention", value: "45%" }
+                ],
+                formats: ["In-Feed Ads", "Spark Ads", "App Install Ads"]
+            },
+            {
+                verticals: ["Education"],
+                goals: ["Lead Gen", "Awareness"],
+                brand: "Online University",
+                headline: "8,400 programme enquiries at $22 CPL",
+                challenge: "Reaching non-traditional students who wouldn't respond to conventional education marketing.",
+                solution: "Student and alumni creators sharing authentic stories of career transformation. Lead Gen forms captured programme interest with minimal friction.",
+                results: [
+                    { metric: "Enquiries", value: "8,400" },
+                    { metric: "CPL", value: "$22" },
+                    { metric: "Enrolment Rate", value: "12% of leads enrolled" }
+                ],
+                formats: ["Lead Gen Ads", "Spark Ads", "In-Feed Ads"]
+            },
+            // ── Catch-all / Other ──
+            {
+                verticals: ["Other", "E-commerce", "CPG", "Food", "Beauty", "Fashion", "Health"],
+                goals: ["Conversions", "Consideration", "Awareness"],
+                brand: "D2C Brand",
+                headline: "3.5x ROAS scaling from $0 to $200K/month on TikTok",
+                challenge: "Entirely new to TikTok; needed to validate the channel and build a repeatable paid strategy from scratch.",
+                solution: "Started with small-budget In-Feed Ads testing 20+ creator angles. Scaled winners as Spark Ads. Phased approach: Learn (4 weeks) → Optimise (4 weeks) → Scale (ongoing).",
+                results: [
+                    { metric: "ROAS", value: "3.5x at scale" },
+                    { metric: "Monthly Spend", value: "$0 → $200K in 12 weeks" },
+                    { metric: "Creative Win Rate", value: "35% of creatives profitable" }
+                ],
+                formats: ["Spark Ads", "In-Feed Ads", "Collection Ads"]
+            },
+            {
+                verticals: ["Other", "Tech", "Finance", "Auto", "Travel", "Entertainment", "Education"],
+                goals: ["Awareness", "Engagement"],
+                brand: "Global Brand",
+                headline: "25M reach and 8.1% engagement through creator strategy",
+                challenge: "Low brand relevance with younger demographics; traditional advertising wasn't resonating.",
+                solution: "Assembled a diverse creator roster spanning multiple niches. Authentic content integrated the brand naturally into trending formats. Spark Ads amplified top performers.",
+                results: [
+                    { metric: "Reach", value: "25M" },
+                    { metric: "Engagement Rate", value: "8.1%" },
+                    { metric: "Brand Favourability", value: "+19% lift" }
+                ],
+                formats: ["Spark Ads", "In-Feed Ads", "Interactive Add-ons"]
+            }
+        ];
 
         // DOM helpers
         const $ = (sel) => document.querySelector(sel);
@@ -2745,6 +3259,7 @@ Rules:
             // Always generate deterministic sections
             generateOverview();
             renderBudgetAdvisory();
+            generateCaseStudies();
             generateFunnelTable();
             generateMediaTables();
             generateMeasurement();
@@ -3182,6 +3697,81 @@ Rules:
                 html += `<div class="doc-callout info" style="margin-top:12px"><strong>Next tier:</strong> Add ${formatBudget(needed)} to unlock "${nextUnlock.name}" (${nextUnlock.value})</div>`;
             }
 
+            el.innerHTML = html;
+        }
+
+        // ── Deterministic: Case Studies ──────────────────────
+        function generateCaseStudies() {
+            const el = $('#doc-case-studies');
+            if (!el) return;
+
+            const vertical = formData.vertical || 'Other';
+            const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
+
+            // Score each case study by relevance: vertical match (strong) + goal overlap
+            const scored = CASE_STUDIES.map(cs => {
+                const verticalMatch = cs.verticals.includes(vertical) ? 10 : 0;
+                const goalOverlap = cs.goals.filter(g => goals.includes(g)).length;
+                return { ...cs, score: verticalMatch + goalOverlap };
+            }).filter(cs => cs.score > 0);
+
+            // Sort by score descending, take top 2
+            scored.sort((a, b) => b.score - a.score);
+            const selected = scored.slice(0, 2);
+
+            if (selected.length === 0) {
+                el.style.display = 'none';
+                return;
+            }
+
+            let html = `<h2>Relevant Case Studies</h2>
+                <p style="color:var(--text-secondary);margin-bottom:16px;font-size:0.9rem">
+                    Real TikTok success stories from ${vertical === 'Other' ? 'similar brands' : 'the ' + vertical + ' vertical'} aligned to your campaign objectives.
+                </p>
+                <div class="case-study-grid">`;
+
+            selected.forEach(cs => {
+                const resultItems = cs.results.map(r =>
+                    `<div class="case-study-metric">
+                        <span class="case-study-metric-value">${r.value}</span>
+                        <span class="case-study-metric-label">${r.metric}</span>
+                    </div>`
+                ).join('');
+
+                const formatTags = cs.formats.map(f =>
+                    `<span class="case-study-tag">${f}</span>`
+                ).join('');
+
+                const goalTags = cs.goals.filter(g => goals.includes(g)).map(g =>
+                    `<span class="case-study-tag goal-tag">${g}</span>`
+                ).join('');
+
+                html += `
+                    <div class="case-study-card">
+                        <div class="case-study-header">
+                            <span class="case-study-brand">${cs.brand}</span>
+                            <div class="case-study-tags">${goalTags}</div>
+                        </div>
+                        <h3 class="case-study-headline">${cs.headline}</h3>
+                        <div class="case-study-body">
+                            <div class="case-study-detail">
+                                <span class="case-study-detail-label">Challenge</span>
+                                <p>${cs.challenge}</p>
+                            </div>
+                            <div class="case-study-detail">
+                                <span class="case-study-detail-label">Solution</span>
+                                <p>${cs.solution}</p>
+                            </div>
+                        </div>
+                        <div class="case-study-results">${resultItems}</div>
+                        <div class="case-study-formats">
+                            <span class="case-study-detail-label">Formats Used</span>
+                            <div class="case-study-tags">${formatTags}</div>
+                        </div>
+                    </div>`;
+            });
+
+            html += `</div>`;
             el.innerHTML = html;
         }
 
