@@ -6,18 +6,34 @@
     <title>TikTok Sales Enablement Tool</title>
     <style>
         :root {
+            /* TikTok primary */
             --tiktok-red: #fe2c55;
             --tiktok-blue: #25f4ee;
             --tiktok-black: #000000;
+
+            /* TikTok extended palette (from brand reference) */
+            --tiktok-lavender: #d4a5c9;
+            --tiktok-mint: #a8e6cf;
+            --tiktok-yellow: #ffe45e;
+            --tiktok-teal: #005c5c;
+
+            /* Surfaces */
             --tiktok-dark: #121212;
-            --tiktok-gray: #1f1f1f;
-            --tiktok-light-gray: #2f2f2f;
+            --tiktok-gray: #161616;
+            --tiktok-light-gray: #2a2a2a;
+            --card-bg: #0f0f0f;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-color-strong: rgba(255, 255, 255, 0.14);
+
+            /* Text */
             --text-primary: #ffffff;
-            --text-secondary: #a0a0a0;
+            --text-secondary: #8e8e8e;
+
+            /* Semantic */
             --success: #00c853;
             --warning: #ffc107;
-            --card-bg: #1a1a1a;
-            --border-color: #333;
+
+            /* Motion */
             --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
             --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
         }
@@ -30,29 +46,22 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: #050505;
+            background: #000000;
             color: var(--text-primary);
             min-height: 100vh;
             line-height: 1.6;
             position: relative;
         }
 
-        /* Subtle ambient background gradient */
+        /* Very subtle ambient glow — barely perceptible */
         body::before {
             content: '';
             position: fixed;
             inset: 0;
-            background: radial-gradient(ellipse at 20% 50%, rgba(254, 44, 85, 0.06) 0%, transparent 50%),
-                        radial-gradient(ellipse at 80% 50%, rgba(37, 244, 238, 0.04) 0%, transparent 50%),
-                        radial-gradient(ellipse at 50% 100%, rgba(37, 244, 238, 0.03) 0%, transparent 40%);
-            animation: ambientShift 25s ease-in-out infinite alternate;
+            background: radial-gradient(ellipse at 15% 20%, rgba(254, 44, 85, 0.035) 0%, transparent 45%),
+                        radial-gradient(ellipse at 85% 80%, rgba(37, 244, 238, 0.025) 0%, transparent 45%);
             pointer-events: none;
             z-index: 0;
-        }
-
-        @keyframes ambientShift {
-            0% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0.7; transform: scale(1.1); }
         }
 
         .container {
@@ -74,18 +83,8 @@
         header h1 {
             font-size: 2.5rem;
             font-weight: 800;
-            color: transparent;
-            background: linear-gradient(135deg, var(--tiktok-red), #ff6b8a, var(--tiktok-blue));
-            background-size: 200% 200%;
-            -webkit-background-clip: text;
-            background-clip: text;
+            color: var(--text-primary);
             margin-bottom: 10px;
-            animation: gradientText 6s ease infinite;
-        }
-
-        @keyframes gradientText {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
         }
 
         header p {
@@ -120,8 +119,8 @@
             width: 8px;
             height: 8px;
             border-radius: 50%;
-            background: var(--tiktok-blue);
-            box-shadow: 0 0 10px rgba(37, 244, 238, 0.6);
+            background: var(--tiktok-red);
+            box-shadow: 0 0 8px rgba(254, 44, 85, 0.5);
         }
 
         .progress-text {
@@ -144,8 +143,8 @@
         }
 
         .step-dot {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.1);
             transition: all 0.4s var(--ease-out-expo);
@@ -153,42 +152,38 @@
         }
 
         .step-dot.active {
-            width: 28px;
-            border-radius: 4px;
-            background: linear-gradient(90deg, var(--tiktok-red), var(--tiktok-blue));
-            box-shadow: 0 0 12px rgba(37, 244, 238, 0.3);
+            width: 24px;
+            border-radius: 3px;
+            background: var(--tiktok-red);
         }
 
         .step-dot.completed {
             background: var(--tiktok-red);
-            box-shadow: 0 0 6px rgba(254, 44, 85, 0.3);
         }
 
         .step-connector {
-            width: 12px;
+            width: 8px;
             height: 1px;
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.06);
             flex-shrink: 0;
         }
 
         .step-connector.completed {
-            background: linear-gradient(90deg, var(--tiktok-red), rgba(254, 44, 85, 0.3));
+            background: rgba(254, 44, 85, 0.4);
         }
 
         /* ── Cards ─────────────────────────────────────────── */
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
-            border-radius: 16px;
+            border-radius: 12px;
             padding: 28px;
             margin-bottom: 20px;
             position: relative;
-            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4),
-                        0 1px 3px rgba(0, 0, 0, 0.3);
             overflow: hidden;
         }
 
-        /* Gradient top-edge accent on active card */
+        /* Red top-edge accent on active questionnaire card */
         .question-section.active .card::before {
             content: '';
             position: absolute;
@@ -196,8 +191,7 @@
             left: 0;
             right: 0;
             height: 2px;
-            background: linear-gradient(90deg, var(--tiktok-red), var(--tiktok-blue));
-            opacity: 1;
+            background: var(--tiktok-red);
         }
 
         .card h2 {
@@ -242,20 +236,19 @@
             width: 100%;
             padding: 14px 16px;
             background: var(--tiktok-gray);
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
+            border: 1px solid var(--border-color-strong);
+            border-radius: 8px;
             color: var(--text-primary);
             font-size: 1rem;
-            transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s;
         }
 
         input:focus,
         select:focus,
         textarea:focus {
             outline: none;
-            border-color: var(--tiktok-blue);
-            background: rgba(37, 244, 238, 0.03);
-            box-shadow: 0 0 0 3px rgba(37, 244, 238, 0.12), 0 0 20px rgba(37, 244, 238, 0.06);
+            border-color: var(--tiktok-red);
+            box-shadow: 0 0 0 2px rgba(254, 44, 85, 0.15);
         }
 
         textarea {
@@ -279,23 +272,21 @@
             align-items: center;
             gap: 8px;
             padding: 10px 16px;
-            background: var(--tiktok-gray);
-            border: 2px solid var(--border-color);
+            background: transparent;
+            border: 1px solid var(--border-color-strong);
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.25s var(--ease-out-expo);
         }
 
         .checkbox-item:hover {
-            border-color: var(--tiktok-blue);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.25);
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .checkbox-item.selected {
-            border-color: var(--tiktok-blue);
-            background: rgba(37, 244, 238, 0.08);
-            box-shadow: 0 0 0 1px rgba(37, 244, 238, 0.15);
+            border-color: var(--tiktok-red);
+            background: rgba(254, 44, 85, 0.06);
         }
 
         .checkbox-item input {
@@ -311,24 +302,23 @@
 
         .radio-card {
             padding: 16px;
-            background: var(--tiktok-gray);
-            border: 2px solid var(--border-color);
-            border-radius: 12px;
+            background: transparent;
+            border: 1px solid var(--border-color-strong);
+            border-radius: 10px;
             cursor: pointer;
             text-align: center;
             transition: all 0.25s var(--ease-out-expo);
         }
 
         .radio-card:hover {
-            border-color: var(--tiktok-blue);
-            transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.03);
         }
 
         .radio-card.selected {
             border-color: var(--tiktok-red);
-            background: rgba(254, 44, 85, 0.08);
-            box-shadow: 0 0 0 1px rgba(254, 44, 85, 0.2), 0 4px 16px rgba(254, 44, 85, 0.15);
+            background: rgba(254, 44, 85, 0.06);
         }
 
         .radio-card input {
@@ -371,35 +361,33 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--tiktok-red), #ff6b8a);
+            background: var(--tiktok-red);
             color: white;
-            box-shadow: 0 2px 10px rgba(254, 44, 85, 0.2);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 24px rgba(254, 44, 85, 0.35);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(254, 44, 85, 0.3);
         }
 
         .btn-secondary {
-            background: var(--tiktok-gray);
+            background: transparent;
             color: var(--text-primary);
-            border: 2px solid var(--border-color);
+            border: 1px solid var(--border-color-strong);
         }
 
         .btn-secondary:hover {
-            border-color: var(--tiktok-blue);
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.04);
         }
 
         .btn-generate {
-            background: linear-gradient(135deg, var(--tiktok-blue), #00d4aa);
-            color: var(--tiktok-black);
+            background: var(--tiktok-red);
+            color: white;
             width: 100%;
             padding: 18px;
-            font-size: 1.2rem;
+            font-size: 1.15rem;
             overflow: hidden;
-            box-shadow: 0 4px 20px rgba(37, 244, 238, 0.2);
         }
 
         .btn-generate::after {
@@ -409,7 +397,7 @@
             left: -100%;
             width: 80%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
             animation: btnShimmer 4s ease-in-out infinite;
         }
 
@@ -419,8 +407,8 @@
         }
 
         .btn-generate:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 32px rgba(37, 244, 238, 0.35);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(254, 44, 85, 0.3);
         }
 
         .button-group {
@@ -486,7 +474,7 @@
         .loading-overlay {
             position: fixed;
             inset: 0;
-            background: rgba(5, 5, 5, 0.92);
+            background: rgba(0, 0, 0, 0.94);
             z-index: 10000;
             display: flex;
             flex-direction: column;
@@ -566,7 +554,7 @@
         }
 
         .loading-phase.active {
-            color: var(--tiktok-blue);
+            color: var(--tiktok-red);
         }
 
         .loading-phase.completed {
@@ -583,8 +571,8 @@
         }
 
         .loading-phase.active .loading-phase-dot {
-            background: var(--tiktok-blue);
-            box-shadow: 0 0 10px rgba(37, 244, 238, 0.5);
+            background: var(--tiktok-red);
+            box-shadow: 0 0 10px rgba(254, 44, 85, 0.5);
             animation: phasePulse 1.5s ease-in-out infinite;
         }
 
@@ -606,26 +594,37 @@
         }
 
         .loading-client-name {
-            color: var(--tiktok-blue);
+            color: var(--tiktok-red);
             font-weight: 600;
         }
 
         /* ── Output Document ───────────────────────────────── */
-        .doc-header {
-            background: linear-gradient(135deg, var(--tiktok-red) 0%, #ff6b8a 50%, var(--tiktok-blue) 100%);
-            padding: 36px 40px;
-            text-align: center;
+        .doc-frame {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color-strong);
+            border-radius: 12px;
+            overflow: hidden;
             position: relative;
         }
 
-        .doc-header::after {
+        /* Red accent line at top of document frame */
+        .doc-frame::before {
             content: '';
             position: absolute;
-            bottom: 0;
-            left: 10%;
-            right: 10%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--tiktok-red);
+            z-index: 1;
+        }
+
+        .doc-header {
+            background: var(--tiktok-black);
+            padding: 40px 40px 36px;
+            text-align: center;
+            position: relative;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .doc-output {
@@ -655,7 +654,7 @@
         .doc-section h2 {
             font-size: 1.25rem;
             margin-bottom: 12px;
-            color: var(--tiktok-blue);
+            color: var(--tiktok-red);
             display: flex;
             align-items: center;
             gap: 8px;
@@ -669,10 +668,10 @@
             grid-template-columns: 1fr 1fr;
             gap: 8px 24px;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 12px;
+            background: var(--tiktok-gray);
+            border-radius: 10px;
             border: 1px solid var(--border-color);
-            border-left: 3px solid var(--tiktok-blue);
+            border-left: 3px solid var(--tiktok-red);
         }
         .doc-overview-grid .doc-label {
             font-weight: 600;
@@ -697,7 +696,7 @@
         .doc-table th {
             text-align: left;
             padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.04);
+            background: var(--tiktok-gray);
             border: 1px solid var(--border-color);
             font-weight: 600;
             font-size: 0.82rem;
@@ -720,25 +719,22 @@
         /* ── Callouts ──────────────────────────────────────── */
         .doc-callout {
             padding: 16px 20px;
-            border-radius: 10px;
+            border-radius: 8px;
             margin: 14px 0;
             font-size: 0.9rem;
-            border: 1px solid transparent;
+            border: 1px solid var(--border-color);
         }
         .doc-callout.info {
-            background: rgba(37, 244, 238, 0.04);
-            border-color: rgba(37, 244, 238, 0.12);
+            background: var(--tiktok-gray);
             border-left: 3px solid var(--tiktok-blue);
         }
         .doc-callout.success {
-            background: rgba(0, 200, 83, 0.04);
-            border-color: rgba(0, 200, 83, 0.12);
+            background: var(--tiktok-gray);
             border-left: 3px solid var(--success);
         }
         .doc-callout.warning {
-            background: rgba(255, 193, 7, 0.04);
-            border-color: rgba(255, 193, 7, 0.12);
-            border-left: 3px solid var(--warning);
+            background: var(--tiktok-gray);
+            border-left: 3px solid var(--tiktok-red);
         }
 
         /* ── AI Content ────────────────────────────────────── */
@@ -759,7 +755,7 @@
             padding: 3px 0;
         }
         .doc-ai-content strong {
-            color: var(--tiktok-blue);
+            color: var(--tiktok-red);
         }
         .doc-ai-content blockquote {
             margin: 10px 0;
@@ -868,10 +864,19 @@
                 display: none;
             }
 
-            .card {
+            .card, .doc-frame {
                 background: white;
                 border: 1px solid #ddd;
                 box-shadow: none;
+            }
+
+            .doc-frame::before {
+                background: #333;
+            }
+
+            .doc-header {
+                background: #f8f8f8;
+                border-bottom: 1px solid #ddd;
             }
 
             .doc-table th {
@@ -885,6 +890,10 @@
 
             .doc-section h2 {
                 color: #333;
+            }
+
+            .doc-callout {
+                background: #f8f8f8;
             }
 
             .btn, #questionnaire-section, .loading-overlay, .step-indicators, .progress-container, .progress-text {
@@ -1341,11 +1350,11 @@
 
         <!-- Output Section — Unified Document -->
         <div id="output-section">
-            <div class="card" style="padding:0;overflow:hidden">
+            <div class="doc-frame">
                 <!-- Doc header -->
                 <div class="doc-header">
-                    <h1 style="font-size:1.6rem;margin-bottom:4px" id="output-client-name">Client</h1>
-                    <p style="opacity:0.9;font-size:1rem" id="output-subtitle">TikTok Campaign Proposal</p>
+                    <h1 style="font-size:1.6rem;font-weight:800;margin-bottom:4px" id="output-client-name">Client</h1>
+                    <p style="opacity:0.7;font-size:0.95rem;letter-spacing:0.02em" id="output-subtitle">TikTok Campaign Proposal</p>
                 </div>
 
                 <div class="doc-output" style="padding:32px 40px">
@@ -2626,7 +2635,7 @@ Rules:
             if (!md) return '';
             return md
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')  // escape HTML
-                .replace(/^## (.+)$/gm, '<h3 style="margin:18px 0 8px;font-size:1.1rem;color:var(--tiktok-blue)">$1</h3>')
+                .replace(/^## (.+)$/gm, '<h3 style="margin:18px 0 8px;font-size:1.1rem;color:var(--tiktok-red)">$1</h3>')
                 .replace(/^### (.+)$/gm, '<h4 style="margin:14px 0 6px;font-size:1rem">$1</h4>')
                 .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
                 .replace(/^- (.+)$/gm, '<li style="padding:4px 0;margin-left:20px">$1</li>')
