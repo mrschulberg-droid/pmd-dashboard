@@ -18,6 +18,8 @@
             --warning: #ffc107;
             --card-bg: #1a1a1a;
             --border-color: #333;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         * {
@@ -28,49 +30,76 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: linear-gradient(135deg, var(--tiktok-black) 0%, var(--tiktok-dark) 100%);
+            background: #050505;
             color: var(--text-primary);
             min-height: 100vh;
             line-height: 1.6;
+            position: relative;
+        }
+
+        /* Subtle ambient background gradient */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(ellipse at 20% 50%, rgba(254, 44, 85, 0.06) 0%, transparent 50%),
+                        radial-gradient(ellipse at 80% 50%, rgba(37, 244, 238, 0.04) 0%, transparent 50%),
+                        radial-gradient(ellipse at 50% 100%, rgba(37, 244, 238, 0.03) 0%, transparent 40%);
+            animation: ambientShift 25s ease-in-out infinite alternate;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes ambientShift {
+            0% { opacity: 1; transform: scale(1); }
+            100% { opacity: 0.7; transform: scale(1.1); }
         }
 
         .container {
             max-width: 900px;
             margin: 0 auto;
             padding: 20px;
+            position: relative;
+            z-index: 1;
         }
 
-        /* Header */
+        /* ── Header ────────────────────────────────────────── */
         header {
             text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(135deg, var(--tiktok-red) 0%, #ff6b8a 50%, var(--tiktok-blue) 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            margin-bottom: 30px;
+            padding: 48px 20px 40px;
+            margin-bottom: 32px;
+            position: relative;
         }
 
         header h1 {
             font-size: 2.5rem;
             font-weight: 800;
             color: transparent;
-            background: linear-gradient(135deg, var(--tiktok-red), var(--tiktok-blue));
+            background: linear-gradient(135deg, var(--tiktok-red), #ff6b8a, var(--tiktok-blue));
+            background-size: 200% 200%;
             -webkit-background-clip: text;
             background-clip: text;
             margin-bottom: 10px;
+            animation: gradientText 6s ease infinite;
+        }
+
+        @keyframes gradientText {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
         header p {
             color: var(--text-secondary);
-            font-size: 1.1rem;
+            font-size: 1.05rem;
+            letter-spacing: 0.01em;
         }
 
-        /* Progress Bar */
+        /* ── Progress Bar ──────────────────────────────────── */
         .progress-container {
-            background: var(--tiktok-gray);
+            background: rgba(255, 255, 255, 0.06);
             border-radius: 10px;
-            height: 8px;
-            margin-bottom: 30px;
+            height: 4px;
+            margin-bottom: 16px;
             overflow: hidden;
         }
 
@@ -78,24 +107,97 @@
             height: 100%;
             background: linear-gradient(90deg, var(--tiktok-red), var(--tiktok-blue));
             border-radius: 10px;
-            transition: width 0.3s ease;
+            transition: width 0.5s var(--ease-out-expo);
             width: 0%;
+            position: relative;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: -2px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--tiktok-blue);
+            box-shadow: 0 0 10px rgba(37, 244, 238, 0.6);
         }
 
         .progress-text {
             text-align: center;
             color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 20px;
+            font-size: 0.8rem;
+            margin-bottom: 8px;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
         }
 
-        /* Cards */
+        /* ── Step Indicators ───────────────────────────────── */
+        .step-indicators {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 28px;
+            padding: 0 20px;
+        }
+
+        .step-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.4s var(--ease-out-expo);
+            flex-shrink: 0;
+        }
+
+        .step-dot.active {
+            width: 28px;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--tiktok-red), var(--tiktok-blue));
+            box-shadow: 0 0 12px rgba(37, 244, 238, 0.3);
+        }
+
+        .step-dot.completed {
+            background: var(--tiktok-red);
+            box-shadow: 0 0 6px rgba(254, 44, 85, 0.3);
+        }
+
+        .step-connector {
+            width: 12px;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+            flex-shrink: 0;
+        }
+
+        .step-connector.completed {
+            background: linear-gradient(90deg, var(--tiktok-red), rgba(254, 44, 85, 0.3));
+        }
+
+        /* ── Cards ─────────────────────────────────────────── */
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 24px;
+            padding: 28px;
             margin-bottom: 20px;
+            position: relative;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4),
+                        0 1px 3px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        /* Gradient top-edge accent on active card */
+        .question-section.active .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--tiktok-red), var(--tiktok-blue));
+            opacity: 1;
         }
 
         .card h2 {
@@ -116,7 +218,7 @@
             margin-bottom: 16px;
         }
 
-        /* Form Elements */
+        /* ── Form Elements ─────────────────────────────────── */
         .form-group {
             margin-bottom: 20px;
         }
@@ -144,7 +246,7 @@
             border-radius: 10px;
             color: var(--text-primary);
             font-size: 1rem;
-            transition: border-color 0.2s, box-shadow 0.2s;
+            transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
         }
 
         input:focus,
@@ -152,7 +254,8 @@
         textarea:focus {
             outline: none;
             border-color: var(--tiktok-blue);
-            box-shadow: 0 0 0 3px rgba(37, 244, 238, 0.2);
+            background: rgba(37, 244, 238, 0.03);
+            box-shadow: 0 0 0 3px rgba(37, 244, 238, 0.12), 0 0 20px rgba(37, 244, 238, 0.06);
         }
 
         textarea {
@@ -164,7 +267,7 @@
             cursor: pointer;
         }
 
-        /* Checkbox Group */
+        /* ── Checkbox Group ────────────────────────────────── */
         .checkbox-group {
             display: flex;
             flex-wrap: wrap;
@@ -180,23 +283,26 @@
             border: 2px solid var(--border-color);
             border-radius: 8px;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.25s var(--ease-out-expo);
         }
 
         .checkbox-item:hover {
             border-color: var(--tiktok-blue);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
         .checkbox-item.selected {
             border-color: var(--tiktok-blue);
-            background: rgba(37, 244, 238, 0.1);
+            background: rgba(37, 244, 238, 0.08);
+            box-shadow: 0 0 0 1px rgba(37, 244, 238, 0.15);
         }
 
         .checkbox-item input {
             display: none;
         }
 
-        /* Radio Cards */
+        /* ── Radio Cards ───────────────────────────────────── */
         .radio-cards {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -210,17 +316,19 @@
             border-radius: 12px;
             cursor: pointer;
             text-align: center;
-            transition: all 0.2s;
+            transition: all 0.25s var(--ease-out-expo);
         }
 
         .radio-card:hover {
             border-color: var(--tiktok-blue);
-            transform: translateY(-2px);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
         .radio-card.selected {
             border-color: var(--tiktok-red);
-            background: rgba(254, 44, 85, 0.1);
+            background: rgba(254, 44, 85, 0.08);
+            box-shadow: 0 0 0 1px rgba(254, 44, 85, 0.2), 0 4px 16px rgba(254, 44, 85, 0.15);
         }
 
         .radio-card input {
@@ -230,6 +338,11 @@
         .radio-card .radio-icon {
             font-size: 2rem;
             margin-bottom: 8px;
+            transition: transform 0.25s var(--ease-out-expo);
+        }
+
+        .radio-card:hover .radio-icon {
+            transform: scale(1.1);
         }
 
         .radio-card .radio-label {
@@ -237,7 +350,7 @@
             font-size: 0.95rem;
         }
 
-        /* Buttons */
+        /* ── Buttons ───────────────────────────────────────── */
         .btn {
             padding: 14px 28px;
             border: none;
@@ -245,20 +358,27 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.25s var(--ease-out-expo);
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            position: relative;
+        }
+
+        .btn:active {
+            transform: scale(0.97) !important;
+            transition-duration: 0.1s;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, var(--tiktok-red), #ff6b8a);
             color: white;
+            box-shadow: 0 2px 10px rgba(254, 44, 85, 0.2);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(254, 44, 85, 0.4);
+            box-shadow: 0 6px 24px rgba(254, 44, 85, 0.35);
         }
 
         .btn-secondary {
@@ -269,6 +389,7 @@
 
         .btn-secondary:hover {
             border-color: var(--tiktok-blue);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
         }
 
         .btn-generate {
@@ -277,27 +398,68 @@
             width: 100%;
             padding: 18px;
             font-size: 1.2rem;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(37, 244, 238, 0.2);
+        }
+
+        .btn-generate::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 80%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            animation: btnShimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes btnShimmer {
+            0% { left: -100%; }
+            40%, 100% { left: 120%; }
         }
 
         .btn-generate:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 20px rgba(37, 244, 238, 0.4);
+            box-shadow: 0 8px 32px rgba(37, 244, 238, 0.35);
         }
 
         .button-group {
             display: flex;
             gap: 12px;
-            margin-top: 20px;
+            margin-top: 24px;
         }
 
-        /* Hidden sections */
+        /* ── Step Transitions ──────────────────────────────── */
+        #questionnaire-section {
+            position: relative;
+            overflow: hidden;
+        }
+
         .question-section {
             display: none;
         }
 
         .question-section.active {
             display: block;
-            animation: fadeIn 0.3s ease;
+            animation: slideInRight 0.5s var(--ease-out-expo);
+        }
+
+        .question-section.active.entering-left {
+            animation: slideInLeft 0.5s var(--ease-out-expo);
+        }
+
+        .question-section.active.entering-right {
+            animation: slideInRight 0.5s var(--ease-out-expo);
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         @keyframes fadeIn {
@@ -305,75 +467,185 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Output Section */
+        /* ── Output Section ────────────────────────────────── */
         #output-section {
             display: none;
         }
 
         #output-section.active {
             display: block;
+            animation: outputReveal 0.6s var(--ease-out-expo);
         }
 
-        /* Responsive */
-        @media (max-width: 600px) {
-            header h1 {
-                font-size: 1.8rem;
-            }
-
-            .radio-cards {
-                grid-template-columns: repeat(2, 1fr);
-            }
-
-            .button-group {
-                flex-direction: column;
-            }
-
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
+        @keyframes outputReveal {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Print styles */
-        @media print {
-            body {
-                background: white;
-                color: black;
-            }
-
-            .card {
-                background: white;
-                border: 1px solid #ddd;
-            }
-
-            .doc-table th {
-                background: #f0f0f0;
-                color: #333;
-            }
-
-            .doc-table td {
-                color: #333;
-            }
-
-            .doc-section h2 {
-                color: #333;
-            }
-
-            .btn, #questionnaire-section {
-                display: none;
-            }
-
-            #output-section {
-                display: block !important;
-            }
+        /* ── Loading Overlay ───────────────────────────────── */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(5, 5, 5, 0.92);
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
         }
 
-        /* Unified document output */
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .loading-brand {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 48px;
+        }
+
+        .loading-ring {
+            width: 56px;
+            height: 56px;
+            border: 3px solid rgba(255, 255, 255, 0.06);
+            border-radius: 50%;
+            position: relative;
+            margin-bottom: 40px;
+        }
+
+        .loading-ring::before,
+        .loading-ring::after {
+            content: '';
+            position: absolute;
+            inset: -3px;
+            border: 3px solid transparent;
+            border-radius: 50%;
+        }
+
+        .loading-ring::before {
+            border-top-color: var(--tiktok-red);
+            animation: ringSpinA 1.2s linear infinite;
+        }
+
+        .loading-ring::after {
+            border-bottom-color: var(--tiktok-blue);
+            animation: ringSpinB 1.2s linear infinite;
+        }
+
+        @keyframes ringSpinA {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes ringSpinB {
+            to { transform: rotate(-360deg); }
+        }
+
+        .loading-phases {
+            display: flex;
+            gap: 32px;
+            margin-bottom: 32px;
+        }
+
+        .loading-phase {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.5s var(--ease-out-expo);
+        }
+
+        .loading-phase.active {
+            color: var(--tiktok-blue);
+        }
+
+        .loading-phase.completed {
+            color: var(--success);
+        }
+
+        .loading-phase-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: all 0.5s var(--ease-out-expo);
+            flex-shrink: 0;
+        }
+
+        .loading-phase.active .loading-phase-dot {
+            background: var(--tiktok-blue);
+            box-shadow: 0 0 10px rgba(37, 244, 238, 0.5);
+            animation: phasePulse 1.5s ease-in-out infinite;
+        }
+
+        .loading-phase.completed .loading-phase-dot {
+            background: var(--success);
+            box-shadow: 0 0 8px rgba(0, 200, 83, 0.4);
+        }
+
+        @keyframes phasePulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.5); opacity: 0.6; }
+        }
+
+        .loading-status {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            min-height: 1.4em;
+            transition: opacity 0.3s;
+        }
+
+        .loading-client-name {
+            color: var(--tiktok-blue);
+            font-weight: 600;
+        }
+
+        /* ── Output Document ───────────────────────────────── */
+        .doc-header {
+            background: linear-gradient(135deg, var(--tiktok-red) 0%, #ff6b8a 50%, var(--tiktok-blue) 100%);
+            padding: 36px 40px;
+            text-align: center;
+            position: relative;
+        }
+
+        .doc-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 10%;
+            right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+        }
+
         .doc-output {
             max-width: 800px;
             margin: 0 auto;
             font-size: 0.95rem;
         }
+
+        /* Section reveal animation */
+        .doc-output.reveal-mode .doc-section {
+            opacity: 0;
+            transform: translateY(16px);
+        }
+
+        .doc-output .doc-section.revealed {
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+        }
+
         .doc-section {
             margin-bottom: 32px;
             padding-bottom: 24px;
@@ -384,6 +656,9 @@
             font-size: 1.25rem;
             margin-bottom: 12px;
             color: var(--tiktok-blue);
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         .doc-section h3 {
             font-size: 1.05rem;
@@ -392,60 +667,81 @@
         .doc-overview-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 6px 24px;
-            padding: 16px;
-            background: var(--tiktok-gray);
-            border-radius: 10px;
-            border-left: 4px solid var(--tiktok-blue);
+            gap: 8px 24px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            border-left: 3px solid var(--tiktok-blue);
         }
         .doc-overview-grid .doc-label {
             font-weight: 600;
             color: var(--text-secondary);
-            font-size: 0.85rem;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
         .doc-overview-grid .doc-value {
             font-weight: 500;
         }
+
+        /* ── Tables ────────────────────────────────────────── */
         .doc-table {
             width: 100%;
             border-collapse: collapse;
             margin: 12px 0;
             font-size: 0.9rem;
+            border-radius: 8px;
+            overflow: hidden;
         }
         .doc-table th {
             text-align: left;
-            padding: 10px 14px;
-            background: var(--tiktok-gray);
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--border-color);
             font-weight: 600;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
         }
         .doc-table td {
-            padding: 10px 14px;
+            padding: 12px 16px;
             border: 1px solid var(--border-color);
+            transition: background 0.2s;
+        }
+        .doc-table tbody tr:nth-child(even) td {
+            background: rgba(255, 255, 255, 0.015);
         }
         .doc-table tr:hover td {
-            background: rgba(37, 244, 238, 0.03);
+            background: rgba(37, 244, 238, 0.04);
         }
+
+        /* ── Callouts ──────────────────────────────────────── */
         .doc-callout {
-            padding: 14px 18px;
-            border-radius: 8px;
-            margin: 12px 0;
+            padding: 16px 20px;
+            border-radius: 10px;
+            margin: 14px 0;
             font-size: 0.9rem;
+            border: 1px solid transparent;
         }
         .doc-callout.info {
-            background: rgba(37, 244, 238, 0.06);
+            background: rgba(37, 244, 238, 0.04);
+            border-color: rgba(37, 244, 238, 0.12);
             border-left: 3px solid var(--tiktok-blue);
         }
         .doc-callout.success {
-            background: rgba(0, 200, 83, 0.06);
+            background: rgba(0, 200, 83, 0.04);
+            border-color: rgba(0, 200, 83, 0.12);
             border-left: 3px solid var(--success);
         }
         .doc-callout.warning {
-            background: rgba(255, 193, 7, 0.06);
+            background: rgba(255, 193, 7, 0.04);
+            border-color: rgba(255, 193, 7, 0.12);
             border-left: 3px solid var(--warning);
         }
+
+        /* ── AI Content ────────────────────────────────────── */
         .doc-ai-content h3 {
             font-size: 1.05rem;
             margin: 18px 0 8px;
@@ -467,19 +763,45 @@
         }
         .doc-ai-content blockquote {
             margin: 10px 0;
-            padding: 10px 16px;
-            background: rgba(0,200,83,0.06);
+            padding: 12px 18px;
+            background: rgba(0, 200, 83, 0.04);
             border-left: 3px solid #00c853;
-            border-radius: 4px;
+            border-radius: 6px;
             font-style: italic;
         }
 
-        /* Tab navigation for outputs */
-        /* Action buttons for output */
+        /* AI shimmer placeholder */
+        .ai-shimmer {
+            padding: 16px 0;
+        }
+
+        .ai-shimmer-line {
+            height: 12px;
+            border-radius: 6px;
+            background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+            background-size: 200% 100%;
+            animation: shimmerMove 1.5s ease-in-out infinite;
+            margin-bottom: 10px;
+        }
+
+        .ai-shimmer-line:nth-child(1) { width: 90%; }
+        .ai-shimmer-line:nth-child(2) { width: 75%; }
+        .ai-shimmer-line:nth-child(3) { width: 85%; }
+        .ai-shimmer-line:nth-child(4) { width: 60%; animation-delay: 0.15s; }
+        .ai-shimmer-line:nth-child(5) { width: 80%; animation-delay: 0.3s; }
+
+        @keyframes shimmerMove {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* ── Action Buttons ────────────────────────────────── */
         .output-actions {
             display: flex;
             gap: 12px;
-            margin-top: 30px;
+            margin-top: 36px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-color);
             flex-wrap: wrap;
         }
 
@@ -487,6 +809,96 @@
             flex: 1;
             min-width: 150px;
             justify-content: center;
+        }
+
+        /* ── Responsive ────────────────────────────────────── */
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .radio-cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .step-indicators {
+                gap: 4px;
+            }
+
+            .step-dot.active {
+                width: 20px;
+            }
+
+            .step-connector {
+                width: 6px;
+            }
+
+            .loading-phases {
+                flex-direction: column;
+                gap: 12px;
+                align-items: center;
+            }
+
+            .doc-header {
+                padding: 24px 20px;
+            }
+
+            .doc-output {
+                padding: 24px 20px !important;
+            }
+        }
+
+        /* ── Print Styles ──────────────────────────────────── */
+        @media print {
+            body {
+                background: white;
+                color: black;
+            }
+
+            body::before {
+                display: none;
+            }
+
+            .card {
+                background: white;
+                border: 1px solid #ddd;
+                box-shadow: none;
+            }
+
+            .doc-table th {
+                background: #f0f0f0;
+                color: #333;
+            }
+
+            .doc-table td {
+                color: #333;
+            }
+
+            .doc-section h2 {
+                color: #333;
+            }
+
+            .btn, #questionnaire-section, .loading-overlay, .step-indicators, .progress-container, .progress-text {
+                display: none !important;
+            }
+
+            #output-section {
+                display: block !important;
+            }
+
+            .doc-section {
+                opacity: 1 !important;
+                transform: none !important;
+            }
         }
     </style>
 </head>
@@ -504,7 +916,8 @@
         <div class="progress-container">
             <div class="progress-bar" id="progress-bar"></div>
         </div>
-        <div class="progress-text" id="progress-text">Question 1 of 10</div>
+        <div class="progress-text" id="progress-text">Step 1 of 10</div>
+        <div class="step-indicators" id="step-indicators"></div>
 
         <!-- Questionnaire Section -->
         <div id="questionnaire-section">
@@ -930,7 +1343,7 @@
         <div id="output-section">
             <div class="card" style="padding:0;overflow:hidden">
                 <!-- Doc header -->
-                <div style="background:linear-gradient(135deg,var(--tiktok-red) 0%,#ff6b8a 50%,var(--tiktok-blue) 100%);padding:32px 40px;text-align:center">
+                <div class="doc-header">
                     <h1 style="font-size:1.6rem;margin-bottom:4px" id="output-client-name">Client</h1>
                     <p style="opacity:0.9;font-size:1rem" id="output-subtitle">TikTok Campaign Proposal</p>
                 </div>
@@ -1000,6 +1413,27 @@
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-brand">Generating Proposal</div>
+        <div class="loading-ring"></div>
+        <div class="loading-phases">
+            <div class="loading-phase" id="phase-research">
+                <span class="loading-phase-dot"></span>
+                <span>Research</span>
+            </div>
+            <div class="loading-phase" id="phase-analysis">
+                <span class="loading-phase-dot"></span>
+                <span>Analysis</span>
+            </div>
+            <div class="loading-phase" id="phase-generation">
+                <span class="loading-phase-dot"></span>
+                <span>Generation</span>
+            </div>
+        </div>
+        <div class="loading-status" id="loading-status">Preparing proposal...</div>
     </div>
 
     <!-- One-time AI setup modal (only shows if no config found) -->
@@ -1132,6 +1566,7 @@
                 }
             });
 
+            buildStepIndicators();
             updateProgress();
             setupRadioCards();
             setupCheckboxItems();
@@ -1669,17 +2104,50 @@
             });
         }
 
+        function buildStepIndicators() {
+            const container = $('#step-indicators');
+            if (!container) return;
+            let html = '';
+            for (let i = 1; i <= totalSteps; i++) {
+                if (i > 1) html += `<span class="step-connector" data-connector="${i}"></span>`;
+                html += `<span class="step-dot" data-step-dot="${i}"></span>`;
+            }
+            container.innerHTML = html;
+        }
+
         function updateProgress() {
             const progress = (currentStep / totalSteps) * 100;
             $('#progress-bar').style.width = `${progress}%`;
-            $('#progress-text').textContent = `Question ${currentStep} of ${totalSteps}`;
+            $('#progress-text').textContent = `Step ${currentStep} of ${totalSteps}`;
+
+            // Update step indicator dots
+            for (let i = 1; i <= totalSteps; i++) {
+                const dot = $(`[data-step-dot="${i}"]`);
+                const connector = $(`[data-connector="${i}"]`);
+                if (!dot) continue;
+
+                dot.classList.remove('active', 'completed');
+                if (i === currentStep) {
+                    dot.classList.add('active');
+                } else if (i < currentStep) {
+                    dot.classList.add('completed');
+                }
+
+                if (connector) {
+                    connector.classList.toggle('completed', i <= currentStep);
+                }
+            }
         }
 
         function nextStep() {
             if (currentStep < totalSteps) {
-                $(`.question-section[data-step="${currentStep}"]`).classList.remove('active');
+                const current = $(`.question-section[data-step="${currentStep}"]`);
+                current.classList.remove('active', 'entering-left', 'entering-right');
                 currentStep++;
-                $(`.question-section[data-step="${currentStep}"]`).classList.add('active');
+                const next = $(`.question-section[data-step="${currentStep}"]`);
+                next.classList.remove('entering-left');
+                next.classList.add('active', 'entering-right');
+                next.addEventListener('animationend', () => next.classList.remove('entering-right'), { once: true });
                 updateProgress();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
@@ -1687,9 +2155,13 @@
 
         function prevStep() {
             if (currentStep > 1) {
-                $(`.question-section[data-step="${currentStep}"]`).classList.remove('active');
+                const current = $(`.question-section[data-step="${currentStep}"]`);
+                current.classList.remove('active', 'entering-left', 'entering-right');
                 currentStep--;
-                $(`.question-section[data-step="${currentStep}"]`).classList.add('active');
+                const prev = $(`.question-section[data-step="${currentStep}"]`);
+                prev.classList.remove('entering-right');
+                prev.classList.add('active', 'entering-left');
+                prev.addEventListener('animationend', () => prev.classList.remove('entering-left'), { once: true });
                 updateProgress();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
             }
@@ -2186,6 +2658,58 @@ Rules:
             }
         }
 
+        // ── Loading Overlay Helpers ────────────────────────
+        function showLoadingOverlay(clientName) {
+            const overlay = $('#loading-overlay');
+            if (!overlay) return;
+            $('#loading-status').textContent = `Preparing proposal for ${clientName || 'client'}...`;
+            // Reset phases
+            ['phase-research', 'phase-analysis', 'phase-generation'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.classList.remove('active', 'completed');
+            });
+            overlay.classList.add('active');
+        }
+
+        function updateLoadingPhase(phase, status) {
+            const phases = ['phase-research', 'phase-analysis', 'phase-generation'];
+            const idx = phases.indexOf(phase);
+            phases.forEach((p, i) => {
+                const el = document.getElementById(p);
+                if (!el) return;
+                el.classList.remove('active', 'completed');
+                if (i < idx) el.classList.add('completed');
+                else if (i === idx) el.classList.add('active');
+            });
+            if (status) $('#loading-status').textContent = status;
+        }
+
+        function hideLoadingOverlay() {
+            const overlay = $('#loading-overlay');
+            if (overlay) overlay.classList.remove('active');
+        }
+
+        // Shimmer placeholder HTML for AI content areas
+        function getShimmerHTML() {
+            return '<div class="ai-shimmer">' +
+                '<div class="ai-shimmer-line"></div>'.repeat(5) +
+                '</div>';
+        }
+
+        // Cascade reveal for output sections
+        function revealOutputSections() {
+            const docOutput = document.querySelector('.doc-output');
+            if (!docOutput) return;
+            docOutput.classList.add('reveal-mode');
+
+            const sections = docOutput.querySelectorAll('.doc-section');
+            sections.forEach((section, i) => {
+                // Skip hidden sections (like budget advisory when not needed)
+                if (section.style.display === 'none') return;
+                setTimeout(() => section.classList.add('revealed'), 80 * i);
+            });
+        }
+
         function generateOutput() {
             collectFormData();
 
@@ -2202,6 +2726,12 @@ Rules:
             const cfg = getAIConfig() || {};
             const hasAI = !!($('#aiApiKey')?.value?.trim() || cfg.apiKey);
 
+            // Show loading overlay
+            if (hasAI) {
+                showLoadingOverlay(formData.clientName);
+                updateLoadingPhase('phase-research', `Researching ${formData.clientName || 'client'}...`);
+            }
+
             // Always generate deterministic sections
             generateOverview();
             renderBudgetAdvisory();
@@ -2210,25 +2740,18 @@ Rules:
             generateMeasurement();
             generateIncentives();
 
-            // Show output section
-            $('#questionnaire-section').style.display = 'none';
-            $('#output-section').classList.add('active');
+            // Prepare output section (hidden until loading finishes or immediately for non-AI)
             $('#output-client-name').textContent = formData.clientName;
             $('#output-subtitle').textContent = `TikTok Campaign Proposal — ${formData.vertical} | ${formData.market}`;
-            window.scrollTo({ top: 0, behavior: 'smooth' });
 
             // AI content containers
             const aiContainerIds = ['pitch-content', 'funnel-content', 'media-content', 'creative-content', 'bestpractices-content', 'nextsteps-content'];
 
             if (hasAI) {
-                // Show loading state in AI content areas
+                // Set shimmer placeholders in AI content areas
                 aiContainerIds.forEach(id => {
                     const el = document.getElementById(id);
-                    if (el) {
-                        el.innerHTML = '<div class="ai-loading" style="padding:20px;text-align:center;color:#10a37f;font-size:0.95rem">' +
-                            '<div style="margin-bottom:8px">Researching ' + (formData.clientName || 'client') + '...</div>' +
-                            '<div style="font-size:0.8rem;color:#888">Web search → Doc search → AI generation</div></div>';
-                    }
+                    if (el) el.innerHTML = getShimmerHTML();
                 });
 
                 (async () => {
@@ -2236,29 +2759,51 @@ Rules:
                         const research = await callClientResearch(formData.clientName, formData.vertical, formData.market);
                         window._lastClientResearch = research;
 
-                        document.querySelectorAll('.ai-loading').forEach(el => {
-                            el.innerHTML = '<div style="padding:20px;text-align:center;color:#10a37f;font-size:0.95rem">Generating customized proposal...</div>';
-                        });
+                        updateLoadingPhase('phase-analysis', 'Analyzing market data and formats...');
+
+                        // Short pause for visual continuity
+                        await new Promise(r => setTimeout(r, 600));
+
+                        updateLoadingPhase('phase-generation', 'Generating customized proposal...');
 
                         const response = await callAI(aiRequest, research);
-                        document.querySelectorAll('.ai-loading').forEach(el => el.remove());
 
                         if (response) {
                             window._lastAIResponse = response;
                             if (DEBUG) console.log('[AI RESPONSE] keys:', Object.keys(response), response);
+
+                            // Hide loading overlay and show output
+                            hideLoadingOverlay();
+                            $('#questionnaire-section').style.display = 'none';
+                            $('#output-section').classList.add('active');
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                            // Render AI content
                             renderAIResponse(response);
+
+                            // Cascade reveal after a brief setup delay
+                            requestAnimationFrame(() => revealOutputSections());
                         } else {
                             throw new Error('AI returned empty response — check API key and model.');
                         }
                     } catch (err) {
                         console.error('[AI ERROR]', err);
+
+                        // Hide loading and show output with error
+                        hideLoadingOverlay();
+                        $('#questionnaire-section').style.display = 'none';
+                        $('#output-section').classList.add('active');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+
                         const banner = document.createElement('div');
                         banner.className = 'doc-callout warning';
+                        banner.style.marginBottom = '24px';
                         banner.innerHTML = '<strong>AI generation failed:</strong> ' + err.message + '<br><span style="color:var(--text-secondary);font-size:0.85rem">Showing deterministic data only. Check console (F12) for details.</span>';
                         const docOutput = document.querySelector('.doc-output');
                         if (docOutput) docOutput.insertBefore(banner, docOutput.firstChild);
 
-                        document.querySelectorAll('.ai-loading').forEach(el => el.remove());
+                        // Remove shimmer placeholders
+                        document.querySelectorAll('.ai-shimmer').forEach(el => el.remove());
 
                         // Show fallback content in AI sections
                         generateCreativeFallback();
@@ -2269,9 +2814,16 @@ Rules:
                                 el.innerHTML = '<p style="color:var(--text-secondary);font-style:italic">AI content unavailable.</p>';
                             }
                         });
+
+                        requestAnimationFrame(() => revealOutputSections());
                     }
                 })();
             } else {
+                // No AI: show output immediately
+                $('#questionnaire-section').style.display = 'none';
+                $('#output-section').classList.add('active');
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+
                 // No AI: show fallback content
                 generateCreativeFallback();
                 generateBestPracticesFallback();
@@ -2279,6 +2831,8 @@ Rules:
                     const el = document.getElementById(id);
                     if (el) el.innerHTML = '<p style="color:var(--text-secondary);font-style:italic">Configure AI (Ctrl+Shift+K) for customized strategic insights.</p>';
                 });
+
+                requestAnimationFrame(() => revealOutputSections());
             }
         }
 
