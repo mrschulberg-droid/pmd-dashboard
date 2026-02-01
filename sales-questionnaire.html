@@ -945,9 +945,12 @@
                         <div class="doc-ai-content" id="pitch-content"></div>
                     </div>
 
-                    <!-- 3. Full-Funnel Strategy (AI + deterministic table) -->
+                    <!-- 2b. Budget Advisory (shown when budget not provided or below recommended) -->
+                    <div class="doc-section" id="doc-budget-advisory" style="display:none"></div>
+
+                    <!-- 3. Funnel Strategy — title is dynamic based on objectives -->
                     <div class="doc-section" id="doc-funnel">
-                        <h2>Full-Funnel Strategy</h2>
+                        <h2 id="funnel-section-title">Full-Funnel Strategy</h2>
                         <div id="funnel-table"></div>
                         <div class="doc-ai-content" id="funnel-content"></div>
                     </div>
@@ -1392,6 +1395,47 @@
                     "Lead Gen": ["In-Feed Ads", "Lead Gen Ads", "Spark Ads", "Instant Form"],
                     "Engagement": ["In-Feed Ads", "Spark Ads", "Duet/Stitch enabled", "Interactive Add-ons"]
                 },
+                adFormatThresholds: {
+                    "TopView": { "NA": 375000, "EUI": 250000, "LATAM": 200000, "APAC": 200000, "Global": 300000 },
+                    "Branded Hashtag Challenge": { "NA": 150000, "EUI": 130000, "LATAM": 100000, "APAC": 100000, "Global": 150000 },
+                    "Branded Effect": { "NA": 100000, "EUI": 80000, "LATAM": 60000, "APAC": 60000, "Global": 100000 },
+                    "_auctionDefault": 500
+                },
+                marketBenchmarks: {
+                    "NA": {
+                        auctionCPM: { low: 10, high: 15, peakMultiplier: 1.5 },
+                        recommendedMinBudget: { "Awareness": 75000, "Consideration": 50000, "Conversions": 30000, "App Installs": 30000, "Lead Gen": 25000, "Engagement": 40000, "default": 50000 },
+                        peakPeriods: ["Super Bowl", "Black Friday", "Cyber Monday", "Holiday Season", "Back to School"]
+                    },
+                    "EUI": {
+                        auctionCPM: { low: 7, high: 12, peakMultiplier: 1.3 },
+                        recommendedMinBudget: { "Awareness": 50000, "Consideration": 35000, "Conversions": 25000, "default": 35000 },
+                        peakPeriods: ["Black Friday", "Holiday Season", "Summer Sales"]
+                    },
+                    "LATAM": {
+                        auctionCPM: { low: 3, high: 6, peakMultiplier: 1.2 },
+                        recommendedMinBudget: { "Awareness": 25000, "Consideration": 15000, "Conversions": 10000, "default": 20000 },
+                        peakPeriods: ["Black Friday", "Holiday Season", "Carnival"]
+                    },
+                    "APAC": {
+                        auctionCPM: { low: 2, high: 5, peakMultiplier: 1.3 },
+                        recommendedMinBudget: { "Awareness": 20000, "Consideration": 15000, "Conversions": 10000, "default": 15000 },
+                        peakPeriods: ["Singles Day", "Lunar New Year", "Holiday Season"]
+                    },
+                    "Global": {
+                        auctionCPM: { low: 5, high: 10, peakMultiplier: 1.3 },
+                        recommendedMinBudget: { "Awareness": 50000, "Consideration": 30000, "Conversions": 20000, "default": 30000 },
+                        peakPeriods: ["Black Friday", "Holiday Season"]
+                    }
+                },
+                focusedBudgetSplits: {
+                    "Awareness": { upper: 80, mid: 15, lower: 5 },
+                    "Consideration": { upper: 20, mid: 65, lower: 15 },
+                    "Conversions": { upper: 10, mid: 20, lower: 70 },
+                    "App Installs": { upper: 10, mid: 20, lower: 70 },
+                    "Lead Gen": { upper: 10, mid: 30, lower: 60 },
+                    "Engagement": { upper: 30, mid: 60, lower: 10 }
+                },
                 mediaIncentives: [
                     { threshold: 25000, name: "Starter Bonus", value: "5% media credit" },
                     { threshold: 50000, name: "Growth Accelerator", value: "10% media credit + priority support" },
@@ -1652,6 +1696,9 @@
         }
 
         function collectFormData() {
+            const rawBudget = parseReachOrSpend($('#budget').value);
+            const budgetProvided = rawBudget !== null && rawBudget > 0;
+
             formData = {
                 market: $('input[name="market"]:checked')?.value || 'US',
                 vertical: $('#vertical').value || 'E-commerce',
@@ -1666,12 +1713,119 @@
                 pricePoint: $('input[name="price_point"]').value,
                 channels: Array.from($$('input[name="channels"]:checked')).map(i => i.value),
                 creativeStatus: Array.from($$('input[name="creative"]:checked')).map(i => i.value),
-                budget: parseReachOrSpend($('#budget').value) || 50000,
+                budgetProvided,
+                budget: rawBudget || getRecommendedBudget(),
                 startDate: $('#start_date').value,
                 endDate: $('#end_date').value,
                 clientName: $('input[name="client_name"]').value || 'Client'
             };
             return formData;
+        }
+
+        // Get a context-aware recommended budget based on market and objectives
+        function getRecommendedBudget() {
+            const market = $('input[name="market"]:checked')?.value || 'US';
+            const regionPack = mapMarketToRegionPack(market);
+            const goals = Array.from($$('input[name="goal"]:checked')).map(i => i.value);
+            const benchmarks = (tiktokData || window.rawTikTokData)?.marketBenchmarks?.[regionPack]
+                            || (tiktokData || window.rawTikTokData)?.marketBenchmarks?.Global;
+            if (!benchmarks) return 50000;
+
+            const recBudgets = benchmarks.recommendedMinBudget || {};
+            if (goals.length === 0) return recBudgets.default || 50000;
+
+            // Use the highest recommended min across selected goals
+            const max = Math.max(...goals.map(g => recBudgets[g] || recBudgets.default || 50000));
+            return max;
+        }
+
+        // Determine funnel strategy type based on selected objectives
+        function determineFunnelStrategy(goals) {
+            const hasAwareness = goals.some(g => /awareness/i.test(g));
+            const hasEngagement = goals.some(g => /engagement/i.test(g));
+            const hasConsideration = goals.some(g => /consideration/i.test(g));
+            const hasConversion = goals.some(g => /conversion|app install|catalog|lead gen/i.test(g));
+
+            const upperOnly = (hasAwareness || hasEngagement) && !hasConsideration && !hasConversion;
+            const midOnly = hasConsideration && !hasAwareness && !hasEngagement && !hasConversion;
+            const lowerOnly = hasConversion && !hasAwareness && !hasEngagement && !hasConsideration;
+
+            if (upperOnly || midOnly || lowerOnly) {
+                return { type: 'focused', primaryGoal: goals[0] };
+            }
+            return { type: 'full_funnel' };
+        }
+
+        // Filter ad formats by budget using deterministic spend thresholds
+        function filterAdFormatsByBudget(goals, budget, regionPack) {
+            const thresholds = tiktokData.adFormatThresholds || {};
+            const auctionDefault = thresholds._auctionDefault || 500;
+            const allFormats = tiktokData.adFormats || {};
+
+            // Collect unique formats from selected goals
+            const formatSet = new Set();
+            goals.forEach(g => {
+                (allFormats[g] || []).forEach(f => formatSet.add(f));
+            });
+
+            // Filter by budget threshold
+            const affordable = [];
+            const excluded = [];
+            for (const fmt of formatSet) {
+                const fmtThresholds = thresholds[fmt];
+                if (fmtThresholds && typeof fmtThresholds === 'object') {
+                    const minSpend = fmtThresholds[regionPack] || fmtThresholds.Global || 0;
+                    if (budget >= minSpend) {
+                        affordable.push(fmt);
+                    } else {
+                        excluded.push({ format: fmt, minSpend, regionPack });
+                    }
+                } else {
+                    // Auction format — use default threshold
+                    if (budget >= auctionDefault) {
+                        affordable.push(fmt);
+                    }
+                }
+            }
+
+            if (DEBUG) console.log('[AD FORMATS] Budget:', budget, '| Region:', regionPack,
+                '| Affordable:', affordable, '| Excluded:', excluded);
+
+            return { affordable, excluded };
+        }
+
+        // Generate strategic budget advisory based on market, objectives, timing
+        function generateBudgetAdvisory() {
+            const goals = formData.goals.length > 0 ? formData.goals : ['Awareness'];
+            const regionPack = mapMarketToRegionPack(formData.market);
+            const benchmarks = tiktokData.marketBenchmarks?.[regionPack] || tiktokData.marketBenchmarks?.Global || {};
+            const recBudgets = benchmarks.recommendedMinBudget || {};
+            const cpmRange = benchmarks.auctionCPM || {};
+            const peakPeriods = benchmarks.peakPeriods || [];
+
+            // Detect if campaign overlaps a peak period (check scenario keywords)
+            const scenarios = formData.scenarios || [];
+            const isSeasonal = scenarios.some(s => /seasonal/i.test(s));
+            const peakMultiplier = (isSeasonal && cpmRange.peakMultiplier) ? cpmRange.peakMultiplier : 1.0;
+
+            // Calculate recommended range
+            const baseMin = Math.max(...goals.map(g => recBudgets[g] || recBudgets.default || 50000));
+            const adjustedMin = Math.round(baseMin * peakMultiplier);
+            const adjustedMax = Math.round(adjustedMin * 2);
+
+            const advisory = {
+                recommendedRange: { min: adjustedMin, max: adjustedMax },
+                cpmRange: { low: cpmRange.low || 5, high: Math.round((cpmRange.high || 10) * peakMultiplier) },
+                isPeakPeriod: peakMultiplier > 1.0,
+                peakPeriods,
+                budgetProvided: formData.budgetProvided,
+                currentBudget: formData.budget,
+                isBelowRecommended: formData.budget < adjustedMin,
+                regionPack,
+                market: formData.market
+            };
+
+            return advisory;
         }
 
         // Parse "300K", "6M", "5.5M", "$300,000", "6000000", or "" → number | null
@@ -1699,20 +1853,33 @@
         function buildAIRequest() {
             const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
             const budget = formData.budget;
+            const regionPack = mapMarketToRegionPack(formData.market);
 
-            // — Budget split (same logic as generateFunnelTable) —
-            const budgetSplits = tiktokData.budgetSplits || {};
-            const splits = goals.map(g => budgetSplits[g] || budgetSplits['Conversions']);
-            const budgetSplit = {
-                upper: Math.round(splits.reduce((s, v) => s + v.upper, 0) / splits.length),
-                mid:   Math.round(splits.reduce((s, v) => s + v.mid, 0) / splits.length),
-                lower: Math.round(splits.reduce((s, v) => s + v.lower, 0) / splits.length)
-            };
+            // — Funnel strategy: focused (single objective) vs full-funnel —
+            const funnelStrategy = determineFunnelStrategy(goals);
+            const isFocused = funnelStrategy.type === 'focused';
 
-            // — Ad formats: AI determines these from vector store pricing —
-            // Do NOT send hardcoded format list — it causes AI to recommend
-            // formats the budget can't afford. The AI system prompt instructs
-            // it to check the vector store docs for thresholds.
+            // — Budget split: use focused splits for single-objective campaigns —
+            let budgetSplit;
+            if (isFocused) {
+                const focusedSplits = tiktokData.focusedBudgetSplits || {};
+                const fs = focusedSplits[funnelStrategy.primaryGoal] || tiktokData.budgetSplits?.[goals[0]] || { upper: 50, mid: 30, lower: 20 };
+                budgetSplit = { upper: fs.upper, mid: fs.mid, lower: fs.lower };
+            } else {
+                const budgetSplits = tiktokData.budgetSplits || {};
+                const splits = goals.map(g => budgetSplits[g] || budgetSplits['Conversions']);
+                budgetSplit = {
+                    upper: Math.round(splits.reduce((s, v) => s + v.upper, 0) / splits.length),
+                    mid:   Math.round(splits.reduce((s, v) => s + v.mid, 0) / splits.length),
+                    lower: Math.round(splits.reduce((s, v) => s + v.lower, 0) / splits.length)
+                };
+            }
+
+            // — Ad formats: deterministic filtering by budget thresholds —
+            const { affordable, excluded } = filterAdFormatsByBudget(goals, budget, regionPack);
+
+            // — Budget advisory context —
+            const advisory = generateBudgetAdvisory();
 
             // — Qualified incentives —
             const qualifiedIncentives = (tiktokData.mediaIncentives || [])
@@ -1732,12 +1899,13 @@
                     name: formData.clientName,
                     vertical: formData.vertical,
                     market: formData.market,
-                    regionPack: mapMarketToRegionPack(formData.market)
+                    regionPack
                 },
                 campaign: {
                     goals,
                     scenarios: formData.scenarios,
                     budget,
+                    budgetProvided: formData.budgetProvided,
                     startDate: formData.startDate,
                     endDate: formData.endDate,
                     channels: formData.channels
@@ -1766,8 +1934,20 @@
                 },
                 deterministic: {
                     budgetSplit,
+                    funnelStrategy: funnelStrategy.type,
+                    adFormats: affordable,
+                    excludedFormats: excluded,
                     qualifiedIncentives,
                     qualifiedCreativeSupport
+                },
+                strategicContext: {
+                    budgetAdvisory: {
+                        budgetProvided: formData.budgetProvided,
+                        isBelowRecommended: advisory.isBelowRecommended,
+                        recommendedRange: advisory.recommendedRange,
+                        isPeakPeriod: advisory.isPeakPeriod,
+                        estimatedCPMRange: advisory.cpmRange
+                    }
                 }
             };
         }
@@ -1778,30 +1958,33 @@
 You receive:
 1. CLIENT RESEARCH — real-time web research about the brand
 2. CAMPAIGN BRIEF — goals, budget, audience, challenges, creative readiness
-3. DETERMINISTIC DATA — pre-computed numbers (budget splits, incentives) that you MUST reference accurately. NOTE: ad formats are NOT included — you must determine which formats to recommend by checking the TikTok reference docs for pricing and minimum spend thresholds.
-4. TIKTOK REFERENCE DOCS — searchable internal docs about TikTok ad products, pricing, and minimum spend thresholds. ALWAYS consult these docs before recommending any ad format.
+3. DETERMINISTIC DATA — pre-computed numbers (budget splits, incentives, pre-filtered ad formats). Ad formats have already been filtered by minimum spend thresholds — ONLY recommend formats listed in deterministic.adFormats.
+4. STRATEGIC CONTEXT — budget advisory data including whether budget was provided, whether it's below recommended levels, estimated CPM ranges, and seasonality signals. Use this to provide strategic guidance.
+5. TIKTOK REFERENCE DOCS — searchable internal docs about TikTok ad products, pricing, and specifications. Use for product details, not for threshold filtering (already done).
 
 Return a JSON object with exactly 6 keys. Each value is a markdown string. Use ## for section headers, **bold** for emphasis, - for bullet lists, > for callouts.
 
 {
-  "pitch": "The strategic pitch. Open with a specific hook about the client's business (reference their products, market position, recent news). Explain why TikTok is the right platform for their specific challenge and goals RIGHT NOW. End with a confident summary of the recommended approach and expected outcomes. This should feel personally written for this brand — never generic.",
+  "pitch": "The strategic pitch. Open with a specific hook about the client's business (reference their products, market position, recent news). Explain why TikTok is the right platform for their specific challenge and goals RIGHT NOW. If strategicContext.budgetAdvisory.budgetProvided is false, acknowledge that budget is TBD and frame the proposal around recommended investment levels — explain what budget range would drive meaningful impact given the market, objectives, and timing. If the budget is below recommended, note this diplomatically and explain what the budget can realistically achieve. End with a confident summary. This should feel personally written for this brand — never generic.",
 
-  "funnel": "Full-funnel strategy narrative. For each funnel tier (upper/mid/lower), explain the STRATEGIC PURPOSE and which audience segments to target. Reference the deterministic budget split percentages but add strategic context about WHY this allocation makes sense for their goals. Include testing and optimization recommendations.",
+  "funnel": "Strategy narrative aligned to the selected objectives. Check deterministic.funnelStrategy: if 'focused', write a strategy focused on the selected objective (e.g., Awareness-focused with reach as primary and engagement as supporting). Do NOT describe a full-funnel approach when only one objective category is selected. If 'full_funnel', write the traditional upper/mid/lower funnel narrative. Reference the deterministic budget split percentages. Add strategic context about WHY this allocation makes sense. Include testing and optimization recommendations.",
 
-  "mediaPlan": "Ad format recommendations and campaign phasing. Use the TikTok reference docs to check minimum spend thresholds and pricing for each ad product (e.g. TopView, Branded Hashtag Challenge, Branded Effect). ONLY recommend formats the client's budget can actually afford — never suggest a product whose minimum spend exceeds their total campaign budget. For each recommended format, explain WHY it suits this specific client. Organize into campaign phases (Launch → Optimize → Scale) with specific guidance tied to their timeline.",
+  "mediaPlan": "Ad format recommendations and campaign phasing. ONLY recommend formats listed in deterministic.adFormats — these have been pre-filtered by budget thresholds. Do NOT suggest any formats from deterministic.excludedFormats. For each recommended format, explain WHY it suits this specific client. Organize into campaign phases (Launch → Optimize → Scale) with specific guidance tied to their timeline. If the budget limits format options, acknowledge this and explain how to maximize impact with available formats.",
 
   "creative": "Creative strategy including content direction, 3-4 content pillars with example hooks specific to their brand, format recommendations matched to their creative readiness level, and creator/UGC strategy if relevant. Reference their unlocked creative support programs.",
 
-  "bestPractices": "Tailored optimization tips. Mix vertical-specific advice with goal-specific tactics. Include common pitfalls to avoid for their specific situation. Reference TikTok platform capabilities from the docs. Keep it actionable — each tip should be something the team can implement.",
+  "bestPractices": "Tailored optimization tips. Mix vertical-specific advice with goal-specific tactics. Include common pitfalls to avoid for their specific situation. If the budget is tight for the market (check strategicContext), include budget efficiency tips. Reference TikTok platform capabilities from the docs. Keep it actionable — each tip should be something the team can implement.",
 
-  "nextSteps": "5-7 numbered action items to move the proposal forward. Be specific: 'Confirm media plan option', 'Submit BLS survey questions 5 days before launch', 'Share creative assets for review', etc. Tailor to their specific campaign setup, measurement recommendations, and creative readiness."
+  "nextSteps": "5-7 numbered action items to move the proposal forward. Be specific. If budget was not provided, include 'Confirm campaign budget — recommended range: $X–$Y for [market] [objective] campaigns' as the first step. If budget is below recommended, include a step about exploring budget optimization or phased investment. Tailor to their specific campaign setup, measurement recommendations, and creative readiness."
 }
 
 Rules:
 - NEVER invent budget numbers. Use ONLY the deterministic values provided.
-- NEVER recommend ad formats without checking the reference docs for minimum spend thresholds. If a format's minimum spend exceeds the campaign budget, do NOT recommend it.
+- ONLY recommend ad formats listed in deterministic.adFormats. These have been pre-filtered by minimum spend thresholds for the client's budget and market. NEVER recommend formats from deterministic.excludedFormats.
 - NEVER reference incentive tiers the client hasn't unlocked.
 - ALWAYS weave in specifics from the client research — their products, competitors, audience, recent campaigns.
+- When deterministic.funnelStrategy is "focused", match the strategy to the selected objectives. Do NOT describe unrelated funnel stages (e.g., don't discuss conversion optimization for an awareness-only campaign).
+- When campaign.budgetProvided is false, act as a STRATEGIC ADVISER: recommend an appropriate budget range, explain why, and frame the proposal as a planning document rather than a confirmed media plan.
 - Write as if addressing the client directly ("your brand", "your audience") — this is a proposal document.
 - Tone: Confident, strategic, data-informed. Professional but not stiff.
 - Return valid JSON only. No wrapping, no backticks. First character must be {.`;
@@ -2021,6 +2204,7 @@ Rules:
 
             // Always generate deterministic sections
             generateOverview();
+            renderBudgetAdvisory();
             generateFunnelTable();
             generateMediaTables();
             generateMeasurement();
@@ -2104,6 +2288,10 @@ Rules:
             const el = $('#doc-overview');
             if (!el) return;
 
+            const budgetDisplay = formData.budgetProvided
+                ? formatBudget(formData.budget)
+                : `<span style="color:var(--warning)">${formatBudget(formData.budget)} (estimated)</span>`;
+
             el.innerHTML = `
                 <h2>Campaign Overview</h2>
                 <div class="doc-overview-grid">
@@ -2111,7 +2299,7 @@ Rules:
                     <div><span class="doc-label">Vertical</span><span class="doc-value">${formData.vertical}</span></div>
                     <div><span class="doc-label">Market</span><span class="doc-value">${formData.market}</span></div>
                     <div><span class="doc-label">Objectives</span><span class="doc-value">${goals.join(', ')}</span></div>
-                    <div><span class="doc-label">Total Budget</span><span class="doc-value">${formatBudget(formData.budget)}</span></div>
+                    <div><span class="doc-label">Total Budget</span><span class="doc-value">${budgetDisplay}</span></div>
                     <div><span class="doc-label">Flight Dates</span><span class="doc-value">${formatDate(formData.startDate)} – ${formatDate(formData.endDate)}</span></div>
                     <div><span class="doc-label">Target Audience</span><span class="doc-value">${formData.ages.length > 0 ? formData.ages.join(', ') : 'Broad'}${formData.audienceDesc ? ' — ' + formData.audienceDesc : ''}</span></div>
                     <div><span class="doc-label">Product</span><span class="doc-value">${formData.productName}${formData.pricePoint ? ' (' + formData.pricePoint + ')' : ''}</span></div>
@@ -2119,56 +2307,158 @@ Rules:
             `;
         }
 
+        // ── Deterministic: Budget Advisory ───────────────────
+        function renderBudgetAdvisory() {
+            const el = $('#doc-budget-advisory');
+            if (!el) return;
+
+            const advisory = generateBudgetAdvisory();
+
+            // Only show if budget was not provided OR is below recommended minimum
+            if (advisory.budgetProvided && !advisory.isBelowRecommended) {
+                el.style.display = 'none';
+                return;
+            }
+
+            el.style.display = 'block';
+            const goals = formData.goals.length > 0 ? formData.goals : ['Awareness'];
+            const goalLabel = goals.join(' & ');
+            const { min, max } = advisory.recommendedRange;
+
+            let html = `<h2>Budget Advisory</h2>`;
+
+            if (!advisory.budgetProvided) {
+                html += `<div class="doc-callout warning">
+                    <strong>No budget was specified.</strong> The figures below are based on an estimated budget of ${formatBudget(advisory.currentBudget)}, derived from market benchmarks for ${goalLabel} campaigns in the ${advisory.market} market.
+                </div>`;
+            }
+
+            html += `<div class="doc-callout info" style="margin-top:12px">`;
+            html += `<strong>Recommended Budget Range: ${formatBudget(min)} – ${formatBudget(max)}</strong>`;
+            html += `<p style="margin:8px 0 0;color:var(--text-secondary)">Based on:</p>`;
+            html += `<ul style="margin:4px 0 8px 20px;color:var(--text-secondary)">`;
+            html += `<li><strong>Market:</strong> ${advisory.market} — estimated auction CPMs of $${advisory.cpmRange.low}–$${advisory.cpmRange.high}</li>`;
+            html += `<li><strong>Objective:</strong> ${goalLabel} campaigns in this market typically require ${formatBudget(min)}+ for meaningful reach and impact</li>`;
+
+            if (advisory.isPeakPeriod) {
+                html += `<li><strong>Seasonality:</strong> Campaign overlaps with a peak advertising period (${advisory.peakPeriods.join(', ')}), which increases CPMs and competition for inventory</li>`;
+            }
+
+            const durationDays = formData.startDate && formData.endDate
+                ? Math.ceil((new Date(formData.endDate) - new Date(formData.startDate)) / (24 * 60 * 60 * 1000))
+                : null;
+            if (durationDays && durationDays <= 14) {
+                html += `<li><strong>Duration:</strong> Short campaign window (${durationDays} days) limits optimization time — sufficient budget is critical for fast learning and delivery</li>`;
+            }
+
+            html += `</ul>`;
+
+            if (advisory.isBelowRecommended && advisory.budgetProvided) {
+                html += `<p style="margin:8px 0 0"><strong>Current budget of ${formatBudget(advisory.currentBudget)} is below the recommended minimum.</strong> Consider increasing to at least ${formatBudget(min)} to achieve meaningful campaign outcomes.</p>`;
+            }
+
+            html += `</div>`;
+
+            // Show excluded premium formats if any
+            const { excluded } = filterAdFormatsByBudget(goals, formData.budget, advisory.regionPack);
+            if (excluded.length > 0) {
+                html += `<div class="doc-callout info" style="margin-top:12px">`;
+                html += `<strong>Premium Formats Excluded by Budget</strong>`;
+                html += `<p style="margin:6px 0 4px;color:var(--text-secondary)">The following ad formats require higher minimum spend than the current budget:</p>`;
+                html += `<ul style="margin:4px 0 0 20px;color:var(--text-secondary)">`;
+                excluded.forEach(ex => {
+                    html += `<li><strong>${ex.format}</strong> — requires ${formatBudget(ex.minSpend)} minimum (${ex.regionPack})</li>`;
+                });
+                html += `</ul></div>`;
+            }
+
+            el.innerHTML = html;
+        }
+
         // ── Deterministic: Funnel Budget Split Table ─────────
         function generateFunnelTable() {
             const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
-            const budgetSplits = tiktokData.budgetSplits;
-            const splits = goals.map(g => budgetSplits[g] || budgetSplits['Conversions']);
-            const split = {
-                upper: Math.round(splits.reduce((sum, s) => sum + s.upper, 0) / splits.length),
-                mid: Math.round(splits.reduce((sum, s) => sum + s.mid, 0) / splits.length),
-                lower: Math.round(splits.reduce((sum, s) => sum + s.lower, 0) / splits.length)
-            };
+            const funnelStrategy = determineFunnelStrategy(goals);
+            const isFocused = funnelStrategy.type === 'focused';
+
+            // Compute budget split
+            let split;
+            if (isFocused) {
+                const focusedSplits = tiktokData.focusedBudgetSplits || {};
+                split = focusedSplits[funnelStrategy.primaryGoal] || { upper: 80, mid: 15, lower: 5 };
+            } else {
+                const budgetSplits = tiktokData.budgetSplits;
+                const splits = goals.map(g => budgetSplits[g] || budgetSplits['Conversions']);
+                split = {
+                    upper: Math.round(splits.reduce((sum, s) => sum + s.upper, 0) / splits.length),
+                    mid: Math.round(splits.reduce((sum, s) => sum + s.mid, 0) / splits.length),
+                    lower: Math.round(splits.reduce((sum, s) => sum + s.lower, 0) / splits.length)
+                };
+            }
+
+            // Determine which funnel tiers to show and their labels
+            const hasAwareness = goals.some(g => /awareness/i.test(g));
+            const hasEngagement = goals.some(g => /engagement/i.test(g));
+            const hasConsideration = goals.some(g => /consideration/i.test(g));
+            const hasConversion = goals.some(g => /conversion|app install|catalog|lead gen/i.test(g));
+            const upperOnly = (hasAwareness || hasEngagement) && !hasConsideration && !hasConversion;
+            const lowerOnly = hasConversion && !hasAwareness && !hasEngagement && !hasConsideration;
+
+            // Dynamic section title
+            const titleEl = $('#funnel-section-title');
+            if (titleEl) {
+                if (isFocused) {
+                    titleEl.textContent = goals.join(' & ') + ' Strategy';
+                } else {
+                    titleEl.textContent = 'Full-Funnel Strategy';
+                }
+            }
 
             const el = $('#funnel-table');
             if (!el) return;
 
-            el.innerHTML = `
-                <table class="doc-table">
-                    <thead>
-                        <tr>
-                            <th>Funnel Stage</th>
-                            <th>Objective</th>
-                            <th>Budget %</th>
-                            <th>Budget</th>
-                            <th>Key KPIs</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Upper Funnel</strong><br><span style="color:var(--text-secondary);font-size:0.85rem">Awareness</span></td>
-                            <td>Reach & Video Views</td>
-                            <td>${split.upper}%</td>
-                            <td>${formatBudget(formData.budget * split.upper / 100)}</td>
-                            <td>Reach, VTR, CPM</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Mid Funnel</strong><br><span style="color:var(--text-secondary);font-size:0.85rem">Consideration</span></td>
-                            <td>Traffic & Engagement</td>
-                            <td>${split.mid}%</td>
-                            <td>${formatBudget(formData.budget * split.mid / 100)}</td>
-                            <td>CTR, CPC, Engagement Rate</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Lower Funnel</strong><br><span style="color:var(--text-secondary);font-size:0.85rem">Conversion</span></td>
-                            <td>Conversions & Performance</td>
-                            <td>${split.lower}%</td>
-                            <td>${formatBudget(formData.budget * split.lower / 100)}</td>
-                            <td>CVR, CPA, ROAS</td>
-                        </tr>
-                    </tbody>
-                </table>
-            `;
+            // Define tier configurations based on strategy
+            let tiers;
+            if (upperOnly) {
+                tiers = [
+                    { label: 'Primary Reach', sublabel: 'Awareness', objective: 'Reach & Video Views', pct: split.upper, kpis: 'Reach, VTR, CPM, Frequency' },
+                    { label: 'Supporting Engagement', sublabel: 'Engagement', objective: 'Traffic & Engagement', pct: split.mid, kpis: 'CTR, Engagement Rate, Video Completions' }
+                ];
+                // Redistribute lower % into the two visible tiers proportionally
+                const total = split.upper + split.mid;
+                tiers[0].pct = Math.round(split.upper / total * 100);
+                tiers[1].pct = 100 - tiers[0].pct;
+            } else if (lowerOnly) {
+                tiers = [
+                    { label: 'Prospecting', sublabel: 'Awareness', objective: 'Broad Reach & Discovery', pct: split.upper, kpis: 'Reach, CPM' },
+                    { label: 'Consideration', sublabel: 'Engagement', objective: 'Traffic & Engagement', pct: split.mid, kpis: 'CTR, CPC, Landing Page Views' },
+                    { label: 'Conversion', sublabel: 'Performance', objective: 'Conversions & Performance', pct: split.lower, kpis: 'CVR, CPA, ROAS' }
+                ];
+            } else {
+                // Full funnel (default)
+                tiers = [
+                    { label: 'Upper Funnel', sublabel: 'Awareness', objective: 'Reach & Video Views', pct: split.upper, kpis: 'Reach, VTR, CPM' },
+                    { label: 'Mid Funnel', sublabel: 'Consideration', objective: 'Traffic & Engagement', pct: split.mid, kpis: 'CTR, CPC, Engagement Rate' },
+                    { label: 'Lower Funnel', sublabel: 'Conversion', objective: 'Conversions & Performance', pct: split.lower, kpis: 'CVR, CPA, ROAS' }
+                ];
+            }
+
+            let html = `<table class="doc-table">
+                <thead><tr><th>Funnel Stage</th><th>Objective</th><th>Budget %</th><th>Budget</th><th>Key KPIs</th></tr></thead>
+                <tbody>`;
+
+            tiers.forEach(tier => {
+                html += `<tr>
+                    <td><strong>${tier.label}</strong><br><span style="color:var(--text-secondary);font-size:0.85rem">${tier.sublabel}</span></td>
+                    <td>${tier.objective}</td>
+                    <td>${tier.pct}%</td>
+                    <td>${formatBudget(formData.budget * tier.pct / 100)}</td>
+                    <td>${tier.kpis}</td>
+                </tr>`;
+            });
+
+            html += `</tbody></table>`;
+            el.innerHTML = html;
         }
 
         // ── Deterministic: Measurement Framework (HTML) ──────

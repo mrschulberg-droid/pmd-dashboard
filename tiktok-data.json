@@ -54,6 +54,50 @@
     "Lead Gen":     ["In-Feed Ads", "Lead Gen Ads", "Spark Ads", "Instant Form"],
     "Engagement":   ["In-Feed Ads", "Spark Ads", "Duet/Stitch enabled", "Interactive Add-ons"]
   },
+  "adFormatThresholds": {
+    "_note": "Minimum campaign spend (USD) by region for premium formats. Auction formats default to $500.",
+    "TopView":                   { "NA": 375000, "EUI": 250000, "LATAM": 200000, "APAC": 200000, "Global": 300000 },
+    "Branded Hashtag Challenge": { "NA": 150000, "EUI": 130000, "LATAM": 100000, "APAC": 100000, "Global": 150000 },
+    "Branded Effect":            { "NA": 100000, "EUI":  80000, "LATAM":  60000, "APAC":  60000, "Global": 100000 },
+    "_auctionDefault": 500
+  },
+  "marketBenchmarks": {
+    "_note": "CPM ranges (USD), recommended minimum budgets by objective, and known peak periods per region.",
+    "NA": {
+      "auctionCPM": { "low": 10, "high": 15, "peakMultiplier": 1.5 },
+      "recommendedMinBudget": { "Awareness": 75000, "Consideration": 50000, "Conversions": 30000, "App Installs": 30000, "Lead Gen": 25000, "Engagement": 40000, "default": 50000 },
+      "peakPeriods": ["Super Bowl", "Black Friday", "Cyber Monday", "Holiday Season", "Back to School"]
+    },
+    "EUI": {
+      "auctionCPM": { "low": 7, "high": 12, "peakMultiplier": 1.3 },
+      "recommendedMinBudget": { "Awareness": 50000, "Consideration": 35000, "Conversions": 25000, "App Installs": 25000, "Lead Gen": 20000, "Engagement": 30000, "default": 35000 },
+      "peakPeriods": ["Black Friday", "Holiday Season", "Summer Sales"]
+    },
+    "LATAM": {
+      "auctionCPM": { "low": 3, "high": 6, "peakMultiplier": 1.2 },
+      "recommendedMinBudget": { "Awareness": 25000, "Consideration": 15000, "Conversions": 10000, "App Installs": 10000, "Lead Gen": 10000, "Engagement": 15000, "default": 20000 },
+      "peakPeriods": ["Black Friday", "Holiday Season", "Carnival"]
+    },
+    "APAC": {
+      "auctionCPM": { "low": 2, "high": 5, "peakMultiplier": 1.3 },
+      "recommendedMinBudget": { "Awareness": 20000, "Consideration": 15000, "Conversions": 10000, "App Installs": 10000, "Lead Gen": 10000, "Engagement": 15000, "default": 15000 },
+      "peakPeriods": ["Singles Day", "Lunar New Year", "Holiday Season", "Diwali"]
+    },
+    "Global": {
+      "auctionCPM": { "low": 5, "high": 10, "peakMultiplier": 1.3 },
+      "recommendedMinBudget": { "Awareness": 50000, "Consideration": 30000, "Conversions": 20000, "App Installs": 20000, "Lead Gen": 15000, "Engagement": 25000, "default": 30000 },
+      "peakPeriods": ["Black Friday", "Holiday Season"]
+    }
+  },
+  "focusedBudgetSplits": {
+    "_note": "Used when a single objective category is selected (not full-funnel). More aggressive allocation toward the selected goal.",
+    "Awareness":    { "upper": 80, "mid": 15, "lower": 5 },
+    "Consideration":{ "upper": 20, "mid": 65, "lower": 15 },
+    "Conversions":  { "upper": 10, "mid": 20, "lower": 70 },
+    "App Installs": { "upper": 10, "mid": 20, "lower": 70 },
+    "Lead Gen":     { "upper": 10, "mid": 30, "lower": 60 },
+    "Engagement":   { "upper": 30, "mid": 60, "lower": 10 }
+  },
   "adFormatDetails": { "_gemini": true, "_note": "Fetch ad format descriptions from Gemini at runtime." },
   "mediaIncentives": [
     { "threshold": 25000,   "name": "Starter Bonus",    "value": "5% media credit",   "details": "Applied to first campaign" },
