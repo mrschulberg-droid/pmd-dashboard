@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TikTok Sales Enablement Tool</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             /* TikTok primary */
@@ -17,17 +20,28 @@
             --tiktok-yellow: #ffe45e;
             --tiktok-teal: #005c5c;
 
-            /* Surfaces */
+            /* Surface elevation system */
+            --surface-0: #000000;          /* Body */
+            --surface-1: #0a0a0a;          /* Cards — barely lifted */
+            --surface-2: #141414;          /* Inputs — clearly recessed */
+            --surface-3: #1a1a1a;          /* Elevated — active, popover */
+            --surface-4: #222222;          /* Highest — overlay, toast */
+
+            /* Legacy aliases */
             --tiktok-dark: #121212;
-            --tiktok-gray: #161616;
+            --tiktok-gray: var(--surface-2);
             --tiktok-light-gray: #2a2a2a;
-            --card-bg: #0f0f0f;
-            --border-color: rgba(255, 255, 255, 0.08);
-            --border-color-strong: rgba(255, 255, 255, 0.14);
+            --card-bg: var(--surface-1);
+
+            /* Border hierarchy */
+            --border-color: rgba(255, 255, 255, 0.06);
+            --border-color-strong: rgba(255, 255, 255, 0.12);
+            --border-color-hover: rgba(255, 255, 255, 0.22);
 
             /* Text */
             --text-primary: #ffffff;
             --text-secondary: #8e8e8e;
+            --text-tertiary: #5a5a5a;
 
             /* Semantic */
             --success: #00c853;
@@ -45,12 +59,26 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-            background: #000000;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--surface-0);
             color: var(--text-primary);
             min-height: 100vh;
             line-height: 1.6;
+            letter-spacing: 0.005em;
             position: relative;
+        }
+
+        /* Subtle noise texture for materiality */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            opacity: 0.025;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            background-repeat: repeat;
+            background-size: 256px 256px;
+            pointer-events: none;
+            z-index: 0;
         }
 
         /* Very subtle ambient glow — barely perceptible */
@@ -75,30 +103,53 @@
         /* ── Header ────────────────────────────────────────── */
         header {
             text-align: center;
-            padding: 48px 20px 40px;
+            padding: 48px 20px 36px;
             margin-bottom: 32px;
             position: relative;
         }
 
-        header h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--text-primary);
-            margin-bottom: 10px;
+        .header-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 12px;
         }
 
-        header p {
+        .header-logo svg {
+            flex-shrink: 0;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.03em;
+            margin-bottom: 0;
+        }
+
+        header .header-subtitle {
             color: var(--text-secondary);
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             letter-spacing: 0.01em;
+            margin-top: 4px;
+        }
+
+        header .header-rule {
+            width: 48px;
+            height: 2px;
+            background: var(--tiktok-red);
+            border: none;
+            margin: 16px auto 0;
+            border-radius: 1px;
         }
 
         /* ── Progress Bar ──────────────────────────────────── */
         .progress-container {
             background: rgba(255, 255, 255, 0.06);
             border-radius: 10px;
-            height: 4px;
-            margin-bottom: 16px;
+            height: 3px;
+            margin-bottom: 12px;
             overflow: hidden;
         }
 
@@ -111,65 +162,70 @@
             position: relative;
         }
 
-        .progress-bar::after {
-            content: '';
-            position: absolute;
-            right: 0;
-            top: -2px;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--tiktok-red);
-            box-shadow: 0 0 8px rgba(254, 44, 85, 0.5);
-        }
-
         .progress-text {
             text-align: center;
             color: var(--text-secondary);
-            font-size: 0.8rem;
-            margin-bottom: 8px;
-            letter-spacing: 0.05em;
+            font-size: 0.75rem;
+            margin-bottom: 6px;
+            letter-spacing: 0.06em;
             text-transform: uppercase;
+            font-weight: 500;
         }
 
-        /* ── Step Indicators ───────────────────────────────── */
+        /* ── Segmented Step Indicators ────────────────────── */
         .step-indicators {
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 6px;
+            gap: 2px;
             margin-bottom: 28px;
             padding: 0 20px;
         }
 
-        .step-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.1);
-            transition: all 0.4s var(--ease-out-expo);
-            flex-shrink: 0;
+        .step-segment {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            flex: 1;
+            max-width: 100px;
         }
 
-        .step-dot.active {
-            width: 24px;
-            border-radius: 3px;
+        .step-segment-bar {
+            height: 3px;
+            flex: 1;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 2px;
+            transition: background 0.4s var(--ease-out-expo);
+            position: relative;
+        }
+
+        .step-segment.completed .step-segment-bar {
             background: var(--tiktok-red);
         }
 
-        .step-dot.completed {
-            background: var(--tiktok-red);
+        .step-segment.active .step-segment-bar {
+            background: linear-gradient(90deg, var(--tiktok-red), rgba(254, 44, 85, 0.3));
         }
 
-        .step-connector {
-            width: 8px;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.06);
-            flex-shrink: 0;
+        .step-segment-label {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            color: var(--text-tertiary);
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s, color 0.3s;
+            pointer-events: none;
         }
 
-        .step-connector.completed {
-            background: rgba(254, 44, 85, 0.4);
+        .step-segment.active .step-segment-label {
+            opacity: 1;
+            color: var(--tiktok-red);
         }
 
         /* ── Cards ─────────────────────────────────────────── */
@@ -196,6 +252,8 @@
 
         .card h2 {
             font-size: 1.3rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
             margin-bottom: 8px;
             display: flex;
             align-items: center;
@@ -203,7 +261,20 @@
         }
 
         .card h2 .icon {
-            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: rgba(254, 44, 85, 0.1);
+            color: var(--tiktok-red);
+            flex-shrink: 0;
+        }
+
+        .card h2 .icon svg {
+            width: 18px;
+            height: 18px;
         }
 
         .card p.description {
@@ -235,12 +306,13 @@
         textarea {
             width: 100%;
             padding: 14px 16px;
-            background: var(--tiktok-gray);
+            background: var(--surface-2);
             border: 1px solid var(--border-color-strong);
             border-radius: 8px;
             color: var(--text-primary);
+            font-family: inherit;
             font-size: 1rem;
-            transition: border-color 0.3s, box-shadow 0.3s;
+            transition: border-color 0.3s, box-shadow 0.3s, background 0.3s;
         }
 
         input:focus,
@@ -248,7 +320,25 @@
         textarea:focus {
             outline: none;
             border-color: var(--tiktok-red);
-            box-shadow: 0 0 0 2px rgba(254, 44, 85, 0.15);
+            box-shadow: 0 0 0 3px rgba(254, 44, 85, 0.1);
+            background: var(--surface-3);
+        }
+
+        /* Character counter */
+        .char-count {
+            font-size: 0.72rem;
+            color: var(--text-tertiary);
+            text-align: right;
+            margin-top: 4px;
+            transition: color 0.2s;
+        }
+
+        .char-count.near-limit {
+            color: var(--warning);
+        }
+
+        .char-count.at-limit {
+            color: var(--tiktok-red);
         }
 
         textarea {
@@ -280,7 +370,7 @@
         }
 
         .checkbox-item:hover {
-            border-color: rgba(255, 255, 255, 0.25);
+            border-color: var(--border-color-hover);
             background: rgba(255, 255, 255, 0.03);
         }
 
@@ -311,7 +401,7 @@
         }
 
         .radio-card:hover {
-            border-color: rgba(255, 255, 255, 0.25);
+            border-color: var(--border-color-hover);
             transform: translateY(-2px);
             background: rgba(255, 255, 255, 0.03);
         }
@@ -326,13 +416,30 @@
         }
 
         .radio-card .radio-icon {
-            font-size: 2rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
             margin-bottom: 8px;
-            transition: transform 0.25s var(--ease-out-expo);
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-secondary);
+            margin-left: auto;
+            margin-right: auto;
+            transition: all 0.25s var(--ease-out-expo);
+        }
+
+        .radio-card.selected .radio-icon {
+            background: rgba(254, 44, 85, 0.15);
+            color: var(--tiktok-red);
         }
 
         .radio-card:hover .radio-icon {
-            transform: scale(1.1);
+            transform: scale(1.05);
         }
 
         .radio-card .radio-label {
@@ -345,6 +452,7 @@
             padding: 14px 28px;
             border: none;
             border-radius: 10px;
+            font-family: inherit;
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
@@ -438,6 +546,25 @@
 
         .question-section.active.entering-right {
             animation: slideInRight 0.5s var(--ease-out-expo);
+        }
+
+        /* Staggered child entry animations */
+        .question-section.active .card > * {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: staggerIn 0.4s var(--ease-out-expo) forwards;
+        }
+
+        .question-section.active .card > *:nth-child(1) { animation-delay: 0.04s; }
+        .question-section.active .card > *:nth-child(2) { animation-delay: 0.08s; }
+        .question-section.active .card > *:nth-child(3) { animation-delay: 0.12s; }
+        .question-section.active .card > *:nth-child(4) { animation-delay: 0.16s; }
+        .question-section.active .card > *:nth-child(5) { animation-delay: 0.20s; }
+        .question-section.active .card > *:nth-child(6) { animation-delay: 0.24s; }
+
+        @keyframes staggerIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes slideInRight {
@@ -600,9 +727,9 @@
 
         /* ── Output Document ───────────────────────────────── */
         .doc-frame {
-            background: var(--card-bg);
+            background: var(--surface-1);
             border: 1px solid var(--border-color-strong);
-            border-radius: 12px;
+            border-radius: 14px;
             overflow: hidden;
             position: relative;
         }
@@ -620,8 +747,8 @@
         }
 
         .doc-header {
-            background: var(--tiktok-black);
-            padding: 40px 40px 36px;
+            background: var(--surface-0);
+            padding: 48px 40px 40px;
             text-align: center;
             position: relative;
             border-bottom: 1px solid var(--border-color);
@@ -646,21 +773,40 @@
         }
 
         .doc-section {
-            margin-bottom: 32px;
-            padding-bottom: 24px;
+            margin-bottom: 40px;
+            padding-bottom: 32px;
             border-bottom: 1px solid var(--border-color);
+            position: relative;
         }
         .doc-section:last-child { border-bottom: none; }
         .doc-section h2 {
             font-size: 1.25rem;
-            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
             color: var(--tiktok-red);
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+        }
+        .doc-section h2 .section-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: rgba(254, 44, 85, 0.1);
+            flex-shrink: 0;
+        }
+        .doc-section h2 .section-icon svg {
+            width: 16px;
+            height: 16px;
+            color: var(--tiktok-red);
         }
         .doc-section h3 {
             font-size: 1.05rem;
+            letter-spacing: -0.01em;
             margin: 16px 0 8px;
         }
         .doc-overview-grid {
@@ -919,6 +1065,125 @@
             justify-content: center;
         }
 
+        /* ── Toast Notifications ──────────────────────────── */
+        .toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 10001;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            pointer-events: none;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background: var(--surface-4);
+            border: 1px solid var(--border-color-strong);
+            border-radius: 10px;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+            font-weight: 500;
+            pointer-events: auto;
+            transform: translateX(120%);
+            opacity: 0;
+            animation: toastIn 0.4s var(--ease-out-expo) forwards;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .toast.toast-out {
+            animation: toastOut 0.3s var(--ease-out-expo) forwards;
+        }
+
+        .toast-icon {
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .toast-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .toast.toast-success .toast-icon {
+            color: var(--success);
+        }
+
+        .toast.toast-info .toast-icon {
+            color: var(--tiktok-blue);
+        }
+
+        .toast.toast-warning .toast-icon {
+            color: var(--warning);
+        }
+
+        @keyframes toastIn {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @keyframes toastOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(120%); opacity: 0; }
+        }
+
+        /* ── SVG Icon base ────────────────────────────────── */
+        .lucide-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            vertical-align: middle;
+        }
+
+        .lucide-icon svg {
+            width: 1em;
+            height: 1em;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        /* Checkbox/radio card icon containers */
+        .option-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            transition: all 0.25s var(--ease-out-expo);
+        }
+
+        .option-icon svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .checkbox-item.selected .option-icon,
+        .radio-card.selected .option-icon {
+            background: rgba(254, 44, 85, 0.12);
+            color: var(--tiktok-red);
+        }
+
+        /* ── Reduced Motion ───────────────────────────────── */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
         /* ── Responsive ────────────────────────────────────── */
         @media (max-width: 600px) {
             header h1 {
@@ -939,15 +1204,11 @@
             }
 
             .step-indicators {
-                gap: 4px;
+                gap: 1px;
             }
 
-            .step-dot.active {
-                width: 20px;
-            }
-
-            .step-connector {
-                width: 6px;
+            .step-segment-label {
+                display: none;
             }
 
             .loading-phases {
@@ -961,7 +1222,7 @@
             }
 
             .doc-output {
-                padding: 24px 20px !important;
+                padding: 28px 20px !important;
             }
         }
 
@@ -1008,7 +1269,7 @@
                 background: #f8f8f8;
             }
 
-            .btn, #questionnaire-section, .loading-overlay, .step-indicators, .progress-container, .progress-text {
+            .btn, #questionnaire-section, .loading-overlay, .step-indicators, .progress-container, .progress-text, .toast-container {
                 display: none !important;
             }
 
@@ -1026,11 +1287,20 @@
 <body>
     <div class="container">
         <header>
-            <h1>TikTok Sales Enablement Tool</h1>
-            <p>Generate customized pitches, media plans, and recommendations in seconds</p>
-            <span id="data-verified-badge" style="display:inline-block;margin-top:6px;padding:3px 10px;font-size:11px;color:#888;background:#f0f0f0;border-radius:10px"></span>
-            <button id="debug-volatile-btn" style="display:none;margin-top:6px;margin-left:8px;padding:3px 10px;font-size:11px;cursor:pointer;border:1px solid #ccc;border-radius:10px;background:#fff" onclick="showVolatileDebug()">Show volatile overrides</button>
-            <pre id="debug-volatile-output" style="display:none;margin-top:8px;padding:12px;font-size:12px;background:#1e1e1e;color:#d4d4d4;border-radius:8px;text-align:left;overflow-x:auto;max-height:300px"></pre>
+            <div class="header-logo">
+                <!-- TikTok logomark -->
+                <svg width="32" height="36" viewBox="0 0 32 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22.44 8.09A7.28 7.28 0 0 1 18.8.84h-5.23v24.73a4.37 4.37 0 1 1-3-4.14V16a9.82 9.82 0 1 0 8.42 9.72V14.26a12.63 12.63 0 0 0 7.28 2.32V11.3a7.29 7.29 0 0 1-3.83-3.21Z" fill="var(--tiktok-red)"/>
+                    <path d="M21.16 6.81A7.28 7.28 0 0 1 17.52-.44h-5.23v24.73a4.37 4.37 0 1 1-3-4.14V14.72a9.82 9.82 0 1 0 8.42 9.72V13a12.63 12.63 0 0 0 7.28 2.32V10a7.29 7.29 0 0 1-3.83-3.19Z" fill="var(--text-primary)" opacity="0.9"/>
+                </svg>
+                <h1>Sales Enablement Tool</h1>
+            </div>
+            <p class="header-subtitle">Generate customized pitches, media plans, and recommendations</p>
+            <hr class="header-rule">
+            <!-- Debug elements — hidden in production -->
+            <span id="data-verified-badge" style="display:none;margin-top:10px;padding:3px 10px;font-size:10px;color:#666;background:var(--surface-2);border-radius:10px"></span>
+            <button id="debug-volatile-btn" style="display:none;margin-top:6px;margin-left:8px;padding:3px 10px;font-size:10px;cursor:pointer;border:1px solid var(--border-color);border-radius:10px;background:var(--surface-2);color:var(--text-secondary)" onclick="showVolatileDebug()">Show volatile overrides</button>
+            <pre id="debug-volatile-output" style="display:none;margin-top:8px;padding:12px;font-size:11px;background:var(--surface-2);color:var(--text-secondary);border-radius:8px;text-align:left;overflow-x:auto;max-height:300px"></pre>
         </header>
 
         <!-- Progress -->
@@ -1075,15 +1345,15 @@
             <!-- Question 1: Client / Brand Name -->
             <div class="question-section active" data-step="1">
                 <div class="card">
-                    <h2><span class="icon">🏢</span> Client / Brand</h2>
+                    <h2><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg></span> Client / Brand</h2>
                     <p class="description">Who are we building this proposal for?</p>
                     <div class="form-group">
                         <label>Client or Brand Name <span class="required">*</span></label>
                         <input type="text" name="client_name" id="client_name" placeholder="e.g., Nike, Glossier, Duolingo" style="font-size:1.1rem;padding:14px 16px">
                     </div>
-                    <p style="font-size:0.85rem;color:#888;margin-top:8px">The AI will research this brand to customize every output.</p>
+                    <p style="font-size:0.82rem;color:var(--text-secondary);margin-top:8px">The AI will research this brand to customize every output.</p>
                     <div class="button-group">
-                        <button class="btn" onclick="nextStep()">Next →</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -1091,58 +1361,58 @@
             <!-- Question 2: Market -->
             <div class="question-section" data-step="2">
                 <div class="card">
-                    <h2><span class="icon">🌍</span> Market Region</h2>
+                    <h2><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg></span> Market Region</h2>
                     <p class="description">Which market is the client operating in?</p>
                     <div class="radio-cards">
                         <label class="radio-card">
                             <input type="radio" name="market" value="US">
-                            <div class="radio-icon">🇺🇸</div>
+                            <div class="radio-icon">US</div>
                             <div class="radio-label">United States</div>
                         </label>
                         <label class="radio-card">
                             <input type="radio" name="market" value="UK">
-                            <div class="radio-icon">🇬🇧</div>
+                            <div class="radio-icon">UK</div>
                             <div class="radio-label">United Kingdom</div>
                         </label>
                         <label class="radio-card">
                             <input type="radio" name="market" value="Germany">
-                            <div class="radio-icon">🇩🇪</div>
+                            <div class="radio-icon">DE</div>
                             <div class="radio-label">Germany</div>
                         </label>
                         <label class="radio-card">
                             <input type="radio" name="market" value="France">
-                            <div class="radio-icon">🇫🇷</div>
+                            <div class="radio-icon">FR</div>
                             <div class="radio-label">France</div>
                         </label>
                         <label class="radio-card">
                             <input type="radio" name="market" value="Spain">
-                            <div class="radio-icon">🇪🇸</div>
+                            <div class="radio-icon">ES</div>
                             <div class="radio-label">Spain</div>
                         </label>
                         <label class="radio-card">
                             <input type="radio" name="market" value="Italy">
-                            <div class="radio-icon">🇮🇹</div>
+                            <div class="radio-icon">IT</div>
                             <div class="radio-label">Italy</div>
                         </label>
                         <label class="radio-card">
                             <input type="radio" name="market" value="LATAM">
-                            <div class="radio-icon">🌎</div>
+                            <div class="radio-icon">LA</div>
                             <div class="radio-label">LATAM</div>
                         </label>
                         <label class="radio-card">
                             <input type="radio" name="market" value="APAC">
-                            <div class="radio-icon">🌏</div>
+                            <div class="radio-icon">AP</div>
                             <div class="radio-label">APAC</div>
                         </label>
                         <label class="radio-card">
                             <input type="radio" name="market" value="MENA">
-                            <div class="radio-icon">🌍</div>
+                            <div class="radio-icon">ME</div>
                             <div class="radio-label">MENA</div>
                         </label>
                     </div>
                     <div class="button-group">
-                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                        <button class="btn btn-secondary" onclick="prevStep()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -1150,7 +1420,7 @@
             <!-- Question 3: Vertical -->
             <div class="question-section" data-step="3">
                 <div class="card">
-                    <h2><span class="icon">🏢</span> Industry Vertical</h2>
+                    <h2><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/></svg></span> Industry Vertical</h2>
                     <p class="description">What industry is the client in?</p>
                     <div class="form-group">
                         <select name="vertical" id="vertical">
@@ -1173,8 +1443,8 @@
                         </select>
                     </div>
                     <div class="button-group">
-                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                        <button class="btn btn-secondary" onclick="prevStep()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -1182,37 +1452,37 @@
             <!-- Question 4: Main Goal -->
             <div class="question-section" data-step="4">
                 <div class="card">
-                    <h2><span class="icon">🎯</span> Campaign Objectives</h2>
+                    <h2><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></span> Campaign Objectives</h2>
                     <p class="description">What are the client's objectives? (Select all that apply)</p>
                     <div class="checkbox-group" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
                         <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
                             <input type="checkbox" name="goal" value="Awareness">
-                            <span style="font-size: 2rem; margin-bottom: 8px;">📢</span>
+                            <span class="option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></span>
                             <span style="font-weight: 600;">Brand Awareness</span>
                         </label>
                         <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
                             <input type="checkbox" name="goal" value="Consideration">
-                            <span style="font-size: 2rem; margin-bottom: 8px;">💭</span>
+                            <span class="option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></svg></span>
                             <span style="font-weight: 600;">Consideration</span>
                         </label>
                         <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
                             <input type="checkbox" name="goal" value="Conversions">
-                            <span style="font-size: 2rem; margin-bottom: 8px;">💰</span>
+                            <span class="option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></span>
                             <span style="font-weight: 600;">Conversions / Sales</span>
                         </label>
                         <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
                             <input type="checkbox" name="goal" value="App Installs">
-                            <span style="font-size: 2rem; margin-bottom: 8px;">📱</span>
+                            <span class="option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><path d="M12 18h.01"/></svg></span>
                             <span style="font-weight: 600;">App Installs</span>
                         </label>
                         <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
                             <input type="checkbox" name="goal" value="Lead Gen">
-                            <span style="font-size: 2rem; margin-bottom: 8px;">📋</span>
+                            <span class="option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M12 11h4"/><path d="M12 16h4"/><path d="M8 11h.01"/><path d="M8 16h.01"/></svg></span>
                             <span style="font-weight: 600;">Lead Generation</span>
                         </label>
                         <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
                             <input type="checkbox" name="goal" value="Engagement">
-                            <span style="font-size: 2rem; margin-bottom: 8px;">❤️</span>
+                            <span class="option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg></span>
                             <span style="font-weight: 600;">Engagement</span>
                         </label>
                     </div>
@@ -1223,34 +1493,40 @@
                         <div class="checkbox-group">
                             <label class="checkbox-item">
                                 <input type="checkbox" name="scenario" value="New Product Launch">
-                                🚀 New Product Launch
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09Z"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2Z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/></svg>
+                                New Product Launch
                             </label>
                             <label class="checkbox-item">
                                 <input type="checkbox" name="scenario" value="Geo Expansion">
-                                🌍 Geo Expansion
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+                                Geo Expansion
                             </label>
                             <label class="checkbox-item">
                                 <input type="checkbox" name="scenario" value="Rebrand">
-                                ✨ Rebrand
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+                                Rebrand
                             </label>
                             <label class="checkbox-item">
                                 <input type="checkbox" name="scenario" value="Full Funnel">
-                                📊 Full Funnel
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
+                                Full Funnel
                             </label>
                             <label class="checkbox-item">
                                 <input type="checkbox" name="scenario" value="Seasonal Campaign">
-                                🎄 Seasonal Campaign
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                                Seasonal Campaign
                             </label>
                             <label class="checkbox-item">
                                 <input type="checkbox" name="scenario" value="Always On">
-                                🔄 Always On
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg>
+                                Always On
                             </label>
                         </div>
                     </div>
 
                     <div class="button-group">
-                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                        <button class="btn btn-secondary" onclick="prevStep()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -1258,7 +1534,7 @@
             <!-- Question 5: Current Challenge -->
             <div class="question-section" data-step="5">
                 <div class="card">
-                    <h2><span class="icon">⚡</span> Current Challenge</h2>
+                    <h2><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span> Current Challenge</h2>
                     <p class="description">What's the main challenge the client is facing?</p>
                     <div class="form-group">
                         <select name="challenge" id="challenge">
@@ -1280,8 +1556,8 @@
                         <textarea name="challenge_context" placeholder="Any specific details about their challenge..."></textarea>
                     </div>
                     <div class="button-group">
-                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                        <button class="btn btn-secondary" onclick="prevStep()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -1289,7 +1565,7 @@
             <!-- Question 6: Target Audience -->
             <div class="question-section" data-step="6">
                 <div class="card">
-                    <h2><span class="icon">👥</span> Target Audience</h2>
+                    <h2><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span> Target Audience</h2>
                     <p class="description">Who is the client trying to reach?</p>
                     <div class="form-group">
                         <label>Age Range</label>
@@ -1321,8 +1597,8 @@
                         <textarea name="audience_desc" placeholder="Describe the target audience (interests, behaviors, demographics)..."></textarea>
                     </div>
                     <div class="button-group">
-                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                        <button class="btn btn-secondary" onclick="prevStep()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -1330,7 +1606,7 @@
             <!-- Question 7: Product/Offer -->
             <div class="question-section" data-step="7">
                 <div class="card">
-                    <h2><span class="icon">🛍️</span> Product / Offer Angle</h2>
+                    <h2><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span> Product / Offer Angle</h2>
                     <p class="description">What product or offer will be promoted?</p>
                     <div class="form-group">
                         <label>Product/Service Name <span class="required">*</span></label>
@@ -1345,8 +1621,8 @@
                         <input type="text" name="price_point" placeholder="e.g., $49.99, Free trial, 20% off">
                     </div>
                     <div class="button-group">
-                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                        <button class="btn btn-secondary" onclick="prevStep()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -1354,7 +1630,7 @@
             <!-- Question 8: Current Channels -->
             <div class="question-section" data-step="8">
                 <div class="card">
-                    <h2><span class="icon">📣</span> Current Paid Channels</h2>
+                    <h2><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg></span> Current Paid Channels</h2>
                     <p class="description">Which platforms is the client currently advertising on?</p>
                     <div class="checkbox-group">
                         <label class="checkbox-item">
@@ -1395,8 +1671,8 @@
                         </label>
                     </div>
                     <div class="button-group">
-                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                        <button class="btn btn-secondary" onclick="prevStep()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -1404,33 +1680,33 @@
             <!-- Question 9: Creative Situation -->
             <div class="question-section" data-step="9">
                 <div class="card">
-                    <h2><span class="icon">🎬</span> Creative Situation</h2>
+                    <h2><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.2 6 3 11l-.9-2.4c-.3-1.1.3-2.2 1.3-2.5l13.5-4c1.1-.3 2.2.3 2.5 1.3Z"/><path d="m6.2 5.3 3.1 3.9"/><path d="m12.4 3.4 3.1 4"/><path d="M3 11h18v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2Z"/></svg></span> Creative Situation</h2>
                     <p class="description">What's the client's creative readiness for TikTok? (Select all that apply)</p>
                     <div class="checkbox-group" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
                         <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
                             <input type="checkbox" name="creative" value="TikTok-first">
-                            <span style="font-size: 2rem; margin-bottom: 8px;">✅</span>
+                            <span class="option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
                             <span style="font-weight: 600;">TikTok-First Assets Ready</span>
                         </label>
                         <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
                             <input type="checkbox" name="creative" value="Adaptable">
-                            <span style="font-size: 2rem; margin-bottom: 8px;">🔄</span>
+                            <span class="option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></svg></span>
                             <span style="font-weight: 600;">Can Adapt Existing Assets</span>
                         </label>
                         <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
                             <input type="checkbox" name="creative" value="Needs support">
-                            <span style="font-size: 2rem; margin-bottom: 8px;">🆘</span>
+                            <span class="option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="4.93" x2="9.17" y1="4.93" y2="9.17"/><line x1="14.83" x2="19.07" y1="14.83" y2="19.07"/><line x1="14.83" x2="19.07" y1="9.17" y2="4.93"/><line x1="4.93" x2="9.17" y1="19.07" y2="14.83"/></svg></span>
                             <span style="font-weight: 600;">Needs Creative Support</span>
                         </label>
                         <label class="checkbox-item" style="flex-direction: column; text-align: center; padding: 16px;">
                             <input type="checkbox" name="creative" value="No assets">
-                            <span style="font-size: 2rem; margin-bottom: 8px;">📭</span>
+                            <span class="option-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></span>
                             <span style="font-weight: 600;">No Assets Yet</span>
                         </label>
                     </div>
                     <div class="button-group">
-                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-                        <button class="btn btn-primary" onclick="nextStep()">Next →</button>
+                        <button class="btn btn-secondary" onclick="prevStep()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> Back</button>
+                        <button class="btn btn-primary" onclick="nextStep()">Next <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>
                     </div>
                 </div>
             </div>
@@ -1438,7 +1714,7 @@
             <!-- Question 10: Budget & Timeline -->
             <div class="question-section" data-step="10">
                 <div class="card">
-                    <h2><span class="icon">💵</span> Budget & Timeline</h2>
+                    <h2><span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span> Budget & Timeline</h2>
                     <p class="description">What's the investment level and campaign timeline?</p>
                     <div class="form-group">
                         <label>Campaign Budget (USD) <span class="required">*</span></label>
@@ -1454,8 +1730,8 @@
                         <input type="date" name="end_date" id="end_date">
                     </div>
                     <div class="button-group">
-                        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-                        <button class="btn btn-generate" onclick="generateOutput()">✨ Generate Sales Enablement Pack</button>
+                        <button class="btn btn-secondary" onclick="prevStep()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg> Back</button>
+                        <button class="btn btn-generate" onclick="generateOutput()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg> Generate Sales Enablement Pack</button>
                     </div>
                 </div>
             </div>
@@ -1470,7 +1746,7 @@
                     <p style="opacity:0.7;font-size:0.95rem;letter-spacing:0.02em" id="output-subtitle">TikTok Campaign Proposal</p>
                 </div>
 
-                <div class="doc-output" style="padding:32px 40px">
+                <div class="doc-output" style="padding:40px 48px">
                     <!-- 1. Campaign Overview (deterministic) -->
                     <div class="doc-section" id="doc-overview"></div>
 
@@ -1531,9 +1807,9 @@
                     </div>
 
                     <div class="output-actions">
-                        <button class="btn btn-secondary" onclick="copyAll()">📋 Copy All</button>
-                        <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
-                        <button class="btn btn-primary" onclick="startOver()">🔄 Start New</button>
+                        <button class="btn btn-secondary" onclick="copyAll()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg> Copy All</button>
+                        <button class="btn btn-secondary" onclick="window.print()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect width="12" height="8" x="6" y="14"/></svg> Print</button>
+                        <button class="btn btn-primary" onclick="startOver()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg> Start New</button>
                     </div>
                 </div>
             </div>
@@ -1560,6 +1836,9 @@
         </div>
         <div class="loading-status" id="loading-status">Preparing proposal...</div>
     </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container"></div>
 
     <!-- One-time AI setup modal (only shows if no config found) -->
     <div id="ai-setup-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:9999;align-items:center;justify-content:center">
@@ -2613,13 +2892,18 @@
             });
         }
 
+        const STEP_LABELS = ['Brand', 'Market', 'Industry', 'Goals', 'Challenge', 'Audience', 'Product', 'Channels', 'Creative', 'Budget'];
+
         function buildStepIndicators() {
             const container = $('#step-indicators');
             if (!container) return;
             let html = '';
             for (let i = 1; i <= totalSteps; i++) {
-                if (i > 1) html += `<span class="step-connector" data-connector="${i}"></span>`;
-                html += `<span class="step-dot" data-step-dot="${i}"></span>`;
+                html += `<div class="step-segment" data-step-seg="${i}">
+                    <div class="step-segment-bar">
+                        <span class="step-segment-label">${STEP_LABELS[i - 1]}</span>
+                    </div>
+                </div>`;
             }
             container.innerHTML = html;
         }
@@ -2627,23 +2911,18 @@
         function updateProgress() {
             const progress = (currentStep / totalSteps) * 100;
             $('#progress-bar').style.width = `${progress}%`;
-            $('#progress-text').textContent = `Step ${currentStep} of ${totalSteps}`;
+            $('#progress-text').textContent = `Step ${currentStep} of ${totalSteps} — ${STEP_LABELS[currentStep - 1]}`;
 
-            // Update step indicator dots
+            // Update step segments
             for (let i = 1; i <= totalSteps; i++) {
-                const dot = $(`[data-step-dot="${i}"]`);
-                const connector = $(`[data-connector="${i}"]`);
-                if (!dot) continue;
+                const seg = $(`[data-step-seg="${i}"]`);
+                if (!seg) continue;
 
-                dot.classList.remove('active', 'completed');
+                seg.classList.remove('active', 'completed');
                 if (i === currentStep) {
-                    dot.classList.add('active');
+                    seg.classList.add('active');
                 } else if (i < currentStep) {
-                    dot.classList.add('completed');
-                }
-
-                if (connector) {
-                    connector.classList.toggle('completed', i <= currentStep);
+                    seg.classList.add('completed');
                 }
             }
         }
@@ -3560,7 +3839,7 @@ Rules:
                 // Detailed study breakdowns
                 liftRecs.forEach(rec => {
                     html += `<div class="doc-callout ${rec.eligible ? 'success' : 'info'}" style="margin-top:16px">`;
-                    html += `<strong>${rec.eligible ? '✅' : '🔒'} ${rec.name}</strong>`;
+                    html += `<strong>${rec.eligible ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>' : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>'} ${rec.name}</strong>`;
                     html += `<p style="margin:6px 0;color:var(--text-secondary)">${rec.rationale}</p>`;
 
                     if (rec.type === 'bls' && rec.operational) {
@@ -3817,7 +4096,9 @@ Rules:
             navigator.clipboard.writeText(
                 `TIKTOK CAMPAIGN PROPOSAL — ${formData.clientName}\n${new Date().toLocaleDateString()}\n\n` + text
             ).then(() => {
-                alert('Full proposal copied to clipboard!');
+                showToast('Proposal copied to clipboard', 'success');
+            }).catch(() => {
+                showToast('Failed to copy — try selecting text manually', 'warning');
             });
         }
 
@@ -3825,6 +4106,28 @@ Rules:
             if (confirm('Start a new questionnaire? Current data will be cleared.')) {
                 location.reload();
             }
+        }
+
+        // ── Toast Notification System ──────────────────────────
+        function showToast(message, type = 'info', duration = 3000) {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const iconSvgs = {
+                success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+                info: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+                warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.innerHTML = `<span class="toast-icon">${iconSvgs[type] || iconSvgs.info}</span><span>${message}</span>`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.add('toast-out');
+                toast.addEventListener('animationend', () => toast.remove());
+            }, duration);
         }
     </script>
 </body>
