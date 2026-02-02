@@ -862,6 +862,145 @@
             background: rgba(37, 244, 238, 0.04);
         }
 
+        /* ── Branding Planner Editable Inputs ─────────────── */
+        .planner-input {
+            background: transparent;
+            border: 1px dashed var(--border-color-strong);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            padding: 6px 8px;
+            width: 100%;
+            min-width: 80px;
+            box-sizing: border-box;
+            transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+        }
+        .planner-input::placeholder {
+            color: var(--text-tertiary);
+            font-style: italic;
+            font-size: 0.8rem;
+        }
+        .planner-input:hover {
+            border-color: var(--border-color-hover);
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .planner-input:focus {
+            outline: none;
+            border-color: var(--tiktok-blue);
+            border-style: solid;
+            background: rgba(37, 244, 238, 0.04);
+            box-shadow: 0 0 0 2px rgba(37, 244, 238, 0.1);
+        }
+        .planner-input.has-value {
+            border-style: solid;
+            border-color: var(--border-color-strong);
+            background: rgba(255, 255, 255, 0.03);
+            font-weight: 500;
+        }
+        .planner-tier-label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 10px;
+        }
+        .planner-tier-label.upper { background: rgba(37, 244, 238, 0.1); color: var(--tiktok-blue); }
+        .planner-tier-label.mid { background: rgba(254, 44, 85, 0.1); color: var(--tiktok-red); }
+        .planner-tier-label.lower { background: rgba(0, 200, 83, 0.1); color: var(--success); }
+        .planner-summary-row td {
+            border-top: 2px solid var(--border-color-strong) !important;
+            font-weight: 600;
+            background: rgba(37, 244, 238, 0.03) !important;
+        }
+        .planner-buying-type {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+        .planner-buying-type.reservation {
+            background: rgba(254, 44, 85, 0.12);
+            color: var(--tiktok-red);
+        }
+        .planner-buying-type.auction {
+            background: rgba(37, 244, 238, 0.1);
+            color: var(--tiktok-blue);
+        }
+        .planner-notes-input {
+            background: transparent;
+            border: 1px dashed var(--border-color-strong);
+            border-radius: 4px;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem;
+            padding: 6px 8px;
+            width: 100%;
+            min-width: 120px;
+            box-sizing: border-box;
+            resize: none;
+            height: 32px;
+            transition: border-color 0.2s, background 0.2s;
+        }
+        .planner-notes-input::placeholder { color: var(--text-tertiary); font-style: italic; font-size: 0.78rem; }
+        .planner-notes-input:focus {
+            outline: none;
+            border-color: var(--tiktok-blue);
+            border-style: solid;
+            background: rgba(37, 244, 238, 0.04);
+        }
+        .planner-add-row-btn {
+            background: transparent;
+            border: 1px dashed var(--border-color-strong);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem;
+            padding: 8px 16px;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .planner-add-row-btn:hover {
+            border-color: var(--tiktok-blue);
+            color: var(--tiktok-blue);
+            background: rgba(37, 244, 238, 0.04);
+        }
+
+        /* Print styles for planner inputs */
+        @media print {
+            .planner-input, .planner-notes-input {
+                border: 1px solid #ccc !important;
+                border-style: solid !important;
+                color: #333 !important;
+                background: transparent !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .planner-input:empty::placeholder, .planner-notes-input:empty::placeholder {
+                color: #999 !important;
+            }
+            .planner-input.has-value {
+                font-weight: 600 !important;
+                border-color: #333 !important;
+            }
+            .planner-add-row-btn { display: none !important; }
+            .planner-tier-label {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+        }
+
         /* ── Callouts ──────────────────────────────────────── */
         .doc-callout {
             padding: 16px 20px;
@@ -1281,6 +1420,17 @@
                 opacity: 1 !important;
                 transform: none !important;
             }
+
+            .planner-input, .planner-notes-input {
+                border: 1px solid #bbb !important;
+                color: #333 !important;
+            }
+            .planner-input.has-value {
+                font-weight: 600 !important;
+            }
+            .planner-add-row-btn { display: none !important; }
+            .planner-tier-label { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .planner-buying-type { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
 </head>
@@ -1774,6 +1924,18 @@
                         <h2>Media Plan</h2>
                         <div id="media-tables"></div>
                         <div class="doc-ai-content" id="media-content"></div>
+                    </div>
+
+                    <!-- 4b. Branding Planner Estimates (BPM-editable) -->
+                    <div class="doc-section" id="doc-planner-estimates">
+                        <h2>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--tiktok-blue)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;margin-right:6px"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+                            Branding Planner Estimates
+                        </h2>
+                        <p style="color:var(--text-secondary);font-size:0.88rem;margin:-8px 0 16px">
+                            Fill in the estimated delivery metrics from TikTok's official Branding Planner before sending to the client. Click any field to enter values.
+                        </p>
+                        <div id="planner-estimates-content"></div>
                     </div>
 
                     <!-- 5. Creative Strategy (AI) -->
@@ -3526,6 +3688,7 @@ Rules:
             generateCaseStudies();
             generateFunnelTable();
             generateMediaTables();
+            generatePlannerEstimates();
             generateMeasurement();
             generateIncentives();
 
@@ -3926,6 +4089,183 @@ Rules:
             el.innerHTML = html;
         }
 
+        // ── Deterministic: Branding Planner Estimates (BPM-editable) ──
+        function generatePlannerEstimates() {
+            const el = $('#planner-estimates-content');
+            if (!el) return;
+
+            const goals = formData.goals.length > 0 ? formData.goals : ['Conversions'];
+            const funnelStrategy = determineFunnelStrategy(goals);
+            const isFocused = funnelStrategy.type === 'focused';
+            const regionPack = mapMarketToRegionPack(formData.market);
+            const thresholds = tiktokData.adFormatThresholds || {};
+            const { affordable } = filterAdFormatsByBudget(goals, formData.budget, regionPack);
+
+            // Map formats to their funnel tier for grouping
+            const upperFormats = new Set(tiktokData.adFormats['Awareness'] || []);
+            const midFormats = new Set(tiktokData.adFormats['Consideration'] || tiktokData.adFormats['Engagement'] || []);
+            const lowerFormats = new Set(tiktokData.adFormats['Conversions'] || []);
+
+            // Determine buying type from thresholds
+            function getBuyingType(format) {
+                const ft = thresholds[format];
+                return (ft && typeof ft === 'object') ? 'Reservation' : 'Auction';
+            }
+
+            // Determine which tier a format primarily belongs to
+            function getFormatTier(format) {
+                // Premium/reservation formats are upper funnel
+                if (getBuyingType(format) === 'Reservation') return 'upper';
+                if (lowerFormats.has(format) && !upperFormats.has(format) && !midFormats.has(format)) return 'lower';
+                if (midFormats.has(format) && !upperFormats.has(format)) return 'mid';
+                if (upperFormats.has(format)) return 'upper';
+                return 'mid'; // default
+            }
+
+            // Group affordable formats by tier
+            const grouped = { upper: [], mid: [], lower: [] };
+            affordable.forEach(fmt => {
+                const tier = getFormatTier(fmt);
+                grouped[tier].push(fmt);
+            });
+
+            // Compute budget split (same logic as funnel table)
+            let split;
+            if (isFocused) {
+                const focusedSplits = tiktokData.focusedBudgetSplits || {};
+                split = focusedSplits[funnelStrategy.primaryGoal] || { upper: 80, mid: 15, lower: 5 };
+            } else {
+                const budgetSplits = tiktokData.budgetSplits;
+                const splits = goals.map(g => budgetSplits[g] || budgetSplits['Conversions']);
+                split = {
+                    upper: Math.round(splits.reduce((sum, s) => sum + s.upper, 0) / splits.length),
+                    mid: Math.round(splits.reduce((sum, s) => sum + s.mid, 0) / splits.length),
+                    lower: Math.round(splits.reduce((sum, s) => sum + s.lower, 0) / splits.length)
+                };
+            }
+
+            const tierConfig = [
+                { key: 'upper', label: 'Upper Funnel', sublabel: 'Awareness', cssClass: 'upper', pct: split.upper },
+                { key: 'mid',   label: 'Mid Funnel',   sublabel: 'Consideration', cssClass: 'mid', pct: split.mid },
+                { key: 'lower', label: 'Lower Funnel', sublabel: 'Conversion', cssClass: 'lower', pct: split.lower }
+            ];
+
+            // Build HTML
+            let html = '';
+            let rowIndex = 0;
+
+            // Planner metrics columns
+            const metricCols = [
+                { key: 'cpm',         label: 'Est. CPM',         placeholder: 'e.g. $8.50' },
+                { key: 'reach',       label: 'Est. Reach',       placeholder: 'e.g. 2,500,000' },
+                { key: 'impressions', label: 'Est. Impressions', placeholder: 'e.g. 10,000,000' },
+                { key: 'frequency',   label: 'Est. Frequency',   placeholder: 'e.g. 4.0' }
+            ];
+
+            html += `<table class="doc-table" id="planner-estimates-table">
+                <thead><tr>
+                    <th>Ad Placement</th>
+                    <th>Buying Type</th>
+                    <th>Tier Budget</th>
+                    ${metricCols.map(m => `<th>${m.label}</th>`).join('')}
+                    <th>Notes</th>
+                </tr></thead>
+                <tbody>`;
+
+            tierConfig.forEach(tier => {
+                const formats = grouped[tier.key];
+                if (!formats || formats.length === 0) return;
+
+                const tierBudget = formData.budget * tier.pct / 100;
+
+                // Tier sub-header row
+                html += `<tr>
+                    <td colspan="${4 + metricCols.length}" style="padding:12px 16px;background:rgba(255,255,255,0.02);border-bottom:none">
+                        <span class="planner-tier-label ${tier.cssClass}">
+                            ${tier.label} — ${tier.sublabel}
+                        </span>
+                        <span style="color:var(--text-secondary);font-size:0.82rem;margin-left:8px">${tier.pct}% of budget (${formatBudget(tierBudget)})</span>
+                    </td>
+                </tr>`;
+
+                formats.forEach(fmt => {
+                    const buyingType = getBuyingType(fmt);
+                    const buyingClass = buyingType.toLowerCase();
+
+                    html += `<tr>
+                        <td><strong>${fmt}</strong></td>
+                        <td><span class="planner-buying-type ${buyingClass}">${buyingType}</span></td>
+                        <td style="color:var(--text-secondary);font-size:0.85rem">${formatBudget(tierBudget)}</td>`;
+
+                    metricCols.forEach(m => {
+                        html += `<td><input type="text" class="planner-input" data-row="${rowIndex}" data-metric="${m.key}" placeholder="${m.placeholder}" oninput="this.classList.toggle('has-value', this.value.trim() !== '')" /></td>`;
+                    });
+
+                    html += `<td><textarea class="planner-notes-input" data-row="${rowIndex}" data-metric="notes" placeholder="Optional notes" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea></td>`;
+                    html += `</tr>`;
+                    rowIndex++;
+                });
+            });
+
+            // Summary row
+            html += `<tr class="planner-summary-row">
+                <td colspan="2"><strong>Campaign Total</strong></td>
+                <td><strong>${formatBudget(formData.budget)}</strong></td>
+                <td><input type="text" class="planner-input" id="planner-total-cpm" placeholder="Blended CPM" oninput="this.classList.toggle('has-value', this.value.trim() !== '')" /></td>
+                <td><input type="text" class="planner-input" id="planner-total-reach" placeholder="Total Reach" oninput="this.classList.toggle('has-value', this.value.trim() !== '')" /></td>
+                <td><input type="text" class="planner-input" id="planner-total-impressions" placeholder="Total Impressions" oninput="this.classList.toggle('has-value', this.value.trim() !== '')" /></td>
+                <td><input type="text" class="planner-input" id="planner-total-frequency" placeholder="Avg. Frequency" oninput="this.classList.toggle('has-value', this.value.trim() !== '')" /></td>
+                <td></td>
+            </tr>`;
+
+            html += `</tbody></table>`;
+
+            // Add placement button
+            html += `<button class="planner-add-row-btn" onclick="addPlannerRow()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Custom Placement
+            </button>`;
+
+            // Info callout
+            html += `<div class="doc-callout info" style="margin-top:16px">
+                <strong>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                    How to use
+                </strong>
+                <p style="margin:6px 0 0;color:var(--text-secondary)">Enter the delivery estimates from TikTok's official Branding Planner into the fields above. Use the planner inputs — budget, target audience (${formData.ages.length > 0 ? formData.ages.join(', ') : 'Broad'}), interests, and geography (${formData.market}) — to generate the estimated metrics, then paste them here before sharing the proposal with the client.</p>
+            </div>`;
+
+            el.innerHTML = html;
+        }
+
+        // Add custom placement row to planner estimates table
+        function addPlannerRow() {
+            const tbody = document.querySelector('#planner-estimates-table tbody');
+            if (!tbody) return;
+
+            const summaryRow = tbody.querySelector('.planner-summary-row');
+            const rowIndex = tbody.querySelectorAll('tr:not(.planner-summary-row)').length;
+
+            const metricCols = [
+                { key: 'cpm',         placeholder: 'e.g. $8.50' },
+                { key: 'reach',       placeholder: 'e.g. 2,500,000' },
+                { key: 'impressions', placeholder: 'e.g. 10,000,000' },
+                { key: 'frequency',   placeholder: 'e.g. 4.0' }
+            ];
+
+            const newRow = document.createElement('tr');
+            let cells = `<td><input type="text" class="planner-input" placeholder="Placement name" style="font-weight:600" oninput="this.classList.toggle('has-value', this.value.trim() !== '')" /></td>`;
+            cells += `<td><span class="planner-buying-type auction">Auction</span></td>`;
+            cells += `<td><input type="text" class="planner-input" placeholder="Budget" oninput="this.classList.toggle('has-value', this.value.trim() !== '')" /></td>`;
+            metricCols.forEach(m => {
+                cells += `<td><input type="text" class="planner-input" data-row="${rowIndex}" data-metric="${m.key}" placeholder="${m.placeholder}" oninput="this.classList.toggle('has-value', this.value.trim() !== '')" /></td>`;
+            });
+            cells += `<td><textarea class="planner-notes-input" data-row="${rowIndex}" data-metric="notes" placeholder="Optional notes" oninput="this.style.height='auto';this.style.height=this.scrollHeight+'px'"></textarea></td>`;
+            newRow.innerHTML = cells;
+
+            tbody.insertBefore(newRow, summaryRow);
+        }
+
         // ── Deterministic: Media Incentives Table ─────────────
         function generateIncentives() {
             const budget = formData.budget;
@@ -4092,7 +4432,29 @@ Rules:
         function copyAll() {
             const docOutput = document.querySelector('.doc-output');
             if (!docOutput) return;
+
+            // Snapshot planner input values into their elements so innerText captures them
+            docOutput.querySelectorAll('.planner-input, .planner-notes-input').forEach(inp => {
+                const val = (inp.value || '').trim();
+                if (val) {
+                    inp.setAttribute('data-snapshot', val);
+                    // Temporarily set a visible text node for copy
+                    if (inp.tagName === 'INPUT') {
+                        inp.type = 'hidden';
+                        const span = document.createElement('span');
+                        span.className = '_copy-snap';
+                        span.textContent = val;
+                        inp.parentNode.insertBefore(span, inp.nextSibling);
+                    }
+                }
+            });
+
             const text = docOutput.innerText;
+
+            // Restore inputs
+            docOutput.querySelectorAll('._copy-snap').forEach(s => s.remove());
+            docOutput.querySelectorAll('.planner-input[type="hidden"]').forEach(inp => { inp.type = 'text'; });
+
             navigator.clipboard.writeText(
                 `TIKTOK CAMPAIGN PROPOSAL — ${formData.clientName}\n${new Date().toLocaleDateString()}\n\n` + text
             ).then(() => {
