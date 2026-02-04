@@ -2429,15 +2429,36 @@
         const $$ = (sel) => document.querySelectorAll(sel);
 
         // ── AI Config Resolution ─────────────────────────────────
-        // Priority: 1. AI_CONFIG global (from ai-config.js on web server)
-        //           2. localStorage (from one-time setup modal)
-        //           3. null (no AI — templates only)
+        // Priority: 1. Server proxy mode (deployed on Vercel — no key needed)
+        //           2. AI_CONFIG global (from ai-config.js for local dev)
+        //           3. localStorage (from one-time setup modal)
+        //           4. null (no AI — templates only)
+        const AI_PROXY_ENDPOINT = '/api/ai';
+        let _proxyAvailable = null; // cached probe result
+
+        async function probeProxy() {
+            if (_proxyAvailable !== null) return _proxyAvailable;
+            if (location.protocol === 'file:') { _proxyAvailable = false; return false; }
+            try {
+                const r = await fetch(AI_PROXY_ENDPOINT, { method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({}) });
+                // 400 = proxy is there but rejected our empty body; that's fine
+                _proxyAvailable = r.status !== 404;
+            } catch { _proxyAvailable = false; }
+            return _proxyAvailable;
+        }
+
         function getAIConfig() {
-            // Source 1: External script (works on web servers, not file://)
+            // Source 1: Server proxy mode — AI is always available
+            if (_proxyAvailable) {
+                return { proxy: true, defaultModel: 'gpt-4.1-mini' };
+            }
+            // Source 2: External script (works on web servers, not file://)
             if (typeof AI_CONFIG !== 'undefined' && AI_CONFIG.apiKey) {
                 return AI_CONFIG;
             }
-            // Source 2: localStorage (works everywhere including file://)
+            // Source 3: localStorage (works everywhere including file://)
             try {
                 const stored = localStorage.getItem('pmd_ai_config');
                 if (stored) {
@@ -2481,10 +2502,13 @@
             // Load TikTok data from JSON file
             await loadTikTokData();
 
+            // Probe for server-side AI proxy (non-blocking for local dev)
+            await probeProxy();
+
             // Check if AI config is available from any source
             const aiCfg = getAIConfig();
             if (!aiCfg) {
-                console.warn('[AI CONFIG] No config found (ai-config.js not loaded + no localStorage). AI features disabled — using templates only.');
+                console.warn('[AI CONFIG] No config found (no proxy, no ai-config.js, no localStorage). AI features disabled — using templates only.');
                 const badge = $('#data-verified-badge');
                 if (badge) {
                     badge.textContent = 'AI: not configured';
@@ -2495,6 +2519,14 @@
                 const skipped = localStorage.getItem('pmd_ai_setup_skipped');
                 if (!skipped) {
                     document.getElementById('ai-setup-modal').style.display = 'flex';
+                }
+            } else if (aiCfg.proxy) {
+                console.log('[AI CONFIG] Server proxy mode — AI key managed server-side.');
+                const badge = $('#data-verified-badge');
+                if (badge) {
+                    badge.textContent = 'AI: active';
+                    badge.style.color = '#00c853';
+                    badge.style.background = 'rgba(0,200,83,0.08)';
                 }
             } else {
                 console.log('[AI CONFIG] Loaded. Model:', aiCfg.defaultModel, '| Vector Store:', aiCfg.vectorStoreId ? 'yes' : 'no');
@@ -3414,20 +3446,23 @@ Rules:
         // ── Client research via web search ──────────────────────
         async function callClientResearch(clientName, vertical, market) {
             const cfg = getAIConfig() || {};
-            const apiKey = $('#aiApiKey')?.value?.trim() || cfg.apiKey || '';
-            if (!apiKey || !clientName) return '';
+            const useProxy = !!cfg.proxy;
+            const apiKey = useProxy ? '' : ($('#aiApiKey')?.value?.trim() || cfg.apiKey || '');
+            if (!useProxy && !apiKey) return '';
+            if (!clientName) return '';
 
             const query = `Research "${clientName}" as a brand/company. What do they sell? Who is their target audience? What is their market position in ${vertical || 'their industry'}? Any recent marketing campaigns, product launches, or news? Key competitors? Any existing social media or TikTok presence? Focus on information useful for building an advertising proposal for the ${market || ''} market.`;
 
             if (DEBUG) console.log('[AI RESEARCH] Starting client research for:', clientName);
 
+            const endpoint = useProxy ? AI_PROXY_ENDPOINT : 'https://api.openai.com/v1/responses';
+            const headers = { 'Content-Type': 'application/json' };
+            if (!useProxy) headers['Authorization'] = `Bearer ${apiKey}`;
+
             try {
-                const resp = await fetch('https://api.openai.com/v1/responses', {
+                const resp = await fetch(endpoint, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
+                    headers,
                     body: JSON.stringify({
                         model: 'gpt-4.1-mini',
                         input: query,
@@ -3472,10 +3507,11 @@ Rules:
         // ── Main AI call: OpenAI Responses API ──────────────────
         async function callAI(aiRequest, clientResearch) {
             const cfg = getAIConfig() || {};
-            const apiKey = $('#aiApiKey')?.value?.trim() || cfg.apiKey || '';
-            if (!apiKey) return null;
+            const useProxy = !!cfg.proxy;
+            const apiKey = useProxy ? '' : ($('#aiApiKey')?.value?.trim() || cfg.apiKey || '');
+            if (!useProxy && !apiKey) return null;
 
-            const vectorStoreId = $('#aiVectorStoreId')?.value?.trim() || cfg.vectorStoreId || '';
+            const vectorStoreId = useProxy ? '' : ($('#aiVectorStoreId')?.value?.trim() || cfg.vectorStoreId || '');
             const model = $('#aiModel')?.value || cfg.defaultModel || 'gpt-4.1-mini';
 
             // Compose the full input with research context
@@ -3493,9 +3529,14 @@ Rules:
                 temperature: 0.7
             };
 
-            // Add file_search if vector store is configured
+            // Add file_search if vector store is configured (or proxy will inject it)
             let useFileSearch = false;
-            if (vectorStoreId) {
+            if (useProxy) {
+                // Proxy injects vector_store_ids from server env
+                body.tools = [{ type: 'file_search' }];
+                useFileSearch = true;
+                if (DEBUG) console.log('[AI] Proxy mode + File Search (server-managed vector store)');
+            } else if (vectorStoreId) {
                 body.tools = [{
                     type: 'file_search',
                     vector_store_ids: [vectorStoreId]
@@ -3506,13 +3547,14 @@ Rules:
                 if (DEBUG) console.log('[AI] Responses API (no docs), model:', model);
             }
 
+            const fetchEndpoint = useProxy ? AI_PROXY_ENDPOINT : 'https://api.openai.com/v1/responses';
+            const fetchHeaders = { 'Content-Type': 'application/json' };
+            if (!useProxy) fetchHeaders['Authorization'] = `Bearer ${apiKey}`;
+
             async function doFetch(requestBody) {
-                const r = await fetch('https://api.openai.com/v1/responses', {
+                const r = await fetch(fetchEndpoint, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
+                    headers: fetchHeaders,
                     body: JSON.stringify(requestBody)
                 });
                 if (!r.ok) {
@@ -3674,7 +3716,7 @@ Rules:
 
             // Check if AI is available
             const cfg = getAIConfig() || {};
-            const hasAI = !!($('#aiApiKey')?.value?.trim() || cfg.apiKey);
+            const hasAI = !!(cfg.proxy || $('#aiApiKey')?.value?.trim() || cfg.apiKey);
 
             // Show loading overlay
             if (hasAI) {
