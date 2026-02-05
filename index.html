@@ -109,17 +109,49 @@
     /* dnd */
     .handle{cursor:grab;user-select:none}
     .drag-over{outline:2px dashed var(--primary)}
+    /* nav tabs */
+    .nav{display:flex;gap:0;margin:0;padding:0;list-style:none}
+    .nav-tab{padding:10px 20px;cursor:pointer;font-weight:600;color:rgba(255,255,255,.7);border-bottom:3px solid transparent;transition:all .15s}
+    .nav-tab:hover{color:#fff}
+    .nav-tab.active{color:#fff;border-bottom-color:#fff}
+    .page{display:none}
+    .page.active{display:block}
+    /* daily log */
+    .log-layout{display:grid;grid-template-columns:1fr 340px;gap:16px}
+    @media(max-width:900px){.log-layout{grid-template-columns:1fr}}
+    .log-textarea{width:100%;min-height:200px;resize:vertical;font:inherit;line-height:1.6;background:var(--surface);color:var(--text);border:1px solid var(--slate-300);border-radius:10px;padding:12px}
+    .log-textarea:focus{outline:2px solid var(--primary-2)}
+    .extract-panel{max-height:400px;overflow-y:auto}
+    .extract-group{margin-bottom:12px}
+    .extract-group h3{font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:6px}
+    .extract-item{display:flex;align-items:center;gap:8px;padding:4px 0}
+    .extract-item input[type=checkbox]{flex-shrink:0}
+    .extract-item span{font-size:14px}
+    .log-entry{border-left:3px solid var(--primary);padding:12px 16px;margin-bottom:12px;background:var(--surface);border-radius:0 10px 10px 0;box-shadow:0 1px 2px rgba(15,23,42,.06)}
+    .log-entry-date{font-size:13px;font-weight:700;color:var(--primary)}
+    .log-entry-raw{font-size:14px;color:var(--muted);margin:6px 0;white-space:pre-wrap}
+    .log-entry-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+    .history-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
+    .log-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+    @media(max-width:600px){.log-stats{grid-template-columns:repeat(2,1fr)}}
   </style>
 </head>
 <body>
   <div class="header">
     <div class="container header-wrap row between">
       <h1>Project Master — Lite</h1>
-      <button id="theme-toggle" class="btn">🌙/☀️</button>
+      <div class="row">
+        <ul class="nav">
+          <li class="nav-tab active" data-page="page-dashboard">Dashboard</li>
+          <li class="nav-tab" data-page="page-log">Daily Log</li>
+        </ul>
+        <button id="theme-toggle" class="btn">🌙/☀️</button>
+      </div>
     </div>
   </div>
 
   <main class="container">
+    <div id="page-dashboard" class="page active">
     <!-- Stats -->
     <section class="section">
       <div class="grid grid-4">
@@ -198,6 +230,72 @@
       <div class="row between"><h2>Internal Tasks</h2><small id="c-internal" class="muted"></small></div>
       <ul id="list-internal" class="list section"></ul>
     </section>
+    </div><!-- /page-dashboard -->
+
+    <!-- ===== DAILY LOG PAGE ===== -->
+    <div id="page-log" class="page">
+      <!-- Log Stats -->
+      <section class="section">
+        <div class="log-stats">
+          <div class="card ring"><div class="stat-title">Total Entries</div><div id="ls-entries" class="stat-value">0</div></div>
+          <div class="card ring"><div class="stat-title">Wins This Month</div><div id="ls-wins" class="stat-value">0</div></div>
+          <div class="card ring"><div class="stat-title">Campaigns Closed</div><div id="ls-campaigns" class="stat-value">0</div></div>
+          <div class="card ring"><div class="stat-title">Streak (days)</div><div id="ls-streak" class="stat-value">0</div></div>
+        </div>
+      </section>
+
+      <!-- Write Entry -->
+      <section class="section card ring">
+        <h2>New Entry</h2>
+        <div style="margin:8px 0">
+          <input type="date" id="log-date" class="input" style="width:200px"/>
+        </div>
+        <div class="log-layout">
+          <div>
+            <textarea id="log-text" class="log-textarea" placeholder="Write freely about your day... What did you work on? Any wins? Campaigns closed? Meetings? Just dump it all here and I'll organize it for you."></textarea>
+            <div class="row" style="margin-top:10px;gap:8px">
+              <button id="log-extract" class="button">Analyze</button>
+              <button id="log-save" class="button button-ok" style="display:none">Save Entry</button>
+              <button id="log-clear" class="button-ghost">Clear</button>
+            </div>
+          </div>
+          <div id="log-extract-panel" class="card ring extract-panel" style="display:none">
+            <h3 style="margin-bottom:10px;font-size:15px">Auto-Extracted Tags</h3>
+            <p class="muted" style="font-size:12px;margin:0 0 10px">Uncheck anything that's wrong</p>
+            <div id="log-extracts"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Log History -->
+      <section class="section card ring">
+        <div class="row between" style="margin-bottom:12px">
+          <h2>Log History</h2>
+          <div class="row" style="gap:8px">
+            <button id="log-export" class="button-ghost">Export CSV</button>
+          </div>
+        </div>
+        <div class="history-controls">
+          <input id="log-search" class="input" placeholder="Search logs..." style="max-width:260px"/>
+          <select id="log-filter-cat" class="select" style="max-width:160px">
+            <option value="">All Categories</option>
+            <option value="win">Wins</option>
+            <option value="campaign_closed">Campaigns Closed</option>
+            <option value="project">Projects</option>
+            <option value="meeting">Meetings</option>
+            <option value="metric">Metrics</option>
+          </select>
+          <select id="log-filter-range" class="select" style="max-width:160px">
+            <option value="">All Time</option>
+            <option value="7">Last 7 days</option>
+            <option value="30">Last 30 days</option>
+            <option value="90">Last 90 days</option>
+          </select>
+        </div>
+        <div id="log-history"></div>
+        <p id="log-empty" class="muted" style="text-align:center;padding:24px 0">No entries yet. Write your first daily log above.</p>
+      </section>
+    </div><!-- /page-log -->
   </main>
 
   <div id="toast" class="toast">Saved</div>
@@ -362,7 +460,245 @@
       document.addEventListener('change',e=>{ if(e.target.classList.contains('task-check')){ const li=e.target.closest('li'); const id=parseInt(li.dataset.id,10); const t=data.internal.find(x=>x.id===id); if(!t) return; t.completed=e.target.checked; data.completed+= e.target.checked?1:-1; save(); renderStats(); toast(e.target.checked?'Done':'Reopened') } });
     }
 
-    function init(){ initTheme(); load(); bind(); renderAll(); }
+    // ------- Tab Navigation -------
+    function initTabs(){
+      $$('.nav-tab').forEach(tab=>{
+        tab.addEventListener('click',()=>{
+          $$('.nav-tab').forEach(t=>t.classList.remove('active'));
+          $$('.page').forEach(p=>p.classList.remove('active'));
+          tab.classList.add('active');
+          $(('#'+tab.dataset.page)).classList.add('active');
+          if(tab.dataset.page==='page-log') renderLog();
+        });
+      });
+    }
+
+    // ------- Daily Log: Data -------
+    const LOG_KEY='pmd-daily-log';
+    let logEntries=[];
+    const loadLog=()=>{try{logEntries=JSON.parse(localStorage.getItem(LOG_KEY)||'[]')}catch{logEntries=[]}};
+    const saveLog=()=>localStorage.setItem(LOG_KEY,JSON.stringify(logEntries));
+
+    // ------- Daily Log: Auto-Extraction Engine -------
+    function extractTags(text){
+      const tags=[];
+      const lines=text.split(/[.\n!]+/).map(s=>s.trim()).filter(Boolean);
+      const lower=text.toLowerCase();
+
+      // Wins
+      const winPatterns=[
+        /(?:won|closed|landed|signed|secured|nailed|got|earned|awarded)\s+(?:the\s+)?(.+?)(?:\s*[-–—]\s*|\s*[,.]|$)/gi,
+        /(?:big|huge|great|amazing)\s+win[:\s]+(.+?)(?:[,.\n!]|$)/gi,
+        /(.+?)\s+(?:is\s+)?(?:won|closed|landed|signed|secured)/gi
+      ];
+      winPatterns.forEach(re=>{let m; while((m=re.exec(text))!==null){const v=m[1].trim().replace(/^(a|an|the)\s+/i,''); if(v.length>2&&v.length<80) tags.push({cat:'win',text:v,checked:true})}});
+
+      // Campaigns closed
+      const campPatterns=[
+        /(?:closed|launched|shipped|finished|completed|wrapped)\s+(?:the\s+)?(?:campaign|project|deal|pitch)?\s*(?:for|with|on)?\s*(.+?)(?:[,.\n!]|$)/gi,
+        /(.+?)\s+campaign\s+(?:is\s+)?(?:closed|done|launched|live|shipped|completed)/gi
+      ];
+      campPatterns.forEach(re=>{let m; while((m=re.exec(text))!==null){const v=m[1].trim().replace(/^(a|an|the)\s+/i,''); if(v.length>1&&v.length<80&&!tags.some(t=>t.text.toLowerCase()===v.toLowerCase()&&t.cat==='campaign_closed')) tags.push({cat:'campaign_closed',text:v,checked:true})}});
+
+      // Projects worked on
+      const projPatterns=[
+        /(?:worked\s+on|working\s+on|continued|progressed|started|building|built|developing|developed|designed|designing|updating|updated|creating|created|drafted|writing|wrote)\s+(?:the\s+)?(.+?)(?:[,.\n!]|$)/gi,
+        /(?:made\s+(?:good\s+)?progress\s+on)\s+(?:the\s+)?(.+?)(?:[,.\n!]|$)/gi
+      ];
+      projPatterns.forEach(re=>{let m; while((m=re.exec(text))!==null){const v=m[1].trim().replace(/^(a|an|the)\s+/i,''); if(v.length>2&&v.length<80) tags.push({cat:'project',text:v,checked:true})}});
+
+      // Meetings
+      const meetPatterns=[
+        /(?:met\s+with|call\s+with|meeting\s+with|synced\s+with|spoke\s+(?:to|with)|chatted\s+with|catch-?up\s+with)\s+(.+?)(?:\s+(?:about|regarding|re|on)\s+(.+?))?(?:[,.\n!]|$)/gi
+      ];
+      meetPatterns.forEach(re=>{let m; while((m=re.exec(text))!==null){let v=m[1].trim(); if(m[2]) v+=' — '+m[2].trim(); if(v.length>1&&v.length<100) tags.push({cat:'meeting',text:v,checked:true})}});
+
+      // Metrics (money, percentages, numbers with context)
+      const metricPatterns=[
+        /\$[\d,.]+[kKmMbB]?\s*(?:deal|revenue|contract|budget|ARR|MRR)?/g,
+        /[\d,.]+%\s*(?:\w+\s*){0,3}/g,
+        /(\d+)\s+(?:new\s+)?(?:leads?|clients?|users?|signups?|deals?|calls?|meetings?|demos?)/gi
+      ];
+      metricPatterns.forEach(re=>{let m; while((m=re.exec(text))!==null){const v=m[0].trim(); if(v.length>1&&v.length<60) tags.push({cat:'metric',text:v,checked:true})}});
+
+      // Deduplicate by normalizing
+      const seen=new Set();
+      return tags.filter(t=>{const k=t.cat+':'+t.text.toLowerCase(); if(seen.has(k)) return false; seen.add(k); return true});
+    }
+
+    const catLabels={win:'Wins',campaign_closed:'Campaigns Closed',project:'Projects',meeting:'Meetings',metric:'Metrics'};
+    const catColors={win:'tag-emerald',campaign_closed:'tag-blue',project:'tag-amber',meeting:'tag-slate',metric:'tag-rose'};
+
+    let currentExtracted=[];
+
+    function renderExtractPanel(tags){
+      currentExtracted=tags;
+      const panel=$('#log-extract-panel');
+      const container=$('#log-extracts');
+      if(!tags.length){panel.style.display='none'; $('#log-save').style.display='none'; return}
+      panel.style.display='';
+      $('#log-save').style.display='';
+      const grouped={};
+      tags.forEach((t,i)=>{if(!grouped[t.cat])grouped[t.cat]=[]; grouped[t.cat].push({...t,idx:i})});
+      let html='';
+      for(const cat of ['win','campaign_closed','project','meeting','metric']){
+        if(!grouped[cat]) continue;
+        html+=`<div class="extract-group"><h3>${catLabels[cat]}</h3>`;
+        grouped[cat].forEach(t=>{
+          html+=`<div class="extract-item"><input type="checkbox" data-idx="${t.idx}" ${t.checked?'checked':''}/><span class="tag ${catColors[cat]}">${t.text}</span></div>`;
+        });
+        html+=`</div>`;
+      }
+      container.innerHTML=html;
+      container.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+        cb.addEventListener('change',()=>{currentExtracted[parseInt(cb.dataset.idx)].checked=cb.checked});
+      });
+    }
+
+    // ------- Daily Log: Save Entry -------
+    function saveEntry(){
+      const date=$('#log-date').value;
+      const text=$('#log-text').value.trim();
+      if(!text){toast('Write something first','err'); return}
+      if(!date){toast('Pick a date','err'); return}
+      const tags=currentExtracted.filter(t=>t.checked).map(t=>({cat:t.cat,text:t.text}));
+      const entry={id:Date.now(),date,text,tags,created:new Date().toISOString()};
+      // Replace entry for same date or add new
+      const existIdx=logEntries.findIndex(e=>e.date===date);
+      if(existIdx>=0){
+        if(!confirm('An entry for '+date+' already exists. Replace it?')) return;
+        logEntries[existIdx]=entry;
+      } else {
+        logEntries.push(entry);
+      }
+      logEntries.sort((a,b)=>b.date.localeCompare(a.date));
+      saveLog();
+      clearLogForm();
+      renderLog();
+      toast('Entry saved','ok');
+    }
+
+    function clearLogForm(){
+      $('#log-text').value='';
+      $('#log-date').value=new Date().toISOString().slice(0,10);
+      $('#log-extract-panel').style.display='none';
+      $('#log-save').style.display='none';
+      currentExtracted=[];
+    }
+
+    // ------- Daily Log: Render History -------
+    function renderLog(){
+      loadLog();
+      renderLogStats();
+      renderLogHistory();
+    }
+
+    function renderLogStats(){
+      const now=new Date();
+      const monthStart=new Date(now.getFullYear(),now.getMonth(),1).toISOString().slice(0,10);
+      const monthEntries=logEntries.filter(e=>e.date>=monthStart);
+      const allWins=monthEntries.reduce((n,e)=>n+e.tags.filter(t=>t.cat==='win').length,0);
+      const allCampaigns=logEntries.reduce((n,e)=>n+e.tags.filter(t=>t.cat==='campaign_closed').length,0);
+      // Calculate streak
+      let streak=0;
+      const today=new Date().toISOString().slice(0,10);
+      let check=new Date();
+      while(true){
+        const d=check.toISOString().slice(0,10);
+        if(logEntries.some(e=>e.date===d)){streak++; check.setDate(check.getDate()-1)} else break;
+      }
+      $('#ls-entries').textContent=logEntries.length;
+      $('#ls-wins').textContent=allWins;
+      $('#ls-campaigns').textContent=allCampaigns;
+      $('#ls-streak').textContent=streak;
+    }
+
+    function renderLogHistory(){
+      const search=($('#log-search').value||'').toLowerCase();
+      const catFilter=$('#log-filter-cat').value;
+      const rangeFilter=parseInt($('#log-filter-range').value)||0;
+      const cutoff=rangeFilter?new Date(Date.now()-rangeFilter*86400000).toISOString().slice(0,10):'';
+
+      const filtered=logEntries.filter(e=>{
+        if(cutoff&&e.date<cutoff) return false;
+        if(catFilter&&!e.tags.some(t=>t.cat===catFilter)) return false;
+        if(search&&!e.text.toLowerCase().includes(search)&&!e.tags.some(t=>t.text.toLowerCase().includes(search))) return false;
+        return true;
+      });
+
+      const container=$('#log-history');
+      const empty=$('#log-empty');
+
+      if(!filtered.length){
+        container.innerHTML='';
+        empty.style.display='';
+        return;
+      }
+      empty.style.display='none';
+
+      container.innerHTML=filtered.map(e=>{
+        const tagHtml=e.tags.map(t=>`<span class="tag ${catColors[t.cat]}">${catLabels[t.cat]}: ${t.text}</span>`).join('');
+        const dateObj=new Date(e.date+'T00:00:00');
+        const dateStr=dateObj.toLocaleDateString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+        return `<div class="log-entry" data-id="${e.id}">
+          <div class="row between">
+            <span class="log-entry-date">${dateStr}</span>
+            <button class="button-ghost log-delete" data-id="${e.id}" style="padding:4px 8px;font-size:12px">Delete</button>
+          </div>
+          <div class="log-entry-raw">${escHtml(e.text)}</div>
+          ${tagHtml?`<div class="log-entry-tags">${tagHtml}</div>`:''}
+        </div>`;
+      }).join('');
+
+      container.querySelectorAll('.log-delete').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          if(!confirm('Delete this entry?')) return;
+          logEntries=logEntries.filter(e=>e.id!==parseInt(btn.dataset.id));
+          saveLog(); renderLog(); toast('Deleted');
+        });
+      });
+    }
+
+    function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
+    // ------- Daily Log: CSV Export -------
+    function exportLogCSV(){
+      if(!logEntries.length){toast('Nothing to export','err'); return}
+      const rows=[['Date','Entry','Wins','Campaigns Closed','Projects','Meetings','Metrics'].join(',')];
+      logEntries.forEach(e=>{
+        const byC=cat=>e.tags.filter(t=>t.cat===cat).map(t=>t.text).join('; ');
+        const csvVal=v=>`"${(v||'').replace(/"/g,'""')}"`;
+        rows.push([e.date,csvVal(e.text),csvVal(byC('win')),csvVal(byC('campaign_closed')),csvVal(byC('project')),csvVal(byC('meeting')),csvVal(byC('metric'))].join(','));
+      });
+      const blob=new Blob([rows.join('\n')],{type:'text/csv'});
+      const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');
+      a.href=url; a.download='daily-log-export.csv'; a.click();
+      URL.revokeObjectURL(url);
+      toast('Exported','ok');
+    }
+
+    // ------- Daily Log: Bind Events -------
+    function bindLog(){
+      $('#log-date').value=new Date().toISOString().slice(0,10);
+      $('#log-extract').addEventListener('click',()=>{
+        const text=$('#log-text').value.trim();
+        if(!text){toast('Write something first','err'); return}
+        const tags=extractTags(text);
+        renderExtractPanel(tags);
+        if(!tags.length) toast('No tags detected — entry will be saved as-is');
+      });
+      $('#log-save').addEventListener('click',saveEntry);
+      $('#log-clear').addEventListener('click',clearLogForm);
+      $('#log-export').addEventListener('click',exportLogCSV);
+      ['input','change'].forEach(ev=>{
+        $('#log-search').addEventListener(ev,renderLogHistory);
+        $('#log-filter-cat').addEventListener(ev,renderLogHistory);
+        $('#log-filter-range').addEventListener(ev,renderLogHistory);
+      });
+    }
+
+    function init(){ initTheme(); load(); loadLog(); bind(); bindLog(); initTabs(); renderAll(); }
     document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
