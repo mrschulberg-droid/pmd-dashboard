@@ -131,6 +131,13 @@
     .log-entry-date{font-size:13px;font-weight:700;color:var(--primary)}
     .log-entry-raw{font-size:14px;color:var(--muted);margin:6px 0;white-space:pre-wrap}
     .log-entry-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+    .tag-editor{margin-top:10px;padding:10px;border:1px solid var(--slate-200);border-radius:10px;background:var(--slate-100)}
+    .tag-editor-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+    .tag-editor-row .tag{cursor:pointer;position:relative}
+    .tag-remove{margin-left:4px;font-weight:700;opacity:.6;cursor:pointer}
+    .tag-remove:hover{opacity:1}
+    .tag-add-row{display:flex;gap:6px;align-items:center}
+    .tag-add-row select,.tag-add-row input{font-size:13px;padding:5px 8px}
     .history-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
     .log-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
     @media(max-width:600px){.log-stats{grid-template-columns:repeat(2,1fr)}}
@@ -637,19 +644,33 @@
       empty.style.display='none';
 
       container.innerHTML=filtered.map(e=>{
-        const tagHtml=e.tags.map(t=>`<span class="tag ${catColors[t.cat]}">${catLabels[t.cat]}: ${t.text}</span>`).join('');
+        const tagHtml=e.tags.map((t,i)=>`<span class="tag ${catColors[t.cat]}">${catLabels[t.cat]}: ${t.text}</span>`).join('');
         const dateObj=new Date(e.date+'T00:00:00');
         const dateStr=dateObj.toLocaleDateString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric'});
+        const catOpts=Object.keys(catLabels).map(c=>`<option value="${c}">${catLabels[c]}</option>`).join('');
         return `<div class="log-entry" data-id="${e.id}">
           <div class="row between">
             <span class="log-entry-date">${dateStr}</span>
-            <button class="button-ghost log-delete" data-id="${e.id}" style="padding:4px 8px;font-size:12px">Delete</button>
+            <div class="row" style="gap:4px">
+              <button class="button-ghost log-edit-tags" data-id="${e.id}" style="padding:4px 8px;font-size:12px">Edit Tags</button>
+              <button class="button-ghost log-delete" data-id="${e.id}" style="padding:4px 8px;font-size:12px">Delete</button>
+            </div>
           </div>
           <div class="log-entry-raw">${escHtml(e.text)}</div>
-          ${tagHtml?`<div class="log-entry-tags">${tagHtml}</div>`:''}
+          <div class="log-entry-tags" data-tags-id="${e.id}">${tagHtml||'<span class="muted" style="font-size:12px">No tags</span>'}</div>
+          <div class="tag-editor" data-editor-id="${e.id}" style="display:none">
+            <div class="tag-editor-row" data-editable-tags="${e.id}"></div>
+            <div class="tag-add-row">
+              <select class="select tag-cat-select" style="width:140px">${catOpts}</select>
+              <input class="input tag-text-input" placeholder="Tag text..." style="width:180px"/>
+              <button class="button tag-add-btn" style="padding:5px 10px;font-size:13px">Add</button>
+              <button class="button button-ok tag-done-btn" data-id="${e.id}" style="padding:5px 10px;font-size:13px">Done</button>
+            </div>
+          </div>
         </div>`;
       }).join('');
 
+      // Bind delete buttons
       container.querySelectorAll('.log-delete').forEach(btn=>{
         btn.addEventListener('click',()=>{
           if(!confirm('Delete this entry?')) return;
@@ -657,6 +678,101 @@
           saveLog(); renderLog(); toast('Deleted');
         });
       });
+
+      // Bind edit tags buttons
+      container.querySelectorAll('.log-edit-tags').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const id=parseInt(btn.dataset.id);
+          const editor=container.querySelector(`[data-editor-id="${id}"]`);
+          const isOpen=editor.style.display!=='none';
+          // Close all editors first
+          container.querySelectorAll('.tag-editor').forEach(ed=>ed.style.display='none');
+          container.querySelectorAll('.log-edit-tags').forEach(b=>b.textContent='Edit Tags');
+          if(!isOpen){
+            editor.style.display='';
+            btn.textContent='Cancel';
+            renderEditableTags(id);
+          }
+        });
+      });
+
+      // Bind add tag buttons
+      container.querySelectorAll('.tag-add-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const row=btn.closest('.tag-add-row');
+          const cat=row.querySelector('.tag-cat-select').value;
+          const inp=row.querySelector('.tag-text-input');
+          const text=inp.value.trim();
+          if(!text){toast('Enter tag text','err'); return}
+          const editor=btn.closest('.tag-editor');
+          const id=parseInt(editor.dataset.editorId);
+          const entry=logEntries.find(e=>e.id===id);
+          if(!entry) return;
+          entry.tags.push({cat,text});
+          saveLog();
+          inp.value='';
+          renderEditableTags(id);
+          refreshEntryTags(id);
+          renderLogStats();
+          toast('Tag added','ok');
+        });
+      });
+
+      // Bind enter key on tag text inputs
+      container.querySelectorAll('.tag-text-input').forEach(inp=>{
+        inp.addEventListener('keydown',e=>{
+          if(e.key==='Enter'){e.preventDefault(); inp.closest('.tag-add-row').querySelector('.tag-add-btn').click()}
+        });
+      });
+
+      // Bind done buttons
+      container.querySelectorAll('.tag-done-btn').forEach(btn=>{
+        btn.addEventListener('click',()=>{
+          const id=parseInt(btn.dataset.id);
+          const editor=container.querySelector(`[data-editor-id="${id}"]`);
+          editor.style.display='none';
+          container.querySelector(`.log-edit-tags[data-id="${id}"]`).textContent='Edit Tags';
+        });
+      });
+    }
+
+    function renderEditableTags(entryId){
+      const entry=logEntries.find(e=>e.id===entryId);
+      if(!entry) return;
+      const container=document.querySelector(`[data-editable-tags="${entryId}"]`);
+      if(!entry.tags.length){
+        container.innerHTML='<span class="muted" style="font-size:12px">No tags yet — add one below</span>';
+        return;
+      }
+      container.innerHTML=entry.tags.map((t,i)=>
+        `<span class="tag ${catColors[t.cat]}">${catLabels[t.cat]}: ${t.text}<span class="tag-remove" data-entry="${entryId}" data-idx="${i}">&times;</span></span>`
+      ).join('');
+      container.querySelectorAll('.tag-remove').forEach(x=>{
+        x.addEventListener('click',()=>{
+          const eid=parseInt(x.dataset.entry);
+          const idx=parseInt(x.dataset.idx);
+          const e=logEntries.find(e=>e.id===eid);
+          if(!e) return;
+          e.tags.splice(idx,1);
+          saveLog();
+          renderEditableTags(eid);
+          refreshEntryTags(eid);
+          renderLogStats();
+          toast('Tag removed');
+        });
+      });
+    }
+
+    function refreshEntryTags(entryId){
+      const entry=logEntries.find(e=>e.id===entryId);
+      if(!entry) return;
+      const container=document.querySelector(`[data-tags-id="${entryId}"]`);
+      if(!container) return;
+      if(!entry.tags.length){
+        container.innerHTML='<span class="muted" style="font-size:12px">No tags</span>';
+        return;
+      }
+      container.innerHTML=entry.tags.map(t=>`<span class="tag ${catColors[t.cat]}">${catLabels[t.cat]}: ${t.text}</span>`).join('');
     }
 
     function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
