@@ -139,8 +139,8 @@
     .tag-add-row{display:flex;gap:6px;align-items:center}
     .tag-add-row select,.tag-add-row input{font-size:13px;padding:5px 8px}
     .history-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:16px}
-    .log-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-    @media(max-width:600px){.log-stats{grid-template-columns:repeat(2,1fr)}}
+    .log-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+    @media(max-width:600px){.log-stats{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
@@ -245,7 +245,6 @@
       <section class="section">
         <div class="log-stats">
           <div class="card ring"><div class="stat-title">Total Entries</div><div id="ls-entries" class="stat-value">0</div></div>
-          <div class="card ring"><div class="stat-title">Wins This Month</div><div id="ls-wins" class="stat-value">0</div></div>
           <div class="card ring"><div class="stat-title">Campaigns Closed</div><div id="ls-campaigns" class="stat-value">0</div></div>
           <div class="card ring"><div class="stat-title">Streak (days)</div><div id="ls-streak" class="stat-value">0</div></div>
         </div>
@@ -286,7 +285,6 @@
           <input id="log-search" class="input" placeholder="Search logs..." style="max-width:260px"/>
           <select id="log-filter-cat" class="select" style="max-width:160px">
             <option value="">All Categories</option>
-            <option value="win">Wins</option>
             <option value="campaign_closed">Campaigns Closed</option>
             <option value="project">Projects</option>
             <option value="meeting">Meetings</option>
@@ -492,16 +490,11 @@
       const lines=text.split(/[.\n!]+/).map(s=>s.trim()).filter(Boolean);
       const lower=text.toLowerCase();
 
-      // Wins
-      const winPatterns=[
-        /(?:won|closed|landed|signed|secured|nailed|got|earned|awarded)\s+(?:the\s+)?(.+?)(?:\s*[-–—]\s*|\s*[,.]|$)/gi,
-        /(?:big|huge|great|amazing)\s+win[:\s]+(.+?)(?:[,.\n!]|$)/gi,
-        /(.+?)\s+(?:is\s+)?(?:won|closed|landed|signed|secured)/gi
-      ];
-      winPatterns.forEach(re=>{let m; while((m=re.exec(text))!==null){const v=m[1].trim().replace(/^(a|an|the)\s+/i,''); if(v.length>2&&v.length<80) tags.push({cat:'win',text:v,checked:true})}});
-
-      // Campaigns closed
+      // Campaigns closed (includes wins, deals landed, etc.)
       const campPatterns=[
+        /(?:won|closed|landed|signed|secured|nailed|earned|awarded)\s+(?:the\s+)?(.+?)(?:\s*[-–—]\s*|\s*[,.]|$)/gi,
+        /(?:big|huge|great|amazing)\s+win[:\s]+(.+?)(?:[,.\n!]|$)/gi,
+        /(.+?)\s+(?:is\s+)?(?:won|closed|landed|signed|secured)/gi,
         /(?:closed|launched|shipped|finished|completed|wrapped)\s+(?:the\s+)?(?:campaign|project|deal|pitch)?\s*(?:for|with|on)?\s*(.+?)(?:[,.\n!]|$)/gi,
         /(.+?)\s+campaign\s+(?:is\s+)?(?:closed|done|launched|live|shipped|completed)/gi
       ];
@@ -533,8 +526,8 @@
       return tags.filter(t=>{const k=t.cat+':'+t.text.toLowerCase(); if(seen.has(k)) return false; seen.add(k); return true});
     }
 
-    const catLabels={win:'Wins',campaign_closed:'Campaigns Closed',project:'Projects',meeting:'Meetings',metric:'Metrics'};
-    const catColors={win:'tag-emerald',campaign_closed:'tag-blue',project:'tag-amber',meeting:'tag-slate',metric:'tag-rose'};
+    const catLabels={campaign_closed:'Campaigns Closed',project:'Projects',meeting:'Meetings',metric:'Metrics'};
+    const catColors={campaign_closed:'tag-emerald',project:'tag-amber',meeting:'tag-slate',metric:'tag-rose'};
 
     let currentExtracted=[];
 
@@ -548,7 +541,7 @@
       const grouped={};
       tags.forEach((t,i)=>{if(!grouped[t.cat])grouped[t.cat]=[]; grouped[t.cat].push({...t,idx:i})});
       let html='';
-      for(const cat of ['win','campaign_closed','project','meeting','metric']){
+      for(const cat of ['campaign_closed','project','meeting','metric']){
         if(!grouped[cat]) continue;
         html+=`<div class="extract-group"><h3>${catLabels[cat]}</h3>`;
         grouped[cat].forEach(t=>{
@@ -601,21 +594,15 @@
     }
 
     function renderLogStats(){
-      const now=new Date();
-      const monthStart=new Date(now.getFullYear(),now.getMonth(),1).toISOString().slice(0,10);
-      const monthEntries=logEntries.filter(e=>e.date>=monthStart);
-      const allWins=monthEntries.reduce((n,e)=>n+e.tags.filter(t=>t.cat==='win').length,0);
       const allCampaigns=logEntries.reduce((n,e)=>n+e.tags.filter(t=>t.cat==='campaign_closed').length,0);
       // Calculate streak
       let streak=0;
-      const today=new Date().toISOString().slice(0,10);
       let check=new Date();
       while(true){
         const d=check.toISOString().slice(0,10);
         if(logEntries.some(e=>e.date===d)){streak++; check.setDate(check.getDate()-1)} else break;
       }
       $('#ls-entries').textContent=logEntries.length;
-      $('#ls-wins').textContent=allWins;
       $('#ls-campaigns').textContent=allCampaigns;
       $('#ls-streak').textContent=streak;
     }
@@ -780,11 +767,11 @@
     // ------- Daily Log: CSV Export -------
     function exportLogCSV(){
       if(!logEntries.length){toast('Nothing to export','err'); return}
-      const rows=[['Date','Entry','Wins','Campaigns Closed','Projects','Meetings','Metrics'].join(',')];
+      const rows=[['Date','Entry','Campaigns Closed','Projects','Meetings','Metrics'].join(',')];
       logEntries.forEach(e=>{
         const byC=cat=>e.tags.filter(t=>t.cat===cat).map(t=>t.text).join('; ');
         const csvVal=v=>`"${(v||'').replace(/"/g,'""')}"`;
-        rows.push([e.date,csvVal(e.text),csvVal(byC('win')),csvVal(byC('campaign_closed')),csvVal(byC('project')),csvVal(byC('meeting')),csvVal(byC('metric'))].join(','));
+        rows.push([e.date,csvVal(e.text),csvVal(byC('campaign_closed')),csvVal(byC('project')),csvVal(byC('meeting')),csvVal(byC('metric'))].join(','));
       });
       const blob=new Blob([rows.join('\n')],{type:'text/csv'});
       const url=URL.createObjectURL(blob);
