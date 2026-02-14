@@ -1,0 +1,223 @@
+{
+  "_meta": {
+    "version": "3.0",
+    "lastUpdated": "2026-01-29",
+    "description": "Minimal config: thresholds, region mapping, volatile data, sourceOfTruth. Long-form copy (best practices, ad format details) deferred to Gemini."
+  },
+  "platformStats": {
+    "monthlyActiveUsers": "1B+",
+    "avgDailyTimeSpent": "95 minutes",
+    "purchaseLikelihood": "1.5x more likely to purchase products discovered on platform",
+    "genZReach": "60% of users aged 16-24"
+  },
+  "goalActions": {
+    "Awareness": "build brand recognition and reach new audiences",
+    "Consideration": "drive consideration and engagement with the brand",
+    "Conversions": "drive measurable conversions and sales",
+    "App Installs": "acquire high-quality app users at scale",
+    "Lead Gen": "generate qualified leads efficiently",
+    "Engagement": "foster community engagement and brand love"
+  },
+  "challengeSolutions": {
+    "Reaching younger audiences": "TikTok is THE platform to reach Gen Z and Millennials, with 60% of users aged 16-24.",
+    "Creative fatigue": "TikTok's native, authentic content style combats creative fatigue with fresh, engaging formats.",
+    "Rising CPMs": "TikTok offers competitive CPMs with strong performance, helping optimize your media efficiency.",
+    "Limited reach": "With 1B+ monthly active users, TikTok provides massive incremental reach to complement existing channels.",
+    "Low engagement": "TikTok users spend an average of 95 minutes per day on the app—the highest engagement of any platform.",
+    "Attribution issues": "Our advanced measurement solutions including CAPI, Brand Lift, and Conversion Lift provide clear attribution.",
+    "Competition": "Stand out from competitors by being an early mover on TikTok in your vertical.",
+    "Scaling issues": "TikTok's diverse ad formats and broad reach enable efficient scaling of campaigns.",
+    "Brand perception": "Build authentic connections with audiences through native, creator-driven content.",
+    "New market entry": "TikTok's global reach and cultural relevance make it ideal for market expansion."
+  },
+  "scenarioMessages": {
+    "New Product Launch": "With a new product launch on the horizon, timing is critical to capture market attention.",
+    "Geo Expansion": "As they expand into new geographic markets, reaching new audiences is essential.",
+    "Rebrand": "With a rebrand underway, this is the perfect moment to reintroduce the brand to audiences.",
+    "Full Funnel": "A full-funnel approach will maximize impact across awareness, consideration, and conversion.",
+    "Seasonal Campaign": "Seasonal moments drive peak consumer intent—perfect timing to maximize TikTok's engaged audiences.",
+    "Always On": "An always-on presence builds sustained brand awareness and keeps the brand top-of-mind."
+  },
+  "budgetSplits": {
+    "Awareness":   { "upper": 50, "mid": 30, "lower": 20 },
+    "Consideration":{ "upper": 30, "mid": 45, "lower": 25 },
+    "Conversions":  { "upper": 20, "mid": 30, "lower": 50 },
+    "App Installs": { "upper": 25, "mid": 25, "lower": 50 },
+    "Lead Gen":     { "upper": 25, "mid": 35, "lower": 40 },
+    "Engagement":   { "upper": 35, "mid": 45, "lower": 20 }
+  },
+  "adFormats": {
+    "Awareness":    ["TopView", "In-Feed Ads", "Branded Hashtag Challenge", "Branded Effect"],
+    "Consideration":["In-Feed Ads", "Spark Ads", "Interactive Add-ons", "Branded Effect"],
+    "Conversions":  ["In-Feed Ads", "Spark Ads", "Collection Ads", "Dynamic Showcase Ads"],
+    "App Installs": ["In-Feed Ads", "Spark Ads", "Playable Ads", "App Install Ads"],
+    "Lead Gen":     ["In-Feed Ads", "Lead Gen Ads", "Spark Ads", "Instant Form"],
+    "Engagement":   ["In-Feed Ads", "Spark Ads", "Duet/Stitch enabled", "Interactive Add-ons"]
+  },
+  "adFormatThresholds": {
+    "_note": "Minimum campaign spend (USD) by region for premium formats. Auction formats default to $500.",
+    "TopView":                   { "NA": 375000, "EUI": 250000, "LATAM": 200000, "APAC": 200000, "Global": 300000 },
+    "Branded Hashtag Challenge": { "NA": 150000, "EUI": 130000, "LATAM": 100000, "APAC": 100000, "Global": 150000 },
+    "Branded Effect":            { "NA": 100000, "EUI":  80000, "LATAM":  60000, "APAC":  60000, "Global": 100000 },
+    "_auctionDefault": 500
+  },
+  "marketBenchmarks": {
+    "_note": "CPM ranges (USD), recommended minimum budgets by objective, and known peak periods per region.",
+    "NA": {
+      "auctionCPM": { "low": 10, "high": 15, "peakMultiplier": 1.5 },
+      "recommendedMinBudget": { "Awareness": 75000, "Consideration": 50000, "Conversions": 30000, "App Installs": 30000, "Lead Gen": 25000, "Engagement": 40000, "default": 50000 },
+      "peakPeriods": ["Super Bowl", "Black Friday", "Cyber Monday", "Holiday Season", "Back to School"]
+    },
+    "EUI": {
+      "auctionCPM": { "low": 7, "high": 12, "peakMultiplier": 1.3 },
+      "recommendedMinBudget": { "Awareness": 50000, "Consideration": 35000, "Conversions": 25000, "App Installs": 25000, "Lead Gen": 20000, "Engagement": 30000, "default": 35000 },
+      "peakPeriods": ["Black Friday", "Holiday Season", "Summer Sales"]
+    },
+    "LATAM": {
+      "auctionCPM": { "low": 3, "high": 6, "peakMultiplier": 1.2 },
+      "recommendedMinBudget": { "Awareness": 25000, "Consideration": 15000, "Conversions": 10000, "App Installs": 10000, "Lead Gen": 10000, "Engagement": 15000, "default": 20000 },
+      "peakPeriods": ["Black Friday", "Holiday Season", "Carnival"]
+    },
+    "APAC": {
+      "auctionCPM": { "low": 2, "high": 5, "peakMultiplier": 1.3 },
+      "recommendedMinBudget": { "Awareness": 20000, "Consideration": 15000, "Conversions": 10000, "App Installs": 10000, "Lead Gen": 10000, "Engagement": 15000, "default": 15000 },
+      "peakPeriods": ["Singles Day", "Lunar New Year", "Holiday Season", "Diwali"]
+    },
+    "Global": {
+      "auctionCPM": { "low": 5, "high": 10, "peakMultiplier": 1.3 },
+      "recommendedMinBudget": { "Awareness": 50000, "Consideration": 30000, "Conversions": 20000, "App Installs": 20000, "Lead Gen": 15000, "Engagement": 25000, "default": 30000 },
+      "peakPeriods": ["Black Friday", "Holiday Season"]
+    }
+  },
+  "focusedBudgetSplits": {
+    "_note": "Used when a single objective category is selected (not full-funnel). More aggressive allocation toward the selected goal.",
+    "Awareness":    { "upper": 80, "mid": 15, "lower": 5 },
+    "Consideration":{ "upper": 20, "mid": 65, "lower": 15 },
+    "Conversions":  { "upper": 10, "mid": 20, "lower": 70 },
+    "App Installs": { "upper": 10, "mid": 20, "lower": 70 },
+    "Lead Gen":     { "upper": 10, "mid": 30, "lower": 60 },
+    "Engagement":   { "upper": 30, "mid": 60, "lower": 10 }
+  },
+  "adFormatDetails": { "_gemini": true, "_note": "Fetch ad format descriptions from Gemini at runtime." },
+  "mediaIncentives": [
+    { "threshold": 25000,   "name": "Starter Bonus",    "value": "5% media credit",   "details": "Applied to first campaign" },
+    { "threshold": 50000,   "name": "Growth Accelerator","value": "10% media credit + priority support", "details": "Dedicated support queue access" },
+    { "threshold": 100000,  "name": "Scale Package",     "value": "12% media credit + dedicated CSM",   "details": "Named Customer Success Manager" },
+    { "threshold": 250000,  "name": "Premium Partner",   "value": "15% media credit + beta access + quarterly business reviews", "details": "Early access to new features" },
+    { "threshold": 500000,  "name": "Elite Partner",     "value": "18% media credit + custom solutions + executive sponsorship", "details": "Custom integrations available" },
+    { "threshold": 1000000, "name": "Strategic Partner",  "value": "20% media credit + full partnership benefits + co-marketing", "details": "Joint marketing opportunities" }
+  ],
+  "creativeSupport": [
+    { "threshold": 0,      "name": "Creative Center Access",    "description": "Free tools, templates, and best practices", "alwaysAvailable": true },
+    { "threshold": 0,      "name": "TikTok Creative Exchange",  "description": "Connect with creator network for content",  "alwaysAvailable": true },
+    { "threshold": 25000,  "name": "Creative Consultation",     "description": "1:1 session with creative strategist" },
+    { "threshold": 50000,  "name": "Creative Playbook",         "description": "Custom creative guidelines and templates" },
+    { "threshold": 100000, "name": "Dedicated Creative Partner", "description": "Ongoing creative strategy support" },
+    { "threshold": 150000, "name": "Creator Matching",           "description": "Curated creator recommendations and intros" },
+    { "threshold": 250000, "name": "Creative Production Credit", "description": "Subsidized creative production" },
+    { "threshold": 500000, "name": "Full Creative Services",     "description": "End-to-end creative production support" }
+  ],
+  "bestPractices": { "_gemini": true, "_note": "Fetch universal, byVertical, and byGoal best practices from Gemini at runtime." },
+  "measurementSetup": {
+    "Advanced":     ["Marketing Mix Modeling (MMM) integration", "Multi-Touch Attribution (MTA) setup", "TikTok Pixel with Events API (CAPI)", "Offline conversion tracking", "Advanced matching enabled"],
+    "Intermediate": ["TikTok Pixel implementation", "Conversion API (CAPI) setup", "Standard events configured", "Custom events for key actions"],
+    "Basic":        ["TikTok Pixel implementation", "Standard events (ViewContent, AddToCart, Purchase)", "TikTok Ads Manager reporting"]
+  },
+  "measurementRecommendations": {
+    "Intermediate": "Consider: MMM integration for full picture",
+    "Basic": "Recommended: Upgrade to CAPI for better matching"
+  },
+  "liftStudies": {
+    "brandLift":     { "name": "Brand Lift Study",     "description": "Measure awareness, consideration, intent", "minSpend": 50000 },
+    "conversionLift":{ "name": "Conversion Lift Study", "description": "Measure incremental conversions",        "minSpend": 100000 }
+  },
+  "kpis": {
+    "upperFunnel": ["Reach", "Frequency", "Video View Rate (VTR)", "Cost per 1000 Impressions (CPM)", "Brand Lift metrics"],
+    "midFunnel":   ["Click-Through Rate (CTR)", "Engagement Rate", "Cost per Click (CPC)", "Landing page views"],
+    "lowerFunnel": ["Conversion Rate (CVR)", "Cost per Acquisition (CPA)", "Return on Ad Spend (ROAS)", "Conversion volume"]
+  },
+  "reportingCadence": [
+    { "frequency": "Daily",         "focus": "Spend pacing, key metrics monitoring" },
+    { "frequency": "Weekly",        "focus": "Performance review, optimization actions" },
+    { "frequency": "Bi-weekly",     "focus": "Stakeholder update, strategic adjustments" },
+    { "frequency": "Monthly",       "focus": "Full performance report, insights & recommendations" },
+    { "frequency": "Post-campaign", "focus": "Wrap report with learnings & next steps" }
+  ],
+  "volatile": {
+    "_meta": {
+      "description": "Fields that change frequently. Update here first; contentPacks merges region overrides on top.",
+      "lastReviewed": "2026-01-28"
+    },
+    "liftStudies": {
+      "brandLift": {
+        "byRegion": {
+          "Global": { "minSpend": 150000, "minUniqueReach": 5500000, "maxQuestions": 4, "mandatoryQuestion": "Ad Recall", "leadTimeDays": 5 },
+          "NA":     { "minUniqueReach": 6000000 }
+        }
+      },
+      "conversionLift": {
+        "byRegion": {
+          "Global": { "sourceOfTruth": "Check Conversion Lift setup docs for current thresholds." }
+        }
+      }
+    },
+    "quotas": {
+      "_note": "Quotas are market-level monthly caps. They reset each calendar month and are subject to change.",
+      "byRegion": {
+        "NA":    { "brandLiftStudies": null, "sourceOfTruth": "Check with regional Measurement team for current NA monthly BLS quota." },
+        "EUI":   { "brandLiftStudies": null, "sourceOfTruth": "Check with regional Measurement team for current EUI monthly BLS quota." },
+        "LATAM": { "brandLiftStudies": null, "sourceOfTruth": "Check with regional Measurement team for current LATAM monthly BLS quota." },
+        "APAC":  { "brandLiftStudies": null, "sourceOfTruth": "Check with regional Measurement team for current APAC monthly BLS quota." }
+      }
+    },
+    "productAvailability": {
+      "_note": "Product names and availability vary by region. Null means not yet confirmed.",
+      "byRegion": {
+        "NA":    { "TopView": { "available": true }, "BrandedHashtagChallenge": { "available": true }, "BrandedEffect": { "available": true }, "TikTokShop": { "available": true } },
+        "EUI":   { "TopView": { "available": true }, "BrandedHashtagChallenge": { "available": true }, "BrandedEffect": { "available": true }, "TikTokShop": { "available": null, "sourceOfTruth": "Check regional product team." } },
+        "LATAM": { "TopView": { "available": null, "sourceOfTruth": "Check regional product team." }, "TikTokShop": { "available": null, "sourceOfTruth": "Check regional product team." } },
+        "APAC":  { "TopView": { "available": null, "sourceOfTruth": "Check regional product team." }, "TikTokShop": { "available": null, "sourceOfTruth": "Check regional product team." } }
+      }
+    },
+    "incentiveCaps": {
+      "_note": "Incentive eligibility and caps may change quarterly. Verify before pitching.",
+      "maxCreditPercent": 20,
+      "eligibilityRules": [
+        "New advertisers or advertisers returning after 90+ day lapse.",
+        "Credits apply to net-new spend only (not renewals of existing IO).",
+        "Credits expire 30 days after issuance unless otherwise noted."
+      ],
+      "sourceOfTruth": "Check current incentive grid from Sales Ops / regional incentive tracker."
+    },
+    "platformStats": {
+      "_note": "Override top-level platformStats here when newer figures are available.",
+      "monthlyActiveUsers": "1B+",
+      "avgDailyTimeSpent": "95 minutes",
+      "sourceOfTruth": "TikTok Newsroom or latest earnings release."
+    }
+  },
+  "contentPacks": {
+    "Global": {
+      "liftStudies": {
+        "brandLift": {
+          "name": "Brand Lift Study",
+          "minSpend": 150000,
+          "minUniqueReach": 5500000,
+          "notes": [
+            "Ad Recall is mandatory (max 4 questions total).",
+            "Provide campaign IDs + approved questions 5 business days before launch."
+          ]
+        }
+      }
+    },
+    "NA": {
+      "guardrails": [
+        { "id": "sponsorship_availability", "appliesTo": ["pitch","mediaPlan"], "severity": "warning", "text": "Sponsorship solutions are subject to availability and approval. Do not pitch unconfirmed packages." }
+      ],
+      "liftStudies": { "brandLift": { "minUniqueReach": 6000000 } }
+    },
+    "EUI":   {},
+    "LATAM": {},
+    "APAC":  {}
+  }
+}

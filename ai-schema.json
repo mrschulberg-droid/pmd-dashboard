@@ -1,0 +1,99 @@
+{
+  "_doc": "Schema contract v3. Adds strategic context, pre-filtered ad formats, and focused funnel support.",
+
+  "aiRequest": {
+    "_note": "The app builds this object from formData + deterministic results + strategic context.",
+    "client": {
+      "name": "string",
+      "vertical": "string",
+      "market": "string",
+      "regionPack": "string — NA | EUI | LATAM | APAC | Global"
+    },
+    "campaign": {
+      "goals": ["string"],
+      "scenarios": ["string"],
+      "budget": "number (USD) — actual or estimated from market benchmarks",
+      "budgetProvided": "boolean — true if user entered a budget, false if system estimated it",
+      "startDate": "string (YYYY-MM-DD)",
+      "endDate": "string (YYYY-MM-DD)",
+      "channels": ["string"]
+    },
+    "challenge": {
+      "primary": "string",
+      "context": "string"
+    },
+    "audience": {
+      "ages": ["string"],
+      "description": "string"
+    },
+    "product": {
+      "name": "string",
+      "sellingPoints": "string",
+      "pricePoint": "string"
+    },
+    "creative": {
+      "status": ["string"],
+      "unlockedSupport": ["string"]
+    },
+    "measurement": {
+      "autoRecommended": [{
+        "type": "string",
+        "name": "string",
+        "eligible": "boolean",
+        "rationale": "string"
+      }]
+    },
+    "deterministic": {
+      "budgetSplit": { "upper": "number (%)", "mid": "number (%)", "lower": "number (%)" },
+      "funnelStrategy": "string — 'focused' (single objective) or 'full_funnel' (mixed objectives)",
+      "adFormats": ["string — ONLY these formats should be recommended (pre-filtered by spend thresholds)"],
+      "excludedFormats": [{ "format": "string", "minSpend": "number", "regionPack": "string" }],
+      "qualifiedIncentives": [{ "name": "string", "value": "string" }],
+      "qualifiedCreativeSupport": [{ "name": "string", "description": "string" }]
+    },
+    "strategicContext": {
+      "budgetAdvisory": {
+        "budgetProvided": "boolean",
+        "isBelowRecommended": "boolean",
+        "recommendedRange": { "min": "number (USD)", "max": "number (USD)" },
+        "isPeakPeriod": "boolean",
+        "estimatedCPMRange": { "low": "number", "high": "number" }
+      }
+    }
+  },
+
+  "pipeline": {
+    "_note": "Two-phase AI pipeline",
+    "phase1_research": {
+      "tool": "web_search",
+      "purpose": "Gather real-time info about the client/brand",
+      "output": "Free text summary of brand, products, audience, competitors, recent activity"
+    },
+    "phase2_generate": {
+      "tools": ["file_search (TikTok docs)"],
+      "input": "Client research + campaign brief + strategic context",
+      "output": "JSON with 6 free-form markdown sections"
+    }
+  },
+
+  "aiResponse": {
+    "_note": "Each value is a markdown-formatted string. The app renders it as HTML.",
+    "pitch": "string — Full sales pitch narrative. When budget not provided, includes strategic budget recommendation.",
+    "funnel": "string — Objective-aligned strategy (focused or full-funnel based on deterministic.funnelStrategy)",
+    "mediaPlan": "string — Ad format recommendations using ONLY deterministic.adFormats, plus campaign phasing",
+    "bestPractices": "string — Tailored tips, vertical advice, budget efficiency guidance, mistakes to avoid",
+    "creative": "string — Creative strategy, content pillars, format recommendations",
+    "nextSteps": "string — Numbered action items; includes budget confirmation step when budget not provided"
+  },
+
+  "tabOwnership": {
+    "pitch": "AI — full narrative, grounded in client research + strategic context",
+    "funnel": "AI — objective-aligned strategy with deterministic budget splits referenced",
+    "budgetAdvisory": "APP — deterministic (market benchmarks, CPM ranges, recommended ranges)",
+    "measurement": "APP — fully deterministic (thresholds, eligibility)",
+    "mediaPlan": "AI — format rationale using deterministic pre-filtered formats",
+    "incentives": "APP — fully deterministic (tier matching)",
+    "creative": "AI — creative strategy and content pillars",
+    "bestPractices": "AI — tailored recommendations"
+  }
+}
